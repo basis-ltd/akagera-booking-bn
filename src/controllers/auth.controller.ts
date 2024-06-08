@@ -1,7 +1,6 @@
 import { Response, Request, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { AuthService } from '../services/auth.service';
-import { validateEmail } from '../helpers/validations.helper';
 import { UserService } from '../services/user.service';
 import { ConflictError } from '../helpers/errors.helper';
 
@@ -23,7 +22,7 @@ export const AuthController = {
       const userExists = await userService.findUserByEmail(email);
 
       if (userExists) {
-        throw new ConflictError('User already exists', 'Conflict', {
+        throw new ConflictError('User already exists', {
           id: userExists.id,
         });
       }

@@ -10,10 +10,10 @@ const router = Router();
  */
 
 // SIGNUP
-router.post('/signup', errorHandler, AuthController.signup);
+router.post('/signup', AuthController.signup);
 
 // LOGIN
-router.post('/login', errorHandler, AuthController.login);
+router.post('/login', AuthController.login);
 
 // EXPORT ROUTER
 export default router;

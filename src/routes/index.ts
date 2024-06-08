@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import authRoutes from './auth.routes';
+import activityRoutes from './activity.routes';
 
 // CREATE ROUTER
 const router = Router();
@@ -10,6 +11,9 @@ const router = Router();
 
 // AUTH
 router.use('/auth', authRoutes);
+
+// ACTIVITY
+router.use('/activities', activityRoutes);
 
 // EXPORT ROUTER
 export default router;
