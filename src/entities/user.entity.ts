@@ -1,23 +1,17 @@
 import { IsEmail, IsNotEmpty } from 'class-validator';
 import {
   Column,
-  CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
   Unique,
-  UpdateDateColumn,
 } from 'typeorm';
 import { ROLES } from '../constants/auth.constant';
 import { COUNTRIES } from '../constants/countries.constant';
 import moment from 'moment';
+import { BaseEntity } from './base.entity';
 
 @Entity()
 @Unique(['phone', 'email'])
-export class User {
-  // ID
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
-
+export class User extends BaseEntity {
   // EMAIL
   @Column({
     name: 'email',
@@ -105,21 +99,4 @@ export class User {
     enum: ['M', 'F'],
   })
   gender!: string;
-
-  // CREATED AT
-  @CreateDateColumn({
-    name: 'created_at',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdAt!: Date;
-
-  // UPDATED AT
-  @UpdateDateColumn({
-    name: 'updated_at',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  updatedAt!: Date;
 }
