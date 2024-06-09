@@ -1,5 +1,6 @@
-import { Column, Entity, Unique } from 'typeorm';
+import { Column, Entity, OneToMany, Unique } from 'typeorm';
 import { BaseEntity } from './base.entity';
+import { ActivityRate } from './activityRate';
 
 @Entity()
 @Unique(['name', 'description', 'disclaimer'])
@@ -15,4 +16,8 @@ export class Activity extends BaseEntity {
   // DISCLAIMER
   @Column({ name: 'disclaimer', type: 'text', nullable: true })
   disclaimer: string;
+
+  // ACTIVITY RATES
+  @OneToMany(() => ActivityRate, (activityRate) => activityRate.activity)
+  activityRates: ActivityRate[];
 }

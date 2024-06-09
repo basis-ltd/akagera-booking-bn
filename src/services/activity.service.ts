@@ -1,9 +1,15 @@
 import { AppDataSource } from '../data-source';
 import { DeleteResult, Repository } from 'typeorm';
 import { Activity } from '../entities/activity.entity';
-import { ConflictError, NotFoundError, ValidationError } from '../helpers/errors.helper';
+import {
+  ConflictError,
+  NotFoundError,
+  ValidationError,
+} from '../helpers/errors.helper';
 import { Pagination, getPagingData } from '../helpers/pagination.helper';
 import { ActivitiesPagination } from '../types/activity.types';
+import { UUID } from 'crypto';
+import { validateUuid } from '../helpers/validations.helper';
 
 export class ActivityService {
   private activityRepository: Repository<Activity>;
@@ -33,9 +39,12 @@ export class ActivityService {
     });
 
     if (activityExists) {
-      throw new ConflictError('Activity with name and description already exists', {
-        id: activityExists.id,
-      });
+      throw new ConflictError(
+        'Activity with name and description already exists',
+        {
+          id: activityExists.id,
+        }
+      );
     }
 
     const newActivity = this.activityRepository.create({
@@ -54,11 +63,19 @@ export class ActivityService {
     description,
     disclaimer,
   }: {
-    id: string;
+    id: UUID;
     name: string;
     description: string;
     disclaimer: string;
   }): Promise<Activity> {
+
+    // VALIDATE UUID
+    const { error } = validateUuid(id);
+
+    if (error) {
+      throw new ValidationError('Invalid activity ID');
+    }
+
     // UPDATE ACTIVITY
     const updatedActivity = await this.activityRepository.update(
       { id },
@@ -74,7 +91,16 @@ export class ActivityService {
   }
 
   // FIND ACTIVITY BY ID
-  async findActivityById(id: string): Promise<Activity> {
+  async findActivityById(id: UUID): Promise<Activity> {
+
+    // VALIDATE UUID
+    const { error } = validateUuid(id);
+
+    if (error) {
+      throw new ValidationError('Invalid activity ID');
+    }
+
+    // CHECK IF ACTIVITY EXISTS
     const activityExists = await this.activityRepository.findOne({
       where: { id },
     });
@@ -88,8 +114,8 @@ export class ActivityService {
 
   // FETCH ACTIVITIES
   async fetchActivities({
-    take = 10,
-    skip = 0,
+    take,
+    skip,
     condition = undefined,
   }: {
     take?: number;
@@ -106,7 +132,14 @@ export class ActivityService {
   }
 
   // DELETE ACTIVITY
-  async deleteActivity(id: string): Promise<DeleteResult> {
+  async deleteActivity(id: UUID): Promise<DeleteResult> {
+    // VALIDATE UUID
+    const { error } = validateUuid(id);
+
+    if (error) {
+      throw new ValidationError('Invalid activity ID');
+    }
+
     // FIND ACTIVITY
     const activityExists = await this.findActivityById(id);
 

@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { ActivityService } from "../services/activity.service";
+import { UUID } from "crypto";
 
 // INITIALIZE ACTIVITY SERVICE
 const activityService = new ActivityService();
@@ -36,7 +37,7 @@ export const ActivityController = {
 
             // UPDATE ACTIVITY
             const updatedActivity = await activityService.updateActivity({
-                id,
+                id: id as UUID,
                 name,
                 description,
                 disclaimer,
@@ -55,8 +56,16 @@ export const ActivityController = {
     // FETCH ACTIVITIES
     async fetchActivities(req: Request, res: Response, next: NextFunction) {
         try {
+
+            const { take = 10, skip = 0 } = req.query;
+            const condition: object = {};
+
           // FETCH ACTIVITIES
-          const activities = await activityService.fetchActivities({});
+          const activities = await activityService.fetchActivities({
+            take: Number(take),
+            skip: Number(skip),
+            condition,
+          });
 
           // RETURN RESPONSE
           return res.status(200).json({
@@ -74,7 +83,7 @@ export const ActivityController = {
             const { id } = req.params;
 
             // DELETE ACTIVITY
-            await activityService.deleteActivity(id);
+            await activityService.deleteActivity(id as UUID);
 
             // RETURN RESPONSE
             return res.status(204).json({
@@ -91,7 +100,7 @@ export const ActivityController = {
             const { id } = req.params;
 
             // FETCH ACTIVITY BY ID
-            const activity = await activityService.findActivityById(id);
+            const activity = await activityService.findActivityById(id as UUID);
 
             // RETURN RESPONSE
             return res.status(200).json({
