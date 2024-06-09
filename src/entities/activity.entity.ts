@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, Unique } from 'typeorm';
 import { BaseEntity } from './base.entity';
-import { ActivityRate } from './activityRate';
+import { ActivityRate } from './activityRate.entity';
+import { ActivitySchedule } from './activitySchedule.entity';
 
 @Entity()
 @Unique(['name', 'description', 'disclaimer'])
@@ -20,4 +21,8 @@ export class Activity extends BaseEntity {
   // ACTIVITY RATES
   @OneToMany(() => ActivityRate, (activityRate) => activityRate.activity)
   activityRates: ActivityRate[];
+
+  // ACTIVITY SCHEDULES
+  @OneToMany(() => ActivitySchedule, (activitySchedule) => activitySchedule.activity)
+  activitySchedules: ActivitySchedule[];
 }

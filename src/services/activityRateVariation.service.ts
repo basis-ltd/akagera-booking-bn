@@ -3,7 +3,7 @@ import { AppDataSource } from '../data-source';
 import { ActivityRateVariation } from '../entities/activityRateVariation.entity';
 import { NotFoundError, ValidationError } from '../helpers/errors.helper';
 import { validateUuid } from '../helpers/validations.helper';
-import { ActivityRate } from '../entities/activityRate';
+import { ActivityRate } from '../entities/activityRate.entity';
 import { UUID } from 'crypto';
 import { ActivityRateVariationsPagination } from '../types/activityRateVariation.types';
 import { getPagingData } from '../helpers/pagination.helper';

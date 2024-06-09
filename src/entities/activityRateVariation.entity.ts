@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { BaseEntity } from "./base.entity";
-import { ActivityRate } from "./activityRate";
+import { ActivityRate } from "./activityRate.entity";
 
 @Entity()
 export class ActivityRateVariation extends BaseEntity {

@@ -1,6 +1,7 @@
 import Joi from 'joi';
 import { COUNTRIES } from '../constants/countries.constant';
 import { ValidationError } from './errors.helper';
+import moment, { Moment } from 'moment';
 
 // VALIDATE EMAIL
 export const validateEmail = (email: string) => {
@@ -34,4 +35,33 @@ export const validateUuid = (uuid: string) => {
   });
 
   return schema.validate({ uuid });
+};
+
+// VALIDATE START AND END TIME
+export const validateStartAndEndTime = (
+  startTime: string | Moment,
+  endTime: string | Moment
+) => {
+  // IF START TIME IS NOT PROVIDED
+  if (!startTime) {
+    throw new ValidationError('Start Time is required');
+  }
+
+  // IF START TIME IS INVALID
+  if (!moment(startTime, 'HH:mm:ss', true).isValid()) {
+    throw new ValidationError('Invalid Start Time');
+  }
+
+  // VALIDATE END TIME IF PROVIDED
+  if (endTime) {
+    // IF END TIME IS INVALID
+    if (!moment(endTime, 'HH:mm:ss', true).isValid()) {
+      throw new ValidationError('Invalid End Time');
+    }
+
+    // IF END TIME IS BEFORE START TIME
+    if (moment(endTime, 'HH:mm:ss').isBefore(moment(startTime, 'HH:mm:ss'))) {
+      throw new ValidationError('End Time cannot be before Start Time');
+    }
+  }
 };

@@ -1,5 +1,5 @@
 import { AppDataSource } from '../data-source';
-import { ActivityRate } from '../entities/activityRate';
+import { ActivityRate } from '../entities/activityRate.entity';
 import { Repository } from 'typeorm';
 import { NotFoundError, ValidationError } from '../helpers/errors.helper';
 import { validateUuid } from '../helpers/validations.helper';
