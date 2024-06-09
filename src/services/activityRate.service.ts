@@ -77,7 +77,7 @@ export class ActivityRateService {
     skip?: number;
     condition?: object | undefined;
   }): Promise<ActivityRatesPagination> {
-    const activityRates = await this.activityRateRepository.find({
+    const activityRates = await this.activityRateRepository.findAndCount({
       take,
       skip,
       where: condition,
