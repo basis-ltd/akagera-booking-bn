@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
 import { ConflictError } from '../helpers/errors.helper';
+import moment from 'moment';
 
 // INITIALIZE USER AND AUTH SERVICES
 const authService = new AuthService();

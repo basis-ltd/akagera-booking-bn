@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { COUNTRIES } from '../constants/countries.constant';
+import { COUNTRIES } from '../constants/countries.constants';
 import { ValidationError } from './errors.helper';
 import moment, { Moment } from 'moment';
 

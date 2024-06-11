@@ -4,6 +4,8 @@ import activityRoutes from './activity.routes';
 import activityRateRoutes from './activityRate.routes';
 import activityRateVariationRoutes from './activityRateVariation.routes';
 import activityScheduleRoutes from './activitySchedule.routes';
+import bookingRoutes from './booking.routes';
+import bookingActivityRoutes from './bookingActivity.routes';
 
 // CREATE ROUTER
 const router = Router();
@@ -26,6 +28,12 @@ router.use('/activity-rate-variations', activityRateVariationRoutes);
 
 // ACTIVITY SCHEDULE
 router.use('/activity-schedules', activityScheduleRoutes);
+
+// BOOKING
+router.use('/bookings', bookingRoutes);
+
+// BOOKING ACTIVITY
+router.use('/booking-activities', bookingActivityRoutes);
 
 // EXPORT ROUTER
 export default router;

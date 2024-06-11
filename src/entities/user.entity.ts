@@ -2,12 +2,14 @@ import { IsEmail, IsNotEmpty } from 'class-validator';
 import {
   Column,
   Entity,
+  OneToMany,
   Unique,
 } from 'typeorm';
-import { ROLES } from '../constants/auth.constant';
-import { COUNTRIES } from '../constants/countries.constant';
+import { ROLES } from '../constants/auth.constants';
+import { COUNTRIES } from '../constants/countries.constants';
 import moment from 'moment';
 import { BaseEntity } from './base.entity';
+import { Booking } from './booking.entity';
 
 @Entity()
 @Unique(['phone', 'email'])
@@ -99,4 +101,8 @@ export class User extends BaseEntity {
     enum: ['M', 'F'],
   })
   gender!: string;
+
+  // BOOKINGS APPROVED
+  @OneToMany(() => Booking, (booking) => booking.approvedByUser)
+  bookingsApproved: Booking[];
 }
