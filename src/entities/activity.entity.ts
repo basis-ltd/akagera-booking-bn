@@ -1,12 +1,12 @@
 import { Column, Entity, OneToMany, Unique } from 'typeorm';
-import { BaseEntity } from './base.entity';
+import { AbstractEntity } from './base.entity';
 import { ActivityRate } from './activityRate.entity';
 import { ActivitySchedule } from './activitySchedule.entity';
 import { BookingActivity } from './bookingActivity.entity';
 
 @Entity()
 @Unique(['name', 'description', 'disclaimer'])
-export class Activity extends BaseEntity {
+export class Activity extends AbstractEntity {
   // NAME
   @Column({ name: 'name', type: 'varchar', length: 255, nullable: false })
   name!: string;

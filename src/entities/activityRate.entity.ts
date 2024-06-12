@@ -1,11 +1,11 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
-import { BaseEntity } from './base.entity';
+import { AbstractEntity } from './base.entity';
 import { Activity } from './activity.entity';
 import { UUID } from 'crypto';
 import { ActivityRateVariation } from './activityRateVariation.entity';
 
 @Entity()
-export class ActivityRate extends BaseEntity {
+export class ActivityRate extends AbstractEntity {
   // NAME
   @Column({
     name: 'name',

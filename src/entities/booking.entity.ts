@@ -1,12 +1,13 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { BOOKING_STATUS } from '../constants/booking.constants';
 import { UUID } from 'crypto';
 import moment from 'moment';
-import { BaseEntity } from './base.entity';
+import { AbstractEntity } from './base.entity';
 import { User } from './user.entity';
+import { BookingPerson } from './bookingPerson.entity';
 
 @Entity()
-export class Booking extends BaseEntity {
+export class Booking extends AbstractEntity {
   // START DATE
   @Column({ name: 'start_date', type: 'timestamp', nullable: false })
   startDate!: Date;
@@ -115,5 +116,9 @@ export class Booking extends BaseEntity {
   // APPROVED BY
   @ManyToOne(() => User, (user) => user.bookingsApproved)
   approvedByUser: User;
+
+  // BOOKING PEOPLE
+  @OneToMany(() => BookingPerson, (bookingPerson) => bookingPerson.booking)
+  bookingPeople: BookingPerson[];
 
 }

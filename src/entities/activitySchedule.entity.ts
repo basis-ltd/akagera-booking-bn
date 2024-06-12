@@ -1,9 +1,9 @@
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
-import { BaseEntity } from "./base.entity";
+import { AbstractEntity } from "./base.entity";
 import { Activity } from "./activity.entity";
 
 @Entity()
-export class ActivitySchedule extends BaseEntity {
+export class ActivitySchedule extends AbstractEntity {
 
     // START TIME
     @Column({

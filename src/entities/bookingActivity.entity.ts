@@ -1,11 +1,11 @@
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
-import { BaseEntity } from "./base.entity";
+import { AbstractEntity } from "./base.entity";
 import { UUID } from "crypto";
 import { Activity } from "./activity.entity";
 
 @Entity()
 
-export class BookingActivity extends BaseEntity {
+export class BookingActivity extends AbstractEntity {
 
     // START TIME
     @Column({ name: 'start_time', type: 'timestamp', nullable: false })

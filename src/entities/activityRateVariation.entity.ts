@@ -1,9 +1,9 @@
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
-import { BaseEntity } from "./base.entity";
+import { AbstractEntity } from "./base.entity";
 import { ActivityRate } from "./activityRate.entity";
 
 @Entity()
-export class ActivityRateVariation extends BaseEntity {
+export class ActivityRateVariation extends AbstractEntity {
   // NAME
   @Column({ name: 'name', type: 'varchar', length: 255, nullable: false })
   name!: string;
