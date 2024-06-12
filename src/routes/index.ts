@@ -8,6 +8,7 @@ import bookingRoutes from './booking.routes';
 import bookingActivityRoutes from './bookingActivity.routes';
 import bookingPersonRoutes from './bookingPerson.routes';
 import bookingVehicleRoutes from './bookingVehicle.routes';
+import serviceRoutes from './service.routes';
 
 // CREATE ROUTER
 const router = Router();
@@ -42,6 +43,9 @@ router.use('/booking-people', bookingPersonRoutes);
 
 // BOOKING VEHICLE
 router.use('/booking-vehicles', bookingVehicleRoutes);
+
+// SERVICE
+router.use('/services', serviceRoutes);
 
 // EXPORT ROUTER
 export default router;
