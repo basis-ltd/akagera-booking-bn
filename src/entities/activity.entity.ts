@@ -1,8 +1,9 @@
-import { Column, Entity, OneToMany, Unique } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, Unique } from 'typeorm';
 import { AbstractEntity } from './base.entity';
 import { ActivityRate } from './activityRate.entity';
 import { ActivitySchedule } from './activitySchedule.entity';
 import { BookingActivity } from './bookingActivity.entity';
+import { Service } from './service.entity';
 
 @Entity()
 @Unique(['name', 'description', 'disclaimer'])
@@ -23,6 +24,10 @@ export class Activity extends AbstractEntity {
   @OneToMany(() => ActivityRate, (activityRate) => activityRate.activity)
   activityRates: ActivityRate[];
 
+  // SERVICE ID
+  @Column({ name: 'service_id', type: 'uuid', nullable: false })
+  serviceId!: string;
+
   // ACTIVITY SCHEDULES
   @OneToMany(
     () => ActivitySchedule,
@@ -36,4 +41,9 @@ export class Activity extends AbstractEntity {
     (bookingActivity) => bookingActivity.activity
   )
   bookingActivities: BookingActivity[];
+
+  // SERVICE
+  @ManyToOne(() => Service, (service) => service.activities)
+  @JoinColumn({ name: 'service_id' })
+  service: Service;
 }

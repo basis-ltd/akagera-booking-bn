@@ -10,13 +10,14 @@ export const ActivityController = {
     // CREATE ACTIVITY
     async createActivity(req: Request, res: Response, next: NextFunction) {
         try {
-            const { name, description, disclaimer } = req.body;
+            const { name, description, disclaimer, serviceId } = req.body;
 
             // CREATE ACTIVITY
             const newActivity = await activityService.createActivity({
                 name,
                 description,
                 disclaimer,
+                serviceId,
             });
 
             // RETURN RESPONSE
@@ -33,7 +34,7 @@ export const ActivityController = {
     async updateActivity(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
-            const { name, description, disclaimer } = req.body;
+            const { name, description, disclaimer, serviceId } = req.body;
 
             // UPDATE ACTIVITY
             const updatedActivity = await activityService.updateActivity({
@@ -41,6 +42,7 @@ export const ActivityController = {
                 name,
                 description,
                 disclaimer,
+                serviceId,
             });
 
             // RETURN RESPONSE
@@ -56,9 +58,13 @@ export const ActivityController = {
     // FETCH ACTIVITIES
     async fetchActivities(req: Request, res: Response, next: NextFunction) {
         try {
+          const { take = 10, skip = 0, serviceId } = req.query;
+          let condition: object = {};
 
-            const { take = 10, skip = 0 } = req.query;
-            const condition: object = {};
+          // ADD SERVICE ID TO CONDITION
+          if (serviceId) {
+            condition = { ...condition, serviceId };
+          }
 
           // FETCH ACTIVITIES
           const activities = await activityService.fetchActivities({
@@ -100,7 +106,7 @@ export const ActivityController = {
             const { id } = req.params;
 
             // FETCH ACTIVITY BY ID
-            const activity = await activityService.findActivityById(id as UUID);
+            const activity = await activityService.getActivityDetails(id as UUID);
 
             // RETURN RESPONSE
             return res.status(200).json({
