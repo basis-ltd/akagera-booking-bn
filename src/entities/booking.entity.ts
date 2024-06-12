@@ -5,6 +5,7 @@ import moment from 'moment';
 import { AbstractEntity } from './base.entity';
 import { User } from './user.entity';
 import { BookingPerson } from './bookingPerson.entity';
+import { BookingVehicle } from './bookingVehicle.entity';
 
 @Entity()
 export class Booking extends AbstractEntity {
@@ -120,5 +121,9 @@ export class Booking extends AbstractEntity {
   // BOOKING PEOPLE
   @OneToMany(() => BookingPerson, (bookingPerson) => bookingPerson.booking)
   bookingPeople: BookingPerson[];
+
+  // BOOKING VEHICLES
+  @OneToMany(() => BookingVehicle, (bookingVehicle) => bookingVehicle.booking)
+  bookingVehicles: BookingVehicle[];
 
 }
