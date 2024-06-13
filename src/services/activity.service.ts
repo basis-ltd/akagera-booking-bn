@@ -188,7 +188,12 @@ export class ActivityService {
       where: condition,
       relations: {
         service: true,
-      }
+        activityRates: {
+          activityRateVariations: true,
+        },
+        activitySchedules: true,
+      },
+      order: { name: 'ASC' },
     });
 
     return getPagingData(activities, take, skip);

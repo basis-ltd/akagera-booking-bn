@@ -107,6 +107,28 @@ export class ActivityRateService {
     return activityRate;
   }
 
+  // GET ACTIVITY DETAILS BY ID
+  async getActivityRateDetails(id: UUID): Promise<ActivityRate> {
+    // VALIDATE UUID
+    const { error } = validateUuid(id);
+
+    if (error) {
+      throw new ValidationError('Invalid activity rate ID');
+    }
+
+    // CHECK IF ACTIVITY RATE EXISTS
+    const activityRate = await this.activityRateRepository.findOne({
+      where: { id },
+      relations: ['activity', 'activityRateVariations'],
+    });
+
+    if (!activityRate) {
+      throw new NotFoundError('Activity rate not found');
+    }
+
+    return activityRate;
+  }
+
   // UPDATE ACTIVITY RATE
   async updateActivityRate({
     id,

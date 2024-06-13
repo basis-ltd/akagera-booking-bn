@@ -72,7 +72,7 @@ export const ActivityRateController = {
       const { id } = req.params;
 
       // FETCH ACTIVITY RATE
-      const activityRate = await activityRateService.findActivityRateById(
+      const activityRate = await activityRateService.getActivityRateDetails(
         id as UUID
       );
 
