@@ -27,11 +27,13 @@ export class BookingActivityService {
     endTime,
     bookingId,
     activityId,
+    numberOfPeople
   }: {
     startTime: Date;
     endTime?: Date;
     bookingId: UUID;
     activityId: UUID;
+    numberOfPeople: number;
   }): Promise<BookingActivity> {
     // IF NO BOOKING ID
     if (!bookingId) {
@@ -79,6 +81,7 @@ export class BookingActivityService {
       endTime,
       bookingId,
       activityId,
+      numberOfPeople
     });
 
     // SAVE BOOKING ACTIVITY
@@ -184,14 +187,14 @@ export class BookingActivityService {
     id,
     startTime,
     endTime,
-    bookingId,
     activityId,
+    numberOfPeople
   }: {
     id: UUID;
     startTime: Date;
     endTime?: Date;
-    bookingId: UUID;
     activityId: UUID;
+    numberOfPeople: number;
   }): Promise<BookingActivity> {
     // VALIDATE BOOKING ACTIVITY ID
     const { error } = validateUuid(id);
@@ -235,6 +238,7 @@ export class BookingActivityService {
       {
         startTime: startTime && moment(startTime).format(),
         endTime: endTime && moment(endTime).format(),
+        numberOfPeople
       }
     );
 

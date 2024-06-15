@@ -188,9 +188,7 @@ export class ActivityService {
       where: condition,
       relations: {
         service: true,
-        activityRates: {
-          activityRateVariations: true,
-        },
+        activityRates: true,
         activitySchedules: true,
       },
       order: { name: 'ASC' },

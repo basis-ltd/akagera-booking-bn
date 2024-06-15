@@ -3,6 +3,7 @@ import { AbstractEntity } from './base.entity';
 import { Activity } from './activity.entity';
 import { UUID } from 'crypto';
 import { ActivityRateVariation } from './activityRateVariation.entity';
+import { AGE_RANGE } from '../constants/booking.constants';
 
 @Entity()
 export class ActivityRate extends AbstractEntity {
@@ -58,6 +59,16 @@ export class ActivityRate extends AbstractEntity {
     nullable: false,
   })
   activityId!: UUID;
+
+  // ANGE RANGE
+  @Column({
+    name: 'age_range',
+    type: 'enum',
+    enum: Object.values(AGE_RANGE),
+    nullable: true,
+    default: AGE_RANGE.ADULTS,
+  })
+  ageRange: string;
 
   // ACTIVITY
   @ManyToOne(() => Activity, (activity) => activity.activityRates)

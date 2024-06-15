@@ -9,7 +9,7 @@ export const BookingActivityController = {
   // CREATE BOOKING ACTIVITY
   async createBookingActivity(req: Request, res: Response, next: NextFunction) {
     try {
-      const { startTime, endTime, bookingId, activityId } = req.body;
+      const { startTime, endTime, bookingId, activityId, numberOfPeople = 1 } = req.body;
 
       // CREATE BOOKING ACTIVITY
       const newBookingActivity =
@@ -18,6 +18,7 @@ export const BookingActivityController = {
           endTime,
           bookingId,
           activityId,
+          numberOfPeople,
         });
 
       // RETURN RESPONSE
@@ -107,7 +108,7 @@ export const BookingActivityController = {
   async updateBookingActivity(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { startTime, endTime, bookingId, activityId } = req.body;
+      const { startTime, endTime, activityId, numberOfPeople } = req.body;
 
       // UPDATE BOOKING ACTIVITY
       const updatedBookingActivity =
@@ -115,8 +116,8 @@ export const BookingActivityController = {
           id: id as UUID,
           startTime,
           endTime,
-          bookingId,
           activityId,
+          numberOfPeople,
         });
 
       // RETURN RESPONSE
