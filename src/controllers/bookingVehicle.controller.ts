@@ -39,7 +39,11 @@ export const BookingVehicleController = {
         take = 10,
         skip = 0,
       } = req.query;
-      let condition: object = {};
+      let condition: object = {
+        bookingId,
+        plateNumber,
+        vehicleType,
+      };
       // FETCH BOOKING VEHICLES
       const bookingVehicles = await bookingVehicleService.fetchBookingVehicles({
         condition,

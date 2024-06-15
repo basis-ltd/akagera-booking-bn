@@ -112,6 +112,10 @@ export class BookingPersonService {
       order: { updatedAt: 'DESC' },
     });
 
+    if (!bookingPeople[0].length) {
+      throw new NotFoundError('Booking people not found');
+    }
+
     return getPagingData(bookingPeople, take, skip);
   }
 

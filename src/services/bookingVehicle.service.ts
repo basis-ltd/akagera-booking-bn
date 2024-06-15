@@ -126,6 +126,10 @@ export class BookingVehicleService {
       },
     });
 
+    if (!bookingVehicles[0].length) {
+      throw new NotFoundError('No booking vehicles found');
+    }
+
     return getPagingData(bookingVehicles, take, skip);
   }
 

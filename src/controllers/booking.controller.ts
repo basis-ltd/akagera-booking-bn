@@ -58,6 +58,8 @@ export const BookingController = {
         referenceId,
         createdBy,
         approvedBy,
+        approvedAt,
+        status
       } = req.query;
       let condition: object = {
         startDate: startDate && moment(String(startDate)).format('YYYY-MM-DD'),
@@ -65,6 +67,8 @@ export const BookingController = {
         referenceId,
         createdBy,
         approvedBy,
+        approvedAt,
+        status
       };
 
       // FETCH BOOKINGS
@@ -132,6 +136,20 @@ export const BookingController = {
   async getBookingById(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      const { referenceId } = req.query;
+
+      if (referenceId) {
+        // FETCH BOOKING
+        const booking = await bookingService.getBookingDetailsByReferenceId(
+          String(referenceId)
+        );
+
+        // RETURN RESPONSE
+        return res.status(200).json({
+          message: 'Booking fetched successfully!',
+          data: booking,
+        });
+      }
 
       // FETCH BOOKING
       const booking = await bookingService.getBookingDetails(id as UUID);
