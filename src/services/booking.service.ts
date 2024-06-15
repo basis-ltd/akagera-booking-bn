@@ -202,6 +202,7 @@ export class BookingService {
         referenceId: true,
         createdAt: true,
         updatedAt: true,
+        createdBy: true,
         approvedByUser: {
           id: true,
           name: true,
