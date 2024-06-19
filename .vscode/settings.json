@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/5b8dd76b-3f6b-4dca-9189-12c14569ddf3/resourceGroups/basis/providers/Microsoft.Web/sites/akagera-booking",
+    "appService.deploySubpath": "."
+}

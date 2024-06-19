@@ -4,7 +4,8 @@
   "description": "The API for Akagera Booking and Schedule Management application",
   "main": "src/server.ts",
   "scripts": {
-    "dev": "nodemon --exec ts-node ./src/server.ts"
+    "dev": "nodemon --exec ts-node ./src/server.ts",
+    "start": "tsc && node ./dist/server.js"
   },
   "keywords": [
     "booking",
