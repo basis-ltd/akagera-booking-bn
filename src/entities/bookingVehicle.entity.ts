@@ -2,6 +2,7 @@ import { UUID } from 'crypto';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { AbstractEntity } from './base.entity';
 import { Booking } from './booking.entity';
+import { COUNTRIES } from '../constants/countries.constants';
 
 @Entity()
 export class BookingVehicle extends AbstractEntity {
@@ -26,6 +27,16 @@ export class BookingVehicle extends AbstractEntity {
     nullable: false,
   })
   vehicleType!: string;
+
+  // REGISTRATION COUNTRY
+  @Column({
+    name: 'registration_country',
+    type: 'enum',
+    nullable: false,
+    enum: COUNTRIES.map((country) => country.code),
+    default: 'RW',
+  })
+  registrationCountry!: string;
 
   // BOOKING
   @ManyToOne(() => Booking, (booking) => booking.bookingVehicles)

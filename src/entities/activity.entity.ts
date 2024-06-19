@@ -21,7 +21,9 @@ export class Activity extends AbstractEntity {
   disclaimer: string;
 
   // ACTIVITY RATES
-  @OneToMany(() => ActivityRate, (activityRate) => activityRate.activity)
+  @OneToMany(() => ActivityRate, (activityRate) => activityRate.activity, {
+    onDelete: 'CASCADE',
+  })
   activityRates: ActivityRate[];
 
   // SERVICE ID
@@ -38,7 +40,8 @@ export class Activity extends AbstractEntity {
   // BOOKING ACTIVITIES
   @OneToMany(
     () => BookingActivity,
-    (bookingActivity) => bookingActivity.activity
+    (bookingActivity) => bookingActivity.activity,
+    { onDelete: 'CASCADE' }
   )
   bookingActivities: BookingActivity[];
 

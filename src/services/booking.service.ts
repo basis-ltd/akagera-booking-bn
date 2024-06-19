@@ -94,6 +94,10 @@ export class BookingService {
       order: { startDate: 'ASC' },
     });
 
+    if (!bookings[0].length) {
+      throw new NotFoundError('No bookings found');
+    }
+
     return getPagingData(bookings, take, skip);
   }
 
@@ -180,10 +184,50 @@ export class BookingService {
     return bookingExists;
   }
 
-  // GET BOOKING DETAILS
+  // GET BOOKING DETAILS BY ID
   async getBookingDetails(id: UUID): Promise<Booking> {
     const bookingDetails = await this.bookingRepository.findOne({
       where: { id },
+      select: {
+        id: true,
+        name: true,
+        startDate: true,
+        endDate: true,
+        status: true,
+        totalAmountRwf: true,
+        totalAmountUsd: true,
+        discountedAmountRwf: true,
+        discountedAmountUsd: true,
+        notes: true,
+        referenceId: true,
+        createdAt: true,
+        updatedAt: true,
+        createdBy: true,
+        approvedByUser: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          role: true,
+          gender: true,
+        },
+      },
+      relations: {
+        approvedByUser: true,
+      },
+    });
+
+    if (!bookingDetails) {
+      throw new NotFoundError('Booking not found');
+    }
+
+    return bookingDetails;
+  }
+
+  // GET BOOKING DETAILS BY REFERENCE ID
+  async getBookingDetailsByReferenceId(referenceId: string): Promise<Booking> {
+    const bookingDetails = await this.bookingRepository.findOne({
+      where: { referenceId },
       select: {
         id: true,
         name: true,

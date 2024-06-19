@@ -9,7 +9,12 @@ export const BookingVehicleController = {
   // CREATE BOOKING VEHICLE
   async createBookingVehicle(req: Request, res: Response, next: NextFunction) {
     try {
-      const { bookingId, plateNumber, vehicleType } = req.body;
+      const {
+        bookingId,
+        plateNumber,
+        vehicleType,
+        registrationCountry = 'RW',
+      } = req.body;
 
       // CREATE BOOKING VEHICLE
       const newBookingVehicle =
@@ -17,6 +22,7 @@ export const BookingVehicleController = {
           bookingId,
           plateNumber,
           vehicleType,
+          registrationCountry: registrationCountry?.toUpperCase(),
         });
 
       // RETURN RESPONSE
@@ -39,7 +45,11 @@ export const BookingVehicleController = {
         take = 10,
         skip = 0,
       } = req.query;
-      let condition: object = {};
+      let condition: object = {
+        bookingId,
+        plateNumber,
+        vehicleType,
+      };
       // FETCH BOOKING VEHICLES
       const bookingVehicles = await bookingVehicleService.fetchBookingVehicles({
         condition,
@@ -84,7 +94,12 @@ export const BookingVehicleController = {
   async updateBookingVehicle(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { bookingId, plateNumber, vehicleType } = req.body;
+      const {
+        bookingId,
+        plateNumber,
+        vehicleType,
+        registrationCountry = 'RW',
+      } = req.body;
 
       // UPDATE BOOKING VEHICLE
       const updatedBookingVehicle =
@@ -93,6 +108,7 @@ export const BookingVehicleController = {
           bookingId,
           plateNumber,
           vehicleType,
+          registrationCountry: registrationCountry?.toUpperCase(),
         });
 
       // RETURN RESPONSE

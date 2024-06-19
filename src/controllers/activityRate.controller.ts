@@ -16,6 +16,7 @@ export const ActivityRateController = {
         description,
         disclaimer,
         activityId,
+        ageRange
       } = req.body;
 
       // CREATE ACTIVITY RATE
@@ -26,6 +27,7 @@ export const ActivityRateController = {
         description,
         disclaimer,
         activityId,
+        ageRange,
       });
 
       // RETURN RESPONSE
@@ -41,12 +43,12 @@ export const ActivityRateController = {
   // FETCH ACTIVITY RATES
   async fetchActivityRates(req: Request, res: Response, next: NextFunction) {
     try {
-      const { activityId, take = 10, skip = 0 } = req.query;
+      const { activityId, take = 10, skip = 0, ageRange } = req.query;
       let condition: object = {};
 
       // IF ACTIVITY ID PROVIDED
       if (activityId) {
-        condition = { ...condition, activityId: activityId };
+        condition = { ...condition, activityId, ageRange };
       }
 
       // FETCH ACTIVITY RATES
@@ -72,7 +74,7 @@ export const ActivityRateController = {
       const { id } = req.params;
 
       // FETCH ACTIVITY RATE
-      const activityRate = await activityRateService.findActivityRateById(
+      const activityRate = await activityRateService.getActivityRateDetails(
         id as UUID
       );
 
@@ -98,6 +100,7 @@ export const ActivityRateController = {
         amountRwf,
         description,
         disclaimer,
+        ageRange
       } = req.body;
 
       // UPDATE ACTIVITY RATE
@@ -108,6 +111,7 @@ export const ActivityRateController = {
         amountRwf,
         description,
         disclaimer,
+        ageRange,
       });
 
       // RETURN RESPONSE

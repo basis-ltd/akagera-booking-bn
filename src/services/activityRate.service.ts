@@ -7,6 +7,7 @@ import { UUID } from 'crypto';
 import { ActivityService } from './activity.service';
 import { ActivityRatesPagination } from '../types/activityRate.types';
 import { getPagingData } from '../helpers/pagination.helper';
+import { AGE_RANGE } from '../constants/booking.constants';
 
 export class ActivityRateService {
   private activityRateRepository: Repository<ActivityRate>;
@@ -25,6 +26,7 @@ export class ActivityRateService {
     description,
     disclaimer,
     activityId,
+    ageRange,
   }: {
     name: string;
     amountUsd: number;
@@ -32,6 +34,7 @@ export class ActivityRateService {
     description: string;
     disclaimer: string;
     activityId: UUID;
+    ageRange?: string;
   }): Promise<ActivityRate> {
     // IF AMOUNT USD NOT PROVIDED
     if (!amountUsd) {
@@ -48,6 +51,11 @@ export class ActivityRateService {
       throw new ValidationError('Invalid activity ID');
     }
 
+    // CEHCK IF AGE RANGE IS VALID
+    if (ageRange && !Object.values(AGE_RANGE).includes(ageRange)) {
+      throw new ValidationError('Invalid age range');
+    }
+
     // CHECK IF ACTIVITY EXISTS
     const activity = await this.activityService.findActivityById(activityId);
 
@@ -62,6 +70,7 @@ export class ActivityRateService {
       description,
       disclaimer,
       activityId,
+      ageRange,
     });
 
     return this.activityRateRepository.save(newActivityRate);
@@ -81,6 +90,10 @@ export class ActivityRateService {
       take,
       skip,
       where: condition,
+      relations: {
+        activity: true,
+      },
+      order: { name: 'ASC' },
     });
 
     return getPagingData(activityRates, take, skip);
@@ -107,6 +120,28 @@ export class ActivityRateService {
     return activityRate;
   }
 
+  // GET ACTIVITY DETAILS BY ID
+  async getActivityRateDetails(id: UUID): Promise<ActivityRate> {
+    // VALIDATE UUID
+    const { error } = validateUuid(id);
+
+    if (error) {
+      throw new ValidationError('Invalid activity rate ID');
+    }
+
+    // CHECK IF ACTIVITY RATE EXISTS
+    const activityRate = await this.activityRateRepository.findOne({
+      where: { id },
+      relations: ['activity'],
+    });
+
+    if (!activityRate) {
+      throw new NotFoundError('Activity rate not found');
+    }
+
+    return activityRate;
+  }
+
   // UPDATE ACTIVITY RATE
   async updateActivityRate({
     id,
@@ -115,6 +150,7 @@ export class ActivityRateService {
     amountRwf,
     description,
     disclaimer,
+    ageRange,
   }: {
     id: UUID;
     name: string;
@@ -122,9 +158,9 @@ export class ActivityRateService {
     amountRwf: number;
     description: string;
     disclaimer: string;
+    ageRange?: string;
   }): Promise<ActivityRate> {
-
-    // IF ACTIVITY RATE ID NOT PROVIDED 
+    // IF ACTIVITY RATE ID NOT PROVIDED
     if (!id) {
       throw new ValidationError('Activity rate ID is required');
     }
@@ -136,11 +172,9 @@ export class ActivityRateService {
       throw new ValidationError('Invalid activity rate ID');
     }
 
-    // IF ACTIVITY ID IS PROVIDED
-    const activityExists = await this.findActivityRateById(id);
-
-    if (!activityExists) {
-      throw new NotFoundError('Activity rate not found');
+    // VALIDATE AGE RANGE
+    if (ageRange && !Object.values(AGE_RANGE).includes(ageRange)) {
+      throw new ValidationError('Invalid age range');
     }
 
     // UPDATE ACTIVITY RATE
@@ -150,9 +184,10 @@ export class ActivityRateService {
       amountRwf,
       description,
       disclaimer,
+      ageRange,
     });
 
-    if (!updatedActivityRate) {
+    if (!updatedActivityRate.affected) {
       throw new NotFoundError('Activity rate not found');
     }
 

@@ -22,6 +22,8 @@ export class Service extends AbstractEntity {
   description: string;
 
   // ACTIVITIES
-  @OneToMany(() => Activity, (activity) => activity.service)
+  @OneToMany(() => Activity, (activity) => activity.service, {
+    onDelete: 'CASCADE',
+  })
   activities: Activity[];
 }

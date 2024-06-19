@@ -6,6 +6,7 @@ import { validateUuid } from '../helpers/validations.helper';
 import { ConflictError, NotFoundError, ValidationError } from '../helpers/errors.helper';
 import { BookingVehiclesPagination } from '../types/bookingVehicle.types';
 import { getPagingData } from '../helpers/pagination.helper';
+import { COUNTRIES } from '../constants/countries.constants';
 
 export class BookingVehicleService {
   private bookingVehicleRepository: Repository<BookingVehicle>;
@@ -19,10 +20,12 @@ export class BookingVehicleService {
     bookingId,
     plateNumber,
     vehicleType,
+    registrationCountry
   }: {
     bookingId: UUID;
     plateNumber: string;
     vehicleType: string;
+    registrationCountry: string;
   }): Promise<BookingVehicle> {
     // IF NO BOOKING ID
     if (!bookingId) {
@@ -44,6 +47,17 @@ export class BookingVehicleService {
       throw new ValidationError('Vehicle type is required');
     }
 
+    // VALIDATE REGISTRATION COUNTRY IF PROVIDED
+    if (registrationCountry) {
+      const validCountry = COUNTRIES.find(
+        (country) => country.code === registrationCountry
+      );
+
+      if (!validCountry) {
+        throw new ValidationError('Invalid registration country');
+      }
+    }
+
     // CHECK IF BOOKING VEHICLE EXISTS
     const existingBookingVehicle = await this.findExistingBookingVehicle({
       condition: { plateNumber, bookingId },
@@ -60,6 +74,7 @@ export class BookingVehicleService {
       bookingId,
       plateNumber,
       vehicleType,
+      registrationCountry,
     });
 
     // SAVE BOOKING VEHICLE
@@ -126,6 +141,10 @@ export class BookingVehicleService {
       },
     });
 
+    if (!bookingVehicles[0].length) {
+      throw new NotFoundError('No booking vehicles found');
+    }
+
     return getPagingData(bookingVehicles, take, skip);
   }
 
@@ -135,15 +154,28 @@ export class BookingVehicleService {
     plateNumber,
     vehicleType,
     bookingId,
+    registrationCountry
   }: {
     id: UUID;
     plateNumber: string;
     vehicleType: string;
     bookingId: UUID;
+    registrationCountry: string;
   }): Promise<BookingVehicle> {
     const { error } = validateUuid(id);
     if (error) {
       throw new ValidationError('Invalid booking vehicle ID');
+    }
+
+    // VALIDATE REGISTRATION COUNTRY IF PROVIDED
+    if (registrationCountry) {
+      const validCountry = COUNTRIES.find(
+        (country) => country.code === registrationCountry
+      );
+
+      if (!validCountry) {
+        throw new ValidationError('Invalid registration country');
+      }
     }
 
     const updatedBookingVehicle = await this.bookingVehicleRepository.update(
