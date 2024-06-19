@@ -31,10 +31,6 @@ export class UserService {
         .addSelect('password')
         .getOne();
 
-      if (!userExists) {
-        throw new NotFoundError('User not found');
-      }
-
       return userExists;
   }
 };
