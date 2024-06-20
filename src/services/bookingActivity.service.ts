@@ -106,6 +106,7 @@ export class BookingActivityService {
         skip,
         relations: {
           activity: true,
+          booking: true,
         },
       }
     );

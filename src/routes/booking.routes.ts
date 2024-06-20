@@ -23,5 +23,8 @@ router.delete("/:id", BookingController.deleteBooking);
 // GET BOOKING
 router.get("/:id", BookingController.getBookingById);
 
+// FETCH BOOKING STATUSES
+router.get("/all/statuses", BookingController.fetchBookingStatuses);
+
 // EXPORT ROUTER
 export default router;

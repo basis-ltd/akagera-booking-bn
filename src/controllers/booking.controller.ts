@@ -59,7 +59,8 @@ export const BookingController = {
         createdBy,
         approvedBy,
         approvedAt,
-        status
+        status,
+        name
       } = req.query;
       let condition: object = {
         startDate: startDate && moment(String(startDate)).format('YYYY-MM-DD'),
@@ -68,7 +69,8 @@ export const BookingController = {
         createdBy,
         approvedBy,
         approvedAt,
-        status
+        status,
+        name
       };
 
       // FETCH BOOKINGS
@@ -175,6 +177,33 @@ export const BookingController = {
       // RETURN RESPONSE
       return res.status(204).json({
         message: 'Booking deleted successfully!',
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // FETCH BOOKING STATUSES
+  async fetchBookingStatuses(req: Request, res: Response, next: NextFunction) {
+    try {
+      const {startDate, endDate, createdBy, approvedBy, approvedAt, status} = req.query;
+      let condition: object = {
+        startDate: startDate && moment(String(startDate)).format('YYYY-MM-DD'),
+        endDate: endDate && moment(String(endDate)).format('YYYY-MM-DD'),
+        createdBy,
+        approvedBy,
+        approvedAt,
+        status
+      };
+      // FETCH BOOKING STATUSES
+      const bookingStatuses = await bookingService.fetchBookingStatuses({
+        condition,
+      });
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Booking statuses fetched successfully!',
+        data: bookingStatuses,
       });
     } catch (error) {
       next(error);
