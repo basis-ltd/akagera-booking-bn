@@ -94,10 +94,6 @@ export class BookingService {
       order: { startDate: 'ASC' },
     });
 
-    if (!bookings[0].length) {
-      throw new NotFoundError('No bookings found');
-    }
-
     return getPagingData(bookings, take, skip);
   }
 
@@ -211,9 +207,29 @@ export class BookingService {
           role: true,
           gender: true,
         },
+        bookingActivities: {
+          id: true,
+          startTime: true,
+          endTime: true,
+          numberOfPeople: true,
+        },
+        bookingPeople: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+        },
+        bookingVehicles: {
+          id: true,
+          registrationCountry: true,
+          plateNumber: true,
+        },
       },
       relations: {
         approvedByUser: true,
+        bookingActivities: true,
+        bookingPeople: true,
+        bookingVehicles: true,
       },
     });
 
@@ -277,5 +293,15 @@ export class BookingService {
     if (!deletedBooking.affected) {
       throw new NotFoundError('Booking not found');
     }
+  }
+
+  // FETCH BOOKING STATUSES
+  async fetchBookingStatuses({condition}: {
+    condition?: object;
+  }): Promise<Booking[]> {
+    return await this.bookingRepository.find({
+      select: ['status', 'id'],
+      where: condition,
+      });
   }
 }
