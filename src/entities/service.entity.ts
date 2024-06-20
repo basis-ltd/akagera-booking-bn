@@ -21,6 +21,15 @@ export class Service extends AbstractEntity {
   })
   description: string;
 
+  // POSITION
+  @Column({
+    name: 'position',
+    type: 'int',
+    nullable: false,
+    default: 0,
+  })
+  position!: number;
+
   // ACTIVITIES
   @OneToMany(() => Activity, (activity) => activity.service, {
     onDelete: 'CASCADE',

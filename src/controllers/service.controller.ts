@@ -9,12 +9,13 @@ export const ServiceController = {
   // CREATE SERVICE
   async createService(req: Request, res: Response, next: NextFunction) {
     try {
-      const { name, description } = req.body;
+      const { name, description, position } = req.body;
 
       // CREATE SERVICE
       const newService = await service.createService({
         name,
         description,
+        position,
       });
 
       // RETURN RESPONSE
@@ -74,13 +75,14 @@ export const ServiceController = {
   async updateService(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { name, description } = req.body;
+      const { name, description, position } = req.body;
 
       // UPDATE SERVICE
       const updatedService = await service.updateService({
         id: id as UUID,
         name,
         description,
+        position,
       });
 
       // RETURN RESPONSE

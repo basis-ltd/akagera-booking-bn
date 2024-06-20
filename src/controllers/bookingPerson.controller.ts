@@ -16,8 +16,13 @@ export const BookingPersonController = {
         gender = 'M',
         residence = nationality,
         bookingId,
+        startDate,
+        endDate,
+        accomodation,
+        email,
+        phone
       } = req.body;
-
+      
       // CREATE BOOKING PERSON
       const newBookingPerson = await bookingPersonService.createBookingPerson({
         name,
@@ -26,6 +31,11 @@ export const BookingPersonController = {
         gender,
         residence,
         bookingId,
+        startDate,
+        endDate,
+        accomodation,
+        email,
+        phone
       });
 
       // RETURN RESPONSE

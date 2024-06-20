@@ -13,9 +13,10 @@ export const BookingController = {
       const {
         name,
         startDate,
-        endDate = moment(startDate).format('YYYY-MM-DD'),
+        endDate,
         notes,
-        createdBy,
+        email,
+        phone,
         status = 'in_progress',
         totalAmountRwf,
         totalAmountUsd,
@@ -29,7 +30,8 @@ export const BookingController = {
         startDate,
         endDate,
         notes,
-        createdBy,
+        email,
+        phone,
         status,
         totalAmountRwf,
         totalAmountUsd,
@@ -56,7 +58,7 @@ export const BookingController = {
         take = 10,
         skip = 0,
         referenceId,
-        createdBy,
+        email, phone,
         approvedBy,
         approvedAt,
         status,
@@ -66,7 +68,7 @@ export const BookingController = {
         startDate: startDate && moment(String(startDate)).format('YYYY-MM-DD'),
         endDate: endDate && moment(String(endDate)).format('YYYY-MM-DD'),
         referenceId,
-        createdBy,
+        email, phone,
         approvedBy,
         approvedAt,
         status,
@@ -99,7 +101,7 @@ export const BookingController = {
         startDate,
         endDate,
         notes,
-        createdBy,
+        email, phone,
         approvedAt,
         status,
         totalAmountRwf,
@@ -115,7 +117,7 @@ export const BookingController = {
         startDate,
         endDate,
         notes,
-        createdBy,
+        email, phone,
         approvedAt,
         status,
         totalAmountRwf,
@@ -186,14 +188,23 @@ export const BookingController = {
   // FETCH BOOKING STATUSES
   async fetchBookingStatuses(req: Request, res: Response, next: NextFunction) {
     try {
-      const {startDate, endDate, createdBy, approvedBy, approvedAt, status} = req.query;
+      const {
+        startDate,
+        endDate,
+        email,
+        phone,
+        approvedBy,
+        approvedAt,
+        status,
+      } = req.query;
       let condition: object = {
         startDate: startDate && moment(String(startDate)).format('YYYY-MM-DD'),
         endDate: endDate && moment(String(endDate)).format('YYYY-MM-DD'),
-        createdBy,
+        email,
+        phone,
         approvedBy,
         approvedAt,
-        status
+        status,
       };
       // FETCH BOOKING STATUSES
       const bookingStatuses = await bookingService.fetchBookingStatuses({
