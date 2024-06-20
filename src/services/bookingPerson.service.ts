@@ -60,7 +60,10 @@ export class BookingPersonService {
     }
 
     // CHECK IF ACCOMODATION VALUE IS VALID
-    if (accomodation && !Object.values(ACCOMODATION_OPTION).includes(accomodation)) {
+    if (
+      accomodation &&
+      !Object.values(ACCOMODATION_OPTION).includes(accomodation)
+    ) {
       throw new ValidationError('Invalid accomodation option');
     }
 
@@ -88,7 +91,7 @@ export class BookingPersonService {
 
     // CHECK IF BOOKING PERSON ALREADY EXISTS
     const existingBookingPerson = await this.findExistingBookingPerson({
-      condition: { bookingId, name, phone, email, nationality },
+      condition: { bookingId, name, phone, email, nationality, residence },
     });
 
     // IF BOOKING PERSON ALREADY EXISTS
@@ -105,9 +108,11 @@ export class BookingPersonService {
       gender: gender?.toUpperCase() || 'M',
       phone,
       email,
-      startDate: startDate || bookingExists?.startDate,
-      endDate: endDate || bookingExists?.endDate,
-      accomodation
+      startDate: startDate
+        ? moment(startDate).format()
+        : bookingExists?.startDate,
+      endDate: endDate ? endDate : bookingExists?.endDate,
+      accomodation,
     });
 
     return this.bookingPersonRepository.save(newBookingPerson);
@@ -192,7 +197,7 @@ export class BookingPersonService {
     email,
     startDate,
     endDate,
-    accomodation
+    accomodation,
   }: {
     id: UUID;
     name: string;
@@ -216,7 +221,10 @@ export class BookingPersonService {
     }
 
     // CHECK IF ACCOMODATION VALUE IS VALID
-    if (accomodation && !Object.values(ACCOMODATION_OPTION).includes(accomodation)) {
+    if (
+      accomodation &&
+      !Object.values(ACCOMODATION_OPTION).includes(accomodation)
+    ) {
       throw new ValidationError('Invalid accomodation option');
     }
 
@@ -236,7 +244,7 @@ export class BookingPersonService {
       email,
       startDate,
       endDate,
-      accomodation
+      accomodation,
     });
 
     if (!updatedBookingPerson.affected) {

@@ -22,6 +22,8 @@ export const BookingController = {
         totalAmountUsd,
         discountedAmountRwf,
         discountedAmountUsd,
+        accomodation,
+        exitGate
       } = req.body;
 
       // CREATE BOOKING
@@ -37,6 +39,8 @@ export const BookingController = {
         totalAmountUsd,
         discountedAmountRwf,
         discountedAmountUsd,
+        accomodation,
+        exitGate
       });
 
       // RETURN RESPONSE

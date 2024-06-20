@@ -12,6 +12,7 @@ import { getPagingData } from '../helpers/pagination.helper';
 import { UUID } from 'crypto';
 import { validateUuid } from '../helpers/validations.helper';
 import { ACCOMODATION_OPTION, EXIT_GATE } from '../constants/booking.constants';
+import { generateReferenceID } from '../helpers/strings.helper';
 
 export class BookingService {
   private bookingRepository: Repository<Booking>;
@@ -90,6 +91,7 @@ export class BookingService {
       discountedAmountUsd,
       exitGate,
       accomodation,
+      referenceId: generateReferenceID(),
     });
 
     return this.bookingRepository.save(newBooking);

@@ -2,7 +2,7 @@ import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { ACCOMODATION_OPTION, BOOKING_STATUS, EXIT_GATE } from '../constants/booking.constants';
 import { UUID } from 'crypto';
 import moment from 'moment';
-import { AbstractEntity } from './base.entity';
+import { AbstractEntity } from './abstract.entity';
 import { User } from './user.entity';
 import { BookingPerson } from './bookingPerson.entity';
 import { BookingVehicle } from './bookingVehicle.entity';
@@ -77,7 +77,6 @@ export class Booking extends AbstractEntity {
     name: 'reference_id',
     type: 'varchar',
     nullable: false,
-    default: `BK-${moment().format('HHss')}-${moment().format('x').slice(-4)}`,
   })
   referenceId!: string;
 

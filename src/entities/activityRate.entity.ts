@@ -1,8 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
-import { AbstractEntity } from './base.entity';
+import { AbstractEntity } from './abstract.entity';
 import { Activity } from './activity.entity';
 import { UUID } from 'crypto';
-import { ActivityRateVariation } from './activityRateVariation.entity';
 import { AGE_RANGE } from '../constants/booking.constants';
 
 @Entity()
@@ -74,11 +73,4 @@ export class ActivityRate extends AbstractEntity {
   @ManyToOne(() => Activity, (activity) => activity.activityRates)
   @JoinColumn({ name: 'activity_id' })
   activity: Activity;
-
-  // ACTIVITY RATE VARIAITONS
-  @OneToMany(
-    () => ActivityRateVariation,
-    (activityRateVariation) => activityRateVariation.activityRate
-  )
-  activityRateVariations: ActivityRateVariation[];
 }

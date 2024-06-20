@@ -1,7 +1,7 @@
 import { IsEmail, IsNotEmpty } from 'class-validator';
 import { Column, Entity, OneToMany, Unique } from 'typeorm';
 import { ROLES } from '../constants/auth.constants';
-import { AbstractUserEntity } from './base.entity';
+import { AbstractUserEntity } from './abstract.entity';
 import { Booking } from './booking.entity';
 
 @Entity()

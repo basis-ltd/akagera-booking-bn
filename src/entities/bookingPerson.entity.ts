@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { AbstractUserEntity } from './base.entity';
+import { AbstractUserEntity } from './abstract.entity';
 import { UUID } from 'crypto';
 import { Booking } from './booking.entity';
 import { ACCOMODATION_OPTION } from '../constants/booking.constants';
