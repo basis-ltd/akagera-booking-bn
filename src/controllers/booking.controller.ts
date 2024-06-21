@@ -224,4 +224,22 @@ export const BookingController = {
       next(error);
     }
   },
+
+  // CONFIRM CREATE BOOKING
+  async submitBooking(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+
+      // CONFIRM BOOKING
+      const confirmedBooking = await bookingService.submitBooking(id as UUID);
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Booking confirmed successfully!',
+        data: confirmedBooking,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

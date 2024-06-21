@@ -9,16 +9,21 @@ import { BookingActivityPagination } from '../types/bookingActivity.types';
 import { getPagingData } from '../helpers/pagination.helper';
 import { isTimeBetween } from '../helpers/time.helper';
 import moment from 'moment';
+import { BookingActivityPerson } from '../entities/bookingActivityPerson.entity';
 
 export class BookingActivityService {
   private bookingActivityRepository: Repository<BookingActivity>;
   private activityScheduleRepository: Repository<ActivitySchedule>;
+  private bookingActivityPeopleRepository: Repository<BookingActivityPerson>;
 
   constructor() {
     this.bookingActivityRepository =
       AppDataSource.getRepository(BookingActivity);
     this.activityScheduleRepository =
       AppDataSource.getRepository(ActivitySchedule);
+    this.bookingActivityPeopleRepository = AppDataSource.getRepository(
+      BookingActivityPerson
+    );
   }
 
   // CREATE BOOKING ACTIVITY
@@ -177,6 +182,18 @@ export class BookingActivityService {
     if (error) {
       throw new ValidationError('Invalid booking activity ID');
     }
+
+    // CHECK IF BOOKING ACTIVITY HAS ASSOCIATED BOOKING ACTIVITY PEOPLE AND DELETE
+    const bookingActivityPeople = await this.bookingActivityPeopleRepository.find({
+      where: { bookingActivityId: id },
+    });
+
+    if (bookingActivityPeople.length > 0) {
+      await this.bookingActivityPeopleRepository.delete({
+        bookingActivityId: id,
+      });
+    }
+
     // DELETE BOOKING ACTIVITY
     const bookingActivityDeleted = await this.bookingActivityRepository.delete({
       id,
