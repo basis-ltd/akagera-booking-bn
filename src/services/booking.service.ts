@@ -11,6 +11,8 @@ import { BookingPagination } from '../types/booking.types';
 import { getPagingData } from '../helpers/pagination.helper';
 import { UUID } from 'crypto';
 import { validateUuid } from '../helpers/validations.helper';
+import { ACCOMODATION_OPTION, EXIT_GATE } from '../constants/booking.constants';
+import { generateReferenceID } from '../helpers/strings.helper';
 
 export class BookingService {
   private bookingRepository: Repository<Booking>;
@@ -25,25 +27,29 @@ export class BookingService {
     startDate,
     endDate,
     notes,
-    createdBy,
+    email, phone,
     approvedAt,
     status,
     totalAmountRwf,
     totalAmountUsd,
     discountedAmountRwf,
     discountedAmountUsd,
+    exitGate,
+    accomodation,
   }: {
     startDate: Date;
     endDate?: Date;
     name: string;
     notes?: string;
-    createdBy: string;
+    email: string, phone: string;
     approvedAt?: Date;
     status: string;
     totalAmountRwf?: number;
     totalAmountUsd?: number;
     discountedAmountRwf?: number;
     discountedAmountUsd?: number;
+    exitGate?: string;
+    accomodation?: string;
   }): Promise<Booking> {
     // IF NAME NOT PROVIDED
     if (!name) {
@@ -56,22 +62,36 @@ export class BookingService {
     }
 
     // IF NO CREATED BY
-    if (!createdBy) {
-      throw new ValidationError('The booking individual is required');
+    if (!email && !phone) {
+      throw new ValidationError('Provide email or phone number');
+    }
+
+    // CHECK IF EXIT GATE VALUE IS VALID
+    if (exitGate && !Object.values(EXIT_GATE).includes(exitGate)) {
+      throw new ValidationError('Invalid exit gate');
+    }
+    
+    // CHECK IF ACCOMODATION VALUE IS VALID
+    if (accomodation && !Object.values(ACCOMODATION_OPTION).includes(accomodation)) {
+      throw new ValidationError('Invalid accomodation option');
     }
 
     const newBooking = this.bookingRepository.create({
       startDate,
-      endDate,
+      endDate: endDate || moment(startDate).add(23, 'hours').toDate(),
       name,
       notes,
-      createdBy,
+      email,
+      phone,
       approvedAt,
       status,
       totalAmountRwf,
       totalAmountUsd,
       discountedAmountRwf,
       discountedAmountUsd,
+      exitGate,
+      accomodation,
+      referenceId: generateReferenceID(),
     });
 
     return this.bookingRepository.save(newBooking);
@@ -104,27 +124,42 @@ export class BookingService {
     startDate,
     endDate,
     notes,
-    createdBy,
+    email, phone,
     approvedAt,
     status,
     totalAmountRwf,
     totalAmountUsd,
     discountedAmountRwf,
     discountedAmountUsd,
+    exitGate,
+    accomodation,
   }: {
     id: UUID;
     startDate: Date;
     endDate?: Date;
     name: string;
     notes?: string;
-    createdBy: string;
+    email: string, phone: string;
     approvedAt?: Date;
     status: string;
     totalAmountRwf?: number;
     totalAmountUsd?: number;
     discountedAmountRwf?: number;
     discountedAmountUsd?: number;
+    exitGate?: string;
+    accomodation?: string;
   }): Promise<Booking> {
+
+    // CHECK IF EXIT GATE VALUE IS VALID
+    if (exitGate && !Object.values(EXIT_GATE).includes(exitGate)) {
+      throw new ValidationError('Invalid exit gate');
+    }
+    
+    // CHECK IF ACCOMODATION VALUE IS VALID
+    if (accomodation && !Object.values(ACCOMODATION_OPTION).includes(accomodation)) {
+      throw new ValidationError('Invalid accomodation option');
+    }
+
     // CHECK IF BOOKING EXISTS
     const bookingExists = await this.bookingRepository.findOne({
       where: { id },
@@ -150,7 +185,7 @@ export class BookingService {
       endDate,
       name,
       notes,
-      createdBy,
+      email, phone,
       approvedAt,
       status,
       totalAmountRwf,
@@ -198,7 +233,8 @@ export class BookingService {
         referenceId: true,
         createdAt: true,
         updatedAt: true,
-        createdBy: true,
+        email: true,
+        phone: true,
         approvedByUser: {
           id: true,
           name: true,

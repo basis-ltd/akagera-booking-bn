@@ -1,15 +1,24 @@
 import { Request, Response, NextFunction } from "express";
 import { BookingActivityService } from "../services/bookingActivity.service";
 import { UUID } from "crypto";
+import { BookingActivityPersonService } from "../services/bookingActivityPerson.service";
 
 // INITIALIZE BOOKING ACTIVITY SERVICE
 const bookingActivityService = new BookingActivityService();
+const bookingActivityPersonService = new BookingActivityPersonService();
 
 export const BookingActivityController = {
   // CREATE BOOKING ACTIVITY
   async createBookingActivity(req: Request, res: Response, next: NextFunction) {
     try {
-      const { startTime, endTime, bookingId, activityId, numberOfPeople = 1 } = req.body;
+      const {
+        startTime,
+        endTime,
+        bookingId,
+        activityId,
+        numberOfPeople = 1,
+        bookingActivityPeople,
+      } = req.body;
 
       // CREATE BOOKING ACTIVITY
       const newBookingActivity =
@@ -21,10 +30,29 @@ export const BookingActivityController = {
           numberOfPeople,
         });
 
+      // IF BOOKING ACTIVITY PEOPLE PROVIDED
+      let newBookingActivityPeople: any = [];
+      if (bookingActivityPeople?.length > 0) {
+        // CREATE BOOKING ACTIVITY PEOPLE
+        newBookingActivityPeople = await bookingActivityPersonService.createBookingActivityPerson({
+          bookingActivityPeople: bookingActivityPeople?.map(
+            (bookingActivityPerson: any) => {
+              return {
+                bookingActivityId: newBookingActivity?.id,
+                bookingPersonId: bookingActivityPerson.bookingPersonId,
+              };
+            }
+          ),
+        });
+      }
+
       // RETURN RESPONSE
       return res.status(201).json({
         message: 'Booking activity created successfully!',
-        data: newBookingActivity,
+        data: {
+          bookingActivity: newBookingActivity,
+          bookingActivityPeople: newBookingActivityPeople,
+        },
       });
     } catch (error) {
       next(error);

@@ -11,12 +11,16 @@ import { validateUuid } from '../helpers/validations.helper';
 import moment from 'moment';
 import { BookingPersonsPagination } from '../types/bookingPerson.types';
 import { getPagingData } from '../helpers/pagination.helper';
+import { Booking } from '../entities/booking.entity';
+import { ACCOMODATION_OPTION } from '../constants/booking.constants';
 
 export class BookingPersonService {
   private bookingPersonRepository: Repository<BookingPerson>;
+  private bookingRepository: Repository<Booking>;
 
   constructor() {
     this.bookingPersonRepository = AppDataSource.getRepository(BookingPerson);
+    this.bookingRepository = AppDataSource.getRepository(Booking);
   }
 
   // CREATE BOOKING PERSON
@@ -29,6 +33,9 @@ export class BookingPersonService {
     gender,
     phone,
     email,
+    startDate,
+    endDate,
+    accomodation,
   }: {
     bookingId: UUID;
     name: string;
@@ -38,6 +45,9 @@ export class BookingPersonService {
     gender?: string;
     phone?: string;
     email?: string;
+    startDate?: Date;
+    endDate?: Date;
+    accomodation?: string;
   }): Promise<BookingPerson> {
     // VALIDATE BOOKING ID
     if (!bookingId) {
@@ -47,6 +57,14 @@ export class BookingPersonService {
 
     if (bookingIdError) {
       throw new ValidationError('Invalid booking ID');
+    }
+
+    // CHECK IF ACCOMODATION VALUE IS VALID
+    if (
+      accomodation &&
+      !Object.values(ACCOMODATION_OPTION).includes(accomodation)
+    ) {
+      throw new ValidationError('Invalid accomodation option');
     }
 
     // VALIDATE DATE OF BIRTH
@@ -62,9 +80,18 @@ export class BookingPersonService {
       throw new ValidationError('Name is required');
     }
 
+    // CHECK IF BOOKING EXISTS
+    const bookingExists = await this.bookingRepository.findOne({
+      where: { id: bookingId },
+    });
+
+    if (!bookingExists) {
+      throw new NotFoundError('Booking not found');
+    }
+
     // CHECK IF BOOKING PERSON ALREADY EXISTS
     const existingBookingPerson = await this.findExistingBookingPerson({
-      condition: { bookingId, name, phone, email, nationality },
+      condition: { bookingId, name, phone, email, nationality, residence },
     });
 
     // IF BOOKING PERSON ALREADY EXISTS
@@ -81,6 +108,11 @@ export class BookingPersonService {
       gender: gender?.toUpperCase() || 'M',
       phone,
       email,
+      startDate: startDate
+        ? moment(startDate).format()
+        : bookingExists?.startDate,
+      endDate: endDate ? endDate : bookingExists?.endDate,
+      accomodation,
     });
 
     return this.bookingPersonRepository.save(newBookingPerson);
@@ -163,6 +195,9 @@ export class BookingPersonService {
     residence,
     phone,
     email,
+    startDate,
+    endDate,
+    accomodation,
   }: {
     id: UUID;
     name: string;
@@ -171,6 +206,9 @@ export class BookingPersonService {
     residence?: string;
     phone?: string;
     email?: string;
+    startDate?: Date;
+    endDate?: Date;
+    accomodation?: string;
   }): Promise<BookingPerson> {
     // VALIDATE BOOKING PERSON ID
     if (!id) {
@@ -180,6 +218,14 @@ export class BookingPersonService {
 
     if (error) {
       throw new ValidationError('Invalid booking person ID');
+    }
+
+    // CHECK IF ACCOMODATION VALUE IS VALID
+    if (
+      accomodation &&
+      !Object.values(ACCOMODATION_OPTION).includes(accomodation)
+    ) {
+      throw new ValidationError('Invalid accomodation option');
     }
 
     // VALIDATE DATE OF BIRTH
@@ -196,6 +242,9 @@ export class BookingPersonService {
       residence,
       phone,
       email,
+      startDate,
+      endDate,
+      accomodation,
     });
 
     if (!updatedBookingPerson.affected) {

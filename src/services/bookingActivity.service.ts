@@ -105,8 +105,13 @@ export class BookingActivityService {
         take,
         skip,
         relations: {
-          activity: true,
+          activity: {
+            activityRates: true,
+          },
           booking: true,
+          bookingActivityPeople: {
+              bookingPerson: true,
+          }
         },
       }
     );

@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany } from 'typeorm';
-import { AbstractEntity } from './base.entity';
+import { AbstractEntity } from './abstract.entity';
 import { Activity } from './activity.entity';
 
 @Entity()
@@ -20,6 +20,15 @@ export class Service extends AbstractEntity {
     nullable: true,
   })
   description: string;
+
+  // POSITION
+  @Column({
+    name: 'position',
+    type: 'int',
+    nullable: false,
+    default: 0,
+  })
+  position!: number;
 
   // ACTIVITIES
   @OneToMany(() => Activity, (activity) => activity.service, {

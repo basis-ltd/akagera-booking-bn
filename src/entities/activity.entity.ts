@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, Unique } from 'typeorm';
-import { AbstractEntity } from './base.entity';
+import { AbstractEntity } from './abstract.entity';
 import { ActivityRate } from './activityRate.entity';
 import { ActivitySchedule } from './activitySchedule.entity';
 import { BookingActivity } from './bookingActivity.entity';

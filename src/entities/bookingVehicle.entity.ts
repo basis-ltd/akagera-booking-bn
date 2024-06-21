@@ -1,6 +1,6 @@
 import { UUID } from 'crypto';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { AbstractEntity } from './base.entity';
+import { AbstractEntity } from './abstract.entity';
 import { Booking } from './booking.entity';
 import { COUNTRIES } from '../constants/countries.constants';
 

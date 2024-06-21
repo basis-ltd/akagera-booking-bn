@@ -22,3 +22,20 @@ export const AGE_RANGE = {
   CHILDREN: 'children',
   ADULTS: 'adults',
 };
+
+export const EXIT_GATE = {
+  SOUTH_GATE: 'southGate',
+  NORTH_GATE: 'northGate',
+  MUTUMBA_GATE: 'mutumbaGate',
+};
+
+export const ACCOMODATION_OPTION = {
+  RUZIZI_TENTED_LODGE: 'ruziziTentedLodge',
+  KARENGE_BUSH_CAMP: 'karengeBushCamp',
+  CAMPING: 'camping',
+  AKAGERA_GAME_LODGE: 'akageraGameLodge',
+  MAGASHI_CAMP: 'magashiCamp',
+  DAY_VISITOR: 'dayVisitor',
+  DRIVER_GUIDE_ROOMS: 'driverGuideRooms',
+  PARK_HQ: 'parkHQ',
+};

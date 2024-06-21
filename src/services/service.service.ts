@@ -18,19 +18,25 @@ export class ServiceService {
   async createService({
     name,
     description,
+    position,
   }: {
     name: string;
     description?: string;
+    position?: number;
   }): Promise<Service> {
     // VALIDATE NAME
     if (!name) {
       throw new ValidationError('Name is required');
     }
 
+    // SERVICES NUMBER
+    const servicesNumber = await this.serviceRepository.count();
+
     // CREATE SERVICE
     const service = this.serviceRepository.create({
       name,
       description,
+      position: servicesNumber + 1,
     });
 
     // SAVE SERVICE
@@ -51,6 +57,7 @@ export class ServiceService {
       where: condition,
       take,
       skip,
+      order: { position: 'ASC' },
     });
 
     return getPagingData(services, take, skip);
@@ -97,10 +104,12 @@ export class ServiceService {
     id,
     name,
     description,
+    position,
   }: {
     id: UUID;
     name: string;
     description?: string;
+    position?: number;
   }): Promise<Service> {
     // VALIDATE SERVICE ID
     if (!id) {
@@ -116,6 +125,7 @@ export class ServiceService {
     const updatedService = await this.serviceRepository.update(id, {
       name,
       description,
+      position
     });
 
     if (!updatedService.affected) {
@@ -143,5 +153,10 @@ export class ServiceService {
         if (!deletedService.affected) {
         throw new NotFoundError('Service not found');
         }
+    }
+
+    // COUNT SERVICES
+    async countServices(): Promise<number> {
+        return await this.serviceRepository.count();
     }
 }

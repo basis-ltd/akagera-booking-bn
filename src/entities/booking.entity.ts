@@ -1,8 +1,8 @@
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { BOOKING_STATUS } from '../constants/booking.constants';
+import { ACCOMODATION_OPTION, BOOKING_STATUS, EXIT_GATE } from '../constants/booking.constants';
 import { UUID } from 'crypto';
 import moment from 'moment';
-import { AbstractEntity } from './base.entity';
+import { AbstractEntity } from './abstract.entity';
 import { User } from './user.entity';
 import { BookingPerson } from './bookingPerson.entity';
 import { BookingVehicle } from './bookingVehicle.entity';
@@ -18,7 +18,7 @@ export class Booking extends AbstractEntity {
   @Column({
     name: 'end_date',
     type: 'timestamp',
-    nullable: true
+    nullable: true,
   })
   endDate: Date;
 
@@ -30,9 +30,13 @@ export class Booking extends AbstractEntity {
   @Column({ name: 'notes', type: 'text', nullable: true })
   notes: string;
 
-  // CREATED BY
-  @Column({ name: 'created_by', type: 'varchar', length: 255, nullable: false })
-  createdBy!: string;
+  // EMAIL
+  @Column({ name: 'email', type: 'varchar', length: 255, nullable: true })
+  email: string;
+
+  // PHONE
+  @Column({ name: 'phone', type: 'varchar', length: 255, nullable: true })
+  phone: string;
 
   // APPROVED BY
   @Column({ name: 'approved_by', type: 'uuid', nullable: true })
@@ -41,6 +45,24 @@ export class Booking extends AbstractEntity {
   // APPROVED AT
   @Column({ name: 'approved_at', type: 'timestamp', nullable: true })
   approvedAt: Date;
+
+  // EXIT GATE
+  @Column({
+    name: 'exit_gate',
+    type: 'enum',
+    enum: Object.values(EXIT_GATE),
+    nullable: true,
+  })
+  exitGate: string;
+
+  // ACCOMODATION
+  @Column({
+    name: 'accomodation',
+    type: 'enum',
+    enum: Object.values(ACCOMODATION_OPTION),
+    nullable: true,
+  })
+  accomodation: string;
 
   // STATUS
   @Column({
@@ -55,7 +77,6 @@ export class Booking extends AbstractEntity {
     name: 'reference_id',
     type: 'varchar',
     nullable: false,
-    default: `BK-${moment().format('HHss')}-${moment().format('x').slice(-4)}`,
   })
   referenceId!: string;
 
@@ -120,15 +141,22 @@ export class Booking extends AbstractEntity {
   approvedByUser: User;
 
   // BOOKING PEOPLE
-  @OneToMany(() => BookingPerson, (bookingPerson) => bookingPerson.booking)
+  @OneToMany(() => BookingPerson, (bookingPerson) => bookingPerson.booking, {
+    onDelete: 'CASCADE',
+  })
   bookingPeople: BookingPerson[];
 
   // BOOKING VEHICLES
-  @OneToMany(() => BookingVehicle, (bookingVehicle) => bookingVehicle.booking)
+  @OneToMany(() => BookingVehicle, (bookingVehicle) => bookingVehicle.booking, {
+    onDelete: 'CASCADE',
+  })
   bookingVehicles: BookingVehicle[];
 
   // BOOKING ACTIVITIES
-  @OneToMany(() => BookingActivity, (bookingActivity) => bookingActivity.booking)
+  @OneToMany(
+    () => BookingActivity,
+    (bookingActivity) => bookingActivity.booking,
+    { onDelete: 'CASCADE' }
+  )
   bookingActivities: BookingActivity[];
-
 }
