@@ -109,6 +109,9 @@ export class BookingActivityService {
             activityRates: true,
           },
           booking: true,
+          bookingActivityPeople: {
+              bookingPerson: true,
+          }
         },
       }
     );

@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { AbstractEntity } from './abstract.entity';
 import { UUID } from 'crypto';
 import { BookingActivity } from './bookingActivity.entity';
+import { BookingPerson } from './bookingPerson.entity';
 
 @Entity()
 export class BookingActivityPerson extends AbstractEntity {
@@ -16,8 +17,18 @@ export class BookingActivityPerson extends AbstractEntity {
   // BOOKING ACTIVITY
   @ManyToOne(
     () => BookingActivity,
-    (bookingActivity) => bookingActivity.bookingActivityPeople
+    (bookingActivity) => bookingActivity.bookingActivityPeople, {
+      onDelete: 'CASCADE'
+    }
   )
   @JoinColumn({ name: 'booking_activity_id' })
   bookingActivity: BookingActivity;
+
+  // BOOKING PERSON
+  @ManyToOne(
+    () => BookingPerson,
+    (bookingPerson) => bookingPerson.bookingActivityPeople
+  )
+  @JoinColumn({ name: 'booking_person_id' })
+  bookingPerson: BookingPerson;
 }

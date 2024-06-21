@@ -1,8 +1,9 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { AbstractUserEntity } from './abstract.entity';
 import { UUID } from 'crypto';
 import { Booking } from './booking.entity';
 import { ACCOMODATION_OPTION } from '../constants/booking.constants';
+import { BookingActivityPerson } from './bookingActivityPerson.entity';
 
 @Entity()
 export class BookingPerson extends AbstractUserEntity {
@@ -35,4 +36,12 @@ export class BookingPerson extends AbstractUserEntity {
   @ManyToOne(() => Booking, (booking) => booking.bookingPeople)
   @JoinColumn({ name: 'booking_id' })
   booking: Booking;
+
+  // BOOKING ACTIVITY PEOPLE
+  @OneToMany(
+    () => BookingActivityPerson,
+    (bookingActivityPerson) => bookingActivityPerson.bookingPerson,
+    { onDelete: 'CASCADE' }
+  )
+  bookingActivityPeople!: BookingActivityPerson[];
 }
