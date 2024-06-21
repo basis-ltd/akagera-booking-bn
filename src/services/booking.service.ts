@@ -13,6 +13,7 @@ import { UUID } from 'crypto';
 import { validateUuid } from '../helpers/validations.helper';
 import { ACCOMODATION_OPTION, EXIT_GATE } from '../constants/booking.constants';
 import { generateReferenceID } from '../helpers/strings.helper';
+import { bookingSubmittedEmail, bookingSubmittedEmailTemplate } from '../helpers/emails.helper';
 
 export class BookingService {
   private bookingRepository: Repository<Booking>;
@@ -339,5 +340,45 @@ export class BookingService {
       select: ['status', 'id'],
       where: condition,
       });
+  }
+
+  // SUBMIT BOOKING
+  async submitBooking(id: UUID): Promise<Booking> {
+    // VALIDATE UUID
+    const { error } = validateUuid(id);
+
+    if (error) {
+      throw new ValidationError('Invalid ID');
+    }
+
+    // CHECK IF BOOKING EXISTS
+    const bookingExists = await this.bookingRepository.findOne({
+      where: { id },
+    });
+
+    if (!bookingExists) {
+      throw new NotFoundError('Booking not found');
+    }
+
+    const confirmedBooking = await this.bookingRepository.update(id, {
+      status: 'pending',
+    });
+
+    if (!confirmedBooking.affected) {
+      throw new NotFoundError('Booking confirmation not found');
+    }
+
+    // SEND EMAIL TO USER
+    await bookingSubmittedEmail(
+      bookingExists?.email,
+      'princeelysee@gmail.com',
+      `Booking Confirmation - ${bookingExists?.referenceId}`,
+      bookingSubmittedEmailTemplate({
+        referenceId: bookingExists?.referenceId,
+        name: bookingExists?.name,
+      })
+    );
+
+    return confirmedBooking.raw[0];
   }
 }

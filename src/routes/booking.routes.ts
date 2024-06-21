@@ -26,5 +26,8 @@ router.get("/:id", BookingController.getBookingById);
 // FETCH BOOKING STATUSES
 router.get("/all/statuses", BookingController.fetchBookingStatuses);
 
+// CONFIRM BOOKING
+router.patch("/:id/submit", BookingController.submitBooking);
+
 // EXPORT ROUTER
 export default router;
