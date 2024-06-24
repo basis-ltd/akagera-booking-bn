@@ -31,7 +31,8 @@ export class BookingService {
     startDate,
     endDate,
     notes,
-    email, phone,
+    email,
+    phone,
     approvedAt,
     status,
     totalAmountRwf,
@@ -41,13 +42,14 @@ export class BookingService {
     exitGate,
     entryGate,
     accomodation,
-    type
+    type,
   }: {
     startDate: Date;
     endDate?: Date;
     name: string;
     notes?: string;
-    email: string, phone: string;
+    email: string;
+    phone: string;
     approvedAt?: Date;
     status: string;
     totalAmountRwf?: number;
@@ -57,7 +59,7 @@ export class BookingService {
     exitGate?: string;
     entryGate?: string;
     accomodation?: string;
-    type?: string
+    type?: string;
   }): Promise<Booking> {
     // IF NAME NOT PROVIDED
     if (!name) {
@@ -83,9 +85,12 @@ export class BookingService {
     if (exitGate && !Object.values(EXIT_GATE).includes(exitGate)) {
       throw new ValidationError('Invalid exit gate');
     }
-    
+
     // CHECK IF ACCOMODATION VALUE IS VALID
-    if (accomodation && !Object.values(ACCOMODATION_OPTION).includes(accomodation)) {
+    if (
+      accomodation &&
+      !Object.values(ACCOMODATION_OPTION).includes(accomodation)
+    ) {
       throw new ValidationError('Invalid accomodation option');
     }
 
@@ -139,7 +144,8 @@ export class BookingService {
     startDate,
     endDate,
     notes,
-    email, phone,
+    email,
+    phone,
     approvedAt,
     status,
     totalAmountRwf,
@@ -149,14 +155,15 @@ export class BookingService {
     exitGate,
     entryGate,
     accomodation,
-    type
+    type,
   }: {
     id: UUID;
     startDate: Date;
     endDate?: Date;
     name: string;
     notes?: string;
-    email: string, phone: string;
+    email: string;
+    phone: string;
     approvedAt?: Date;
     status: string;
     totalAmountRwf?: number;
@@ -166,9 +173,8 @@ export class BookingService {
     exitGate?: string;
     entryGate?: string;
     accomodation?: string;
-    type?: string
+    type?: string;
   }): Promise<Booking> {
-
     // CHECK IF EXIT GATE VALUE IS VALID
     if (exitGate && !Object.values(EXIT_GATE).includes(exitGate)) {
       throw new ValidationError('Invalid exit gate');
@@ -178,9 +184,12 @@ export class BookingService {
     if (type && type !== 'booking' && type !== 'registration') {
       throw new ValidationError('Invalid booking type');
     }
-    
+
     // CHECK IF ACCOMODATION VALUE IS VALID
-    if (accomodation && !Object.values(ACCOMODATION_OPTION).includes(accomodation)) {
+    if (
+      accomodation &&
+      !Object.values(ACCOMODATION_OPTION).includes(accomodation)
+    ) {
       throw new ValidationError('Invalid accomodation option');
     }
 
@@ -209,7 +218,8 @@ export class BookingService {
       endDate,
       name,
       notes,
-      email, phone,
+      email,
+      phone,
       approvedAt,
       status,
       totalAmountRwf,
@@ -219,7 +229,7 @@ export class BookingService {
       discountedAmountRwf,
       discountedAmountUsd,
       accomodation,
-      type
+      type,
     });
 
     if (!updatedBooking.affected) {
@@ -271,7 +281,7 @@ export class BookingService {
           phone: true,
           role: true,
           gender: true,
-        }
+        },
       },
       relations: {
         approvedByUser: true,
@@ -342,13 +352,15 @@ export class BookingService {
   }
 
   // FETCH BOOKING STATUSES
-  async fetchBookingStatuses({condition}: {
+  async fetchBookingStatuses({
+    condition,
+  }: {
     condition?: object;
   }): Promise<Booking[]> {
     return await this.bookingRepository.find({
       select: ['status', 'id'],
       where: condition,
-      });
+    });
   }
 
   // SUBMIT BOOKING
@@ -380,7 +392,7 @@ export class BookingService {
     // SEND EMAIL TO USER
     await bookingSubmittedEmail(
       bookingExists?.email,
-      'princeelysee@gmail.com',
+      String(process.env.SENDGRID_SEND_FROM),
       `Booking Confirmation - ${bookingExists?.referenceId}`,
       bookingSubmittedEmailTemplate({
         referenceId: bookingExists?.referenceId,
