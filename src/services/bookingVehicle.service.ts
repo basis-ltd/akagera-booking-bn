@@ -53,17 +53,6 @@ export class BookingVehicleService {
       }
     }
 
-    // CHECK IF BOOKING VEHICLE EXISTS
-    const existingBookingVehicle = await this.findExistingBookingVehicle({
-      condition: { plateNumber, bookingId },
-    });
-
-    if (existingBookingVehicle) {
-      throw new ConflictError('Booking vehicle already exists', {
-        id: existingBookingVehicle.id,
-      });
-    }
-
     // CREATE BOOKING VEHICLE
     const bookingVehicle = this.bookingVehicleRepository.create({
       bookingId,
