@@ -22,6 +22,16 @@ export class Booking extends AbstractEntity {
   })
   endDate: Date;
 
+  // TYPE
+  @Column({
+    name: 'type',
+    type: 'enum',
+    enum: ['booking', 'registration'],
+    default: 'booking',
+    nullable: false,
+  })
+  type!: string;
+
   // NAME
   @Column({ name: 'name', type: 'varchar', length: 255, nullable: false })
   name!: string;
@@ -54,6 +64,15 @@ export class Booking extends AbstractEntity {
     nullable: true,
   })
   exitGate: string;
+
+  // ENTRY GATE
+  @Column({
+    name: 'entry_gate',
+    type: 'enum',
+    enum: Object.values(EXIT_GATE),
+    nullable: true,
+  })
+  entryGate: string;
 
   // ACCOMODATION
   @Column({

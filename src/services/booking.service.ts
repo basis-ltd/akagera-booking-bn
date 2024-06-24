@@ -13,7 +13,10 @@ import { UUID } from 'crypto';
 import { validateUuid } from '../helpers/validations.helper';
 import { ACCOMODATION_OPTION, EXIT_GATE } from '../constants/booking.constants';
 import { generateReferenceID } from '../helpers/strings.helper';
-import { bookingSubmittedEmail, bookingSubmittedEmailTemplate } from '../helpers/emails.helper';
+import {
+  bookingSubmittedEmail,
+  bookingSubmittedEmailTemplate,
+} from '../helpers/emails.helper';
 
 export class BookingService {
   private bookingRepository: Repository<Booking>;
@@ -36,7 +39,9 @@ export class BookingService {
     discountedAmountRwf,
     discountedAmountUsd,
     exitGate,
+    entryGate,
     accomodation,
+    type
   }: {
     startDate: Date;
     endDate?: Date;
@@ -50,7 +55,9 @@ export class BookingService {
     discountedAmountRwf?: number;
     discountedAmountUsd?: number;
     exitGate?: string;
+    entryGate?: string;
     accomodation?: string;
+    type?: string
   }): Promise<Booking> {
     // IF NAME NOT PROVIDED
     if (!name) {
@@ -60,6 +67,11 @@ export class BookingService {
     // IF START TIME NOT PROVIDED
     if (!startDate) {
       throw new ValidationError('Booking date is required');
+    }
+
+    // VALIDATE TYPE
+    if (type && type !== 'booking' && type !== 'registration') {
+      throw new ValidationError('Invalid booking type');
     }
 
     // IF NO CREATED BY
@@ -91,7 +103,9 @@ export class BookingService {
       discountedAmountRwf,
       discountedAmountUsd,
       exitGate,
+      entryGate,
       accomodation,
+      type,
       referenceId: generateReferenceID(),
     });
 
@@ -133,7 +147,9 @@ export class BookingService {
     discountedAmountRwf,
     discountedAmountUsd,
     exitGate,
+    entryGate,
     accomodation,
+    type
   }: {
     id: UUID;
     startDate: Date;
@@ -148,12 +164,19 @@ export class BookingService {
     discountedAmountRwf?: number;
     discountedAmountUsd?: number;
     exitGate?: string;
+    entryGate?: string;
     accomodation?: string;
+    type?: string
   }): Promise<Booking> {
 
     // CHECK IF EXIT GATE VALUE IS VALID
     if (exitGate && !Object.values(EXIT_GATE).includes(exitGate)) {
       throw new ValidationError('Invalid exit gate');
+    }
+
+    // VALIDATE TYPE
+    if (type && type !== 'booking' && type !== 'registration') {
+      throw new ValidationError('Invalid booking type');
     }
     
     // CHECK IF ACCOMODATION VALUE IS VALID
@@ -190,9 +213,13 @@ export class BookingService {
       approvedAt,
       status,
       totalAmountRwf,
+      exitGate,
+      entryGate,
       totalAmountUsd,
       discountedAmountRwf,
       discountedAmountUsd,
+      accomodation,
+      type
     });
 
     if (!updatedBooking.affected) {
@@ -236,6 +263,7 @@ export class BookingService {
         updatedAt: true,
         email: true,
         phone: true,
+        type: true,
         approvedByUser: {
           id: true,
           name: true,
@@ -243,30 +271,10 @@ export class BookingService {
           phone: true,
           role: true,
           gender: true,
-        },
-        bookingActivities: {
-          id: true,
-          startTime: true,
-          endTime: true,
-          numberOfPeople: true,
-        },
-        bookingPeople: {
-          id: true,
-          name: true,
-          email: true,
-          phone: true,
-        },
-        bookingVehicles: {
-          id: true,
-          registrationCountry: true,
-          plateNumber: true,
-        },
+        }
       },
       relations: {
         approvedByUser: true,
-        bookingActivities: true,
-        bookingPeople: true,
-        bookingVehicles: true,
       },
     });
 
@@ -292,6 +300,7 @@ export class BookingService {
         discountedAmountRwf: true,
         discountedAmountUsd: true,
         notes: true,
+        type: true,
         referenceId: true,
         createdAt: true,
         updatedAt: true,

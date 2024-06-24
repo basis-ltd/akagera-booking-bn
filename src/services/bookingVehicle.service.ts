@@ -37,11 +37,6 @@ export class BookingVehicleService {
       throw new ValidationError('Invalid booking ID');
     }
 
-    // IF NO PLATE NUMBER
-    if (!plateNumber) {
-      throw new ValidationError('Plate number is required');
-    }
-
     // IF NO VEHICLE TYPE
     if (!vehicleType) {
       throw new ValidationError('Vehicle type is required');

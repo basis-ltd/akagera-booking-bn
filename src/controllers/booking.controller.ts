@@ -23,7 +23,9 @@ export const BookingController = {
         discountedAmountRwf,
         discountedAmountUsd,
         accomodation,
-        exitGate
+        exitGate,
+        entryGate,
+        type
       } = req.body;
 
       // CREATE BOOKING
@@ -40,7 +42,9 @@ export const BookingController = {
         discountedAmountRwf,
         discountedAmountUsd,
         accomodation,
-        exitGate
+        exitGate,
+        entryGate,
+        type
       });
 
       // RETURN RESPONSE
@@ -62,21 +66,27 @@ export const BookingController = {
         take = 10,
         skip = 0,
         referenceId,
-        email, phone,
+        email,
+        phone,
         approvedBy,
         approvedAt,
         status,
-        name
+        name,
+        entryGate,
+        exitGate,
       } = req.query;
       let condition: object = {
         startDate: startDate && moment(String(startDate)).format('YYYY-MM-DD'),
         endDate: endDate && moment(String(endDate)).format('YYYY-MM-DD'),
         referenceId,
-        email, phone,
+        email,
+        phone,
         approvedBy,
         approvedAt,
         status,
-        name
+        name,
+        entryGate,
+        exitGate
       };
 
       // FETCH BOOKINGS
@@ -112,6 +122,8 @@ export const BookingController = {
         totalAmountUsd,
         discountedAmountRwf,
         discountedAmountUsd,
+        exitGate,
+        entryGate,
       } = req.body;
 
       // UPDATE BOOKING
@@ -128,6 +140,8 @@ export const BookingController = {
         totalAmountUsd,
         discountedAmountRwf,
         discountedAmountUsd,
+        exitGate,
+        entryGate,
       });
 
       // RETURN RESPONSE
