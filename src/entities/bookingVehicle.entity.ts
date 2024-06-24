@@ -11,9 +11,9 @@ export class BookingVehicle extends AbstractEntity {
     name: 'plate_number',
     type: 'varchar',
     length: 255,
-    nullable: false,
+    nullable: true,
   })
-  plateNumber!: string;
+  plateNumber: string;
 
   // BOOKING ID
   @Column({ name: 'booking_id', type: 'uuid', nullable: false })
