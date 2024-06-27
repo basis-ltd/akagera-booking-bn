@@ -73,6 +73,7 @@ export const BookingController = {
         status,
         name,
         entryGate,
+        type,
         exitGate,
       } = req.query;
       let condition: object = {
@@ -86,6 +87,7 @@ export const BookingController = {
         status,
         name,
         entryGate,
+        type,
         exitGate
       };
 
