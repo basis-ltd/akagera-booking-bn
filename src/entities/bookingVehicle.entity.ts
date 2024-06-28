@@ -28,6 +28,15 @@ export class BookingVehicle extends AbstractEntity {
   })
   vehicleType!: string;
 
+  // NUMBER OF VEHICLES
+  @Column({
+    name: 'vehicles_count',
+    type: 'int',
+    nullable: false,
+    default: 1,
+  })
+  vehiclesCount: number;
+
   // REGISTRATION COUNTRY
   @Column({
     name: 'registration_country',

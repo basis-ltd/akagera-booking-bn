@@ -20,12 +20,14 @@ export class BookingVehicleService {
     bookingId,
     plateNumber,
     vehicleType,
-    registrationCountry
+    registrationCountry,
+    vehiclesCount
   }: {
     bookingId: UUID;
     plateNumber: string;
     vehicleType: string;
     registrationCountry: string;
+    vehiclesCount: number;
   }): Promise<BookingVehicle> {
     // IF NO BOOKING ID
     if (!bookingId) {
@@ -59,6 +61,7 @@ export class BookingVehicleService {
       plateNumber,
       vehicleType,
       registrationCountry,
+      vehiclesCount
     });
 
     // SAVE BOOKING VEHICLE
@@ -134,13 +137,15 @@ export class BookingVehicleService {
     plateNumber,
     vehicleType,
     bookingId,
-    registrationCountry
+    registrationCountry,
+    vehiclesCount
   }: {
     id: UUID;
     plateNumber: string;
     vehicleType: string;
     bookingId: UUID;
     registrationCountry: string;
+    vehiclesCount: number;
   }): Promise<BookingVehicle> {
     const { error } = validateUuid(id);
     if (error) {
@@ -164,6 +169,7 @@ export class BookingVehicleService {
         plateNumber,
         vehicleType,
         bookingId,
+        vehiclesCount
       }
     );
 

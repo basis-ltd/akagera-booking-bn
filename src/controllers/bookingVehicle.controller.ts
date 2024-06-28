@@ -14,6 +14,7 @@ export const BookingVehicleController = {
         plateNumber,
         vehicleType,
         registrationCountry = 'RW',
+        vehiclesCount = 1
       } = req.body;
 
       // CREATE BOOKING VEHICLE
@@ -23,6 +24,7 @@ export const BookingVehicleController = {
           plateNumber,
           vehicleType,
           registrationCountry: registrationCountry?.toUpperCase(),
+          vehiclesCount
         });
 
       // RETURN RESPONSE
@@ -99,6 +101,7 @@ export const BookingVehicleController = {
         plateNumber,
         vehicleType,
         registrationCountry = 'RW',
+        vehiclesCount = 1
       } = req.body;
 
       // UPDATE BOOKING VEHICLE
@@ -109,6 +112,7 @@ export const BookingVehicleController = {
           plateNumber,
           vehicleType,
           registrationCountry: registrationCountry?.toUpperCase(),
+          vehiclesCount
         });
 
       // RETURN RESPONSE
