@@ -1,12 +1,16 @@
 import moment from 'moment';
-import { ValidationError } from './errors.helper';
 
 export const isTimeBetween = (
-  time: Date | string,
+  time: Date,
   startTime: Date | string,
   endTime: Date | string,
   timeFormat = 'HH:mm:ss'
 ) => {
+  const timeToCheck = moment(time).format(timeFormat);
 
-  return moment(time).format(timeFormat) >= startTime && moment(time).format(timeFormat) <= endTime;
+  const startTimeToCheck = moment(startTime, timeFormat);
+  const endTimeToCheck = moment(endTime, timeFormat);
+
+  const timeMomentToCheck = moment(timeToCheck, timeFormat);
+  return timeMomentToCheck.isBetween(startTimeToCheck, endTimeToCheck, null, '[)');
 };

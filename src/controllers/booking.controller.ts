@@ -245,9 +245,10 @@ export const BookingController = {
   async submitBooking(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      const { status = 'pending' } = req.body;
 
       // CONFIRM BOOKING
-      const confirmedBooking = await bookingService.submitBooking(id as UUID);
+      const confirmedBooking = await bookingService.submitBooking({ id: id as UUID, status });
 
       // RETURN RESPONSE
       return res.status(200).json({

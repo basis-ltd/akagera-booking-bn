@@ -32,13 +32,15 @@ export class BookingActivityService {
     endTime,
     bookingId,
     activityId,
-    numberOfPeople
+    numberOfAdults,
+    numberOfChildren
   }: {
     startTime: Date;
     endTime?: Date;
     bookingId: UUID;
     activityId: UUID;
-    numberOfPeople: number;
+    numberOfAdults?: number;
+    numberOfChildren?:number
   }): Promise<BookingActivity> {
     // IF NO BOOKING ID
     if (!bookingId) {
@@ -71,9 +73,15 @@ export class BookingActivityService {
       where: { activityId },
     });
 
-    if (activitySchedulesExists.length > 0) {
+    if (activitySchedulesExists?.length > 0) {
       const bookingActivityIsValid = activitySchedulesExists.map((schedule) =>
-        isTimeBetween(startTime, schedule.startTime, schedule?.endTime)
+        {
+          return isTimeBetween(
+            startTime,
+            schedule.startTime,
+            schedule?.endTime
+          );
+        }
       );
       if (!bookingActivityIsValid.includes(true)) {
         throw new ValidationError('Service not available at this time');
@@ -86,7 +94,8 @@ export class BookingActivityService {
       endTime,
       bookingId,
       activityId,
-      numberOfPeople
+      numberOfAdults,
+      numberOfChildren
     });
 
     // SAVE BOOKING ACTIVITY
@@ -211,13 +220,15 @@ export class BookingActivityService {
     startTime,
     endTime,
     activityId,
-    numberOfPeople
+    numberOfAdults,
+    numberOfChildren
   }: {
     id: UUID;
     startTime: Date;
     endTime?: Date;
     activityId: UUID;
-    numberOfPeople: number;
+    numberOfAdults?: number;
+    numberOfChildren?: number
   }): Promise<BookingActivity> {
     // VALIDATE BOOKING ACTIVITY ID
     const { error } = validateUuid(id);
@@ -261,7 +272,8 @@ export class BookingActivityService {
       {
         startTime: startTime && moment(startTime).format(),
         endTime: endTime && moment(endTime).format(),
-        numberOfPeople
+        numberOfAdults,
+        numberOfChildren
       }
     );
 

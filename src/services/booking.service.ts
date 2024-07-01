@@ -14,8 +14,8 @@ import { validateUuid } from '../helpers/validations.helper';
 import { ACCOMODATION_OPTION, EXIT_GATE } from '../constants/booking.constants';
 import { generateReferenceID } from '../helpers/strings.helper';
 import {
-  bookingSubmittedEmail,
   bookingSubmittedEmailTemplate,
+  sendEmail,
 } from '../helpers/emails.helper';
 
 export class BookingService {
@@ -282,9 +282,11 @@ export class BookingService {
           role: true,
           gender: true,
         },
+        bookingPeople: true,
       },
       relations: {
         approvedByUser: true,
+        bookingPeople: true,
       },
     });
 
@@ -364,7 +366,13 @@ export class BookingService {
   }
 
   // SUBMIT BOOKING
-  async submitBooking(id: UUID): Promise<Booking> {
+  async submitBooking({
+    id,
+    status,
+  }: {
+    id: UUID;
+    status: string;
+  }): Promise<Booking> {
     // VALIDATE UUID
     const { error } = validateUuid(id);
 
@@ -382,7 +390,7 @@ export class BookingService {
     }
 
     const confirmedBooking = await this.bookingRepository.update(id, {
-      status: 'pending',
+      status,
     });
 
     if (!confirmedBooking.affected) {
@@ -390,7 +398,7 @@ export class BookingService {
     }
 
     // SEND EMAIL TO USER
-    await bookingSubmittedEmail(
+    await sendEmail(
       bookingExists?.email,
       String(process.env.SENDGRID_SEND_FROM),
       `Booking Confirmation - ${bookingExists?.referenceId}`,
