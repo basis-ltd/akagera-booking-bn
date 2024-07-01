@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
-import { BookingActivityService } from "../services/bookingActivity.service";
-import { UUID } from "crypto";
-import { BookingActivityPersonService } from "../services/bookingActivityPerson.service";
+import { Request, Response, NextFunction } from 'express';
+import { BookingActivityService } from '../services/bookingActivity.service';
+import { UUID } from 'crypto';
+import { BookingActivityPersonService } from '../services/bookingActivityPerson.service';
 
 // INITIALIZE BOOKING ACTIVITY SERVICE
 const bookingActivityService = new BookingActivityService();
@@ -16,7 +16,8 @@ export const BookingActivityController = {
         endTime,
         bookingId,
         activityId,
-        numberOfPeople = 1,
+        numberOfAdults = 0,
+        numberOfChildren = 0,
         bookingActivityPeople,
       } = req.body;
 
@@ -27,23 +28,25 @@ export const BookingActivityController = {
           endTime,
           bookingId,
           activityId,
-          numberOfPeople,
+          numberOfAdults,
+          numberOfChildren,
         });
 
       // IF BOOKING ACTIVITY PEOPLE PROVIDED
       let newBookingActivityPeople: any = [];
       if (bookingActivityPeople?.length > 0) {
         // CREATE BOOKING ACTIVITY PEOPLE
-        newBookingActivityPeople = await bookingActivityPersonService.createBookingActivityPerson({
-          bookingActivityPeople: bookingActivityPeople?.map(
-            (bookingActivityPerson: any) => {
-              return {
-                bookingActivityId: newBookingActivity?.id,
-                bookingPersonId: bookingActivityPerson.bookingPersonId,
-              };
-            }
-          ),
-        });
+        newBookingActivityPeople =
+          await bookingActivityPersonService.createBookingActivityPerson({
+            bookingActivityPeople: bookingActivityPeople?.map(
+              (bookingActivityPerson: any) => {
+                return {
+                  bookingActivityId: newBookingActivity?.id,
+                  bookingPersonId: bookingActivityPerson.bookingPersonId,
+                };
+              }
+            ),
+          });
       }
 
       // RETURN RESPONSE
@@ -136,7 +139,13 @@ export const BookingActivityController = {
   async updateBookingActivity(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { startTime, endTime, activityId, numberOfPeople } = req.body;
+      const {
+        startTime,
+        endTime,
+        activityId,
+        numberOfAdults,
+        numberOfChildren,
+      } = req.body;
 
       // UPDATE BOOKING ACTIVITY
       const updatedBookingActivity =
@@ -145,7 +154,8 @@ export const BookingActivityController = {
           startTime,
           endTime,
           activityId,
-          numberOfPeople,
+          numberOfAdults,
+          numberOfChildren,
         });
 
       // RETURN RESPONSE

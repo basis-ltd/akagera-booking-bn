@@ -16,6 +16,7 @@ export const BOOKING_STATUS = {
   DECLINED: 'declined',
   CANCELLED: 'cancelled',
   VOID: 'void',
+  PENDING_CONTACT: 'pending_contact'
 };
 
 export const AGE_RANGE = {

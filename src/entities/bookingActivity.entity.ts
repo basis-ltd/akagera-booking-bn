@@ -23,14 +23,23 @@ export class BookingActivity extends AbstractEntity {
   @Column({ name: 'activity_id', type: 'uuid', nullable: false })
   activityId!: UUID;
 
-  // NUMBER OF PEOPLE
+  // NUMBER OF ADULTS
   @Column({
-    name: 'number_of_people',
+    name: 'number_of_adults',
     type: 'integer',
     nullable: false,
-    default: 1,
+    default: 0,
   })
-  numberOfPeople!: number;
+  numberOfAdults!: number;
+
+  // NUMBER OF CHILDREN
+  @Column({
+    name: 'number_of_children',
+    type: 'integer',
+    nullable: false,
+    default: 0,
+  })
+  numberOfChildren!: number;
 
   // ACTIVITY
   @ManyToOne(() => Activity, (activity) => activity.bookingActivities)
