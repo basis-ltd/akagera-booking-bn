@@ -14,8 +14,8 @@ import { validateUuid } from '../helpers/validations.helper';
 import { ACCOMODATION_OPTION, EXIT_GATE } from '../constants/booking.constants';
 import { generateReferenceID } from '../helpers/strings.helper';
 import {
-  bookingSubmittedEmail,
   bookingSubmittedEmailTemplate,
+  sendEmail,
 } from '../helpers/emails.helper';
 
 export class BookingService {
@@ -398,7 +398,7 @@ export class BookingService {
     }
 
     // SEND EMAIL TO USER
-    await bookingSubmittedEmail(
+    await sendEmail(
       bookingExists?.email,
       String(process.env.SENDGRID_SEND_FROM),
       `Booking Confirmation - ${bookingExists?.referenceId}`,
