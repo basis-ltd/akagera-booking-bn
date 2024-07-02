@@ -1,7 +1,11 @@
 import { Repository } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { User } from '../entities/user.entity';
-import { ConflictError, NotFoundError, ValidationError } from '../helpers/errors.helper';
+import {
+  ConflictError,
+  NotFoundError,
+  ValidationError,
+} from '../helpers/errors.helper';
 import { validateEmail } from '../helpers/validations.helper';
 import { hashPassword } from '../helpers/encryption.helper';
 import { generateRandomPassword } from '../helpers/strings.helper';
@@ -48,7 +52,7 @@ export class UserService {
     name,
     phone,
     role,
-    nationality
+    nationality,
   }: {
     email: string;
     name: string;
@@ -76,9 +80,10 @@ export class UserService {
     // CHECK IF USER EXISTS
     const userExists = await this.findUserByEmail(email);
 
-    if (userExists) throw new ConflictError('User with this email address already exists', {
-      id: userExists?.id
-    })
+    if (userExists)
+      throw new ConflictError('User with this email address already exists', {
+        id: userExists?.id,
+      });
 
     // GENERATE RANDOM PASSWORD
     const password = generateRandomPassword();
@@ -91,7 +96,7 @@ export class UserService {
       phone,
       password: hashedPassword,
       role,
-      nationality
+      nationality,
     });
 
     // SEND EMAIL TO USER
@@ -127,7 +132,7 @@ export class UserService {
       name,
       phone,
       role,
-      gender
+      gender,
     });
 
     // IF USER NOT FOUND
@@ -142,18 +147,19 @@ export class UserService {
   async fetchUsers({
     take,
     skip,
-    condition
+    condition,
   }: {
-    take?: number,
-    skip?: number,
-    condition?: object
+    take?: number;
+    skip?: number;
+    condition?: object;
   }): Promise<UserPagination> {
     const usersList = await this.userRepository.findAndCount({
       where: condition,
       take,
-      skip
-    })
+      skip,
+      order: { updatedAt: 'DESC' },
+    });
 
-    return getPagingData(usersList, take, skip)
+    return getPagingData(usersList, take, skip);
   }
 }
