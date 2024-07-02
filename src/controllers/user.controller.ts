@@ -91,4 +91,21 @@ export const UserController = {
       next(error);
     }
   },
+
+  // DELETE USER
+  async deleteUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+
+      // DELETE USER
+      await userService.deleteUser(id as UUID)
+
+      // RETURN RESPONSE
+      return res.status(204).json({
+        message: 'User deleted successfully'
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
 };

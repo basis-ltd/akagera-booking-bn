@@ -162,4 +162,13 @@ export class UserService {
 
     return getPagingData(usersList, take, skip);
   }
+
+  // DELETE USER
+  async deleteUser(id: UUID): Promise<void> {
+    const deletedUser = await this.userRepository.delete(id);
+
+    if (!deletedUser.affected) {
+      throw new NotFoundError('User not found')
+    }
+  }
 }
