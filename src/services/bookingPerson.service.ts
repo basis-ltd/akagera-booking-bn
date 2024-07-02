@@ -91,7 +91,14 @@ export class BookingPersonService {
 
     // CHECK IF BOOKING PERSON ALREADY EXISTS
     const existingBookingPerson = await this.findExistingBookingPerson({
-      condition: { bookingId, name, phone, email, nationality, residence },
+      condition: {
+        bookingId,
+        name,
+        dateOfBirth,
+        gender,
+        nationality,
+        residence,
+      },
     });
 
     // IF BOOKING PERSON ALREADY EXISTS

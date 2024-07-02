@@ -17,5 +17,8 @@ router.patch('/:id', UserController.updateUser)
 // FETCH USERS
 router.get('/', UserController.fetchUsers)
 
+// DELETE USER
+router.delete('/:id', UserController.deleteUser)
+
 // EXPORT ROUTER
 export default router;
