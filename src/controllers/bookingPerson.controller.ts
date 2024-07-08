@@ -74,6 +74,33 @@ export const BookingPersonController = {
     }
   },
 
+  // FETCH POPULAR BOOKING PEOPLE 
+  async fetchPopularBookingPeople(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { take = 10, skip = 0, criteria = 'residence' } = req.query;
+
+      // FETCH POPULAR BOOKING PEOPLE
+      const popularBookingPeople =
+        await bookingPersonService.fetchPopularBookingPeople({
+          take: Number(take),
+          skip: Number(skip),
+          criteria: criteria as 'residence' | 'nationality' | 'dateOfBirth',
+        });
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Popular booking people fetched successfully!',
+        data: popularBookingPeople,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   // GET BOOKING PERSON DETAILS
   async getBookingPersonDetails(
     req: Request,

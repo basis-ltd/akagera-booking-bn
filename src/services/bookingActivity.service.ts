@@ -35,14 +35,14 @@ export class BookingActivityService {
     numberOfAdults,
     numberOfChildren,
     numberOfSeats,
-    defaultRate
+    defaultRate,
   }: {
     startTime: Date;
     endTime?: Date;
     bookingId: UUID;
     activityId: UUID;
     numberOfAdults?: number;
-    numberOfChildren?:number;
+    numberOfChildren?: number;
     numberOfSeats: number;
     defaultRate?: number;
   }): Promise<BookingActivity> {
@@ -81,7 +81,7 @@ export class BookingActivityService {
       numberOfAdults,
       numberOfChildren,
       numberOfSeats,
-      defaultRate
+      defaultRate,
     });
 
     // SAVE BOOKING ACTIVITY
@@ -110,13 +110,32 @@ export class BookingActivityService {
           },
           booking: true,
           bookingActivityPeople: {
-              bookingPerson: true,
-          }
+            bookingPerson: true,
+          },
         },
       }
     );
 
     return getPagingData(bookingActivities, take, skip);
+  }
+
+  // FETCH POPULAR ACTIVITIES
+  async fetchPopularActivities({
+    take,
+    skip,
+  }: {
+    take?: number;
+    skip?: number;
+  }) {
+    // FETCH POPULAR ACTIVITIES
+    const query = this.bookingActivityRepository
+      .createQueryBuilder('bookingActivity')
+      .select('count(bookingActivity.id) as count, activity.id, activity.name')
+      .groupBy('activity.id')
+      .leftJoinAndSelect('bookingActivity.activity', 'activity')
+      .orderBy('count', 'DESC');
+
+    return await query.take(take).skip(skip).getRawMany();
   }
 
   // FIND BOOKING ACTIVITY BY ID
@@ -179,9 +198,10 @@ export class BookingActivityService {
     }
 
     // CHECK IF BOOKING ACTIVITY HAS ASSOCIATED BOOKING ACTIVITY PEOPLE AND DELETE
-    const bookingActivityPeople = await this.bookingActivityPeopleRepository.find({
-      where: { bookingActivityId: id },
-    });
+    const bookingActivityPeople =
+      await this.bookingActivityPeopleRepository.find({
+        where: { bookingActivityId: id },
+      });
 
     if (bookingActivityPeople.length > 0) {
       await this.bookingActivityPeopleRepository.delete({
@@ -209,7 +229,7 @@ export class BookingActivityService {
     numberOfAdults,
     numberOfChildren,
     numberOfSeats,
-    defaultRate
+    defaultRate,
   }: {
     id: UUID;
     startTime: Date;
@@ -245,7 +265,7 @@ export class BookingActivityService {
         numberOfAdults,
         numberOfChildren,
         numberOfSeats,
-        defaultRate
+        defaultRate,
       }
     );
 

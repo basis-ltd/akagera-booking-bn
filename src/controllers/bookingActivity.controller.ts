@@ -99,6 +99,31 @@ export const BookingActivityController = {
     }
   },
 
+  // FETCH POPULAR ACTIVITIES
+  async fetchPopularActivities(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { take = 10, skip = 0 } = req.query;
+      // FETCH POPULAR ACTIVITIES
+      const popularActivities =
+        await bookingActivityService.fetchPopularActivities({
+          take: Number(take),
+          skip: Number(skip),
+        });
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Popular activities fetched successfully!',
+        data: popularActivities,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   // GET BOOKING ACTIVITY BY ID
   async getBookingActivityById(
     req: Request,
