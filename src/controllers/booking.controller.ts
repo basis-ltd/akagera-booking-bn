@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { BookingService } from '../services/booking.service';
 import moment from 'moment';
 import { UUID } from 'crypto';
+import { LessThanOrEqual } from 'typeorm';
 
 // INITIALIZE BOOKING SERVICE
 const bookingService = new BookingService();
@@ -77,8 +78,8 @@ export const BookingController = {
         exitGate,
       } = req.query;
       let condition: object = {
-        startDate: startDate && moment(String(startDate)).format('YYYY-MM-DD'),
-        endDate: endDate && moment(String(endDate)).format('YYYY-MM-DD'),
+        startDate,
+        endDate,
         referenceId,
         email,
         phone,
@@ -88,7 +89,7 @@ export const BookingController = {
         name,
         entryGate,
         type,
-        exitGate
+        exitGate,
       };
 
       // FETCH BOOKINGS
@@ -245,10 +246,10 @@ export const BookingController = {
   async submitBooking(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { status = 'pending' } = req.body;
+      const { status = 'pending_contact', totalAmountRwf, totalAmountUsd } = req.body;
 
       // CONFIRM BOOKING
-      const confirmedBooking = await bookingService.submitBooking({ id: id as UUID, status });
+      const confirmedBooking = await bookingService.submitBooking({ id: id as UUID, status, totalAmountRwf, totalAmountUsd });
 
       // RETURN RESPONSE
       return res.status(200).json({

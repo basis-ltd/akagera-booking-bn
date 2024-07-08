@@ -33,7 +33,9 @@ export class BookingPerson extends AbstractUserEntity {
   accomodation: string;
 
   // BOOKING
-  @ManyToOne(() => Booking, (booking) => booking.bookingPeople)
+  @ManyToOne(() => Booking, (booking) => booking.bookingPeople, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'booking_id' })
   booking: Booking;
 

@@ -33,14 +33,18 @@ export class BookingActivityService {
     bookingId,
     activityId,
     numberOfAdults,
-    numberOfChildren
+    numberOfChildren,
+    numberOfSeats,
+    defaultRate
   }: {
     startTime: Date;
     endTime?: Date;
     bookingId: UUID;
     activityId: UUID;
     numberOfAdults?: number;
-    numberOfChildren?:number
+    numberOfChildren?:number;
+    numberOfSeats: number;
+    defaultRate?: number;
   }): Promise<BookingActivity> {
     // IF NO BOOKING ID
     if (!bookingId) {
@@ -68,26 +72,6 @@ export class BookingActivityService {
       throw new ValidationError('Start time is required');
     }
 
-    // FIND IF ACTIVITY SCHEDULE EXISTS
-    const activitySchedulesExists = await this.activityScheduleRepository.find({
-      where: { activityId },
-    });
-
-    if (activitySchedulesExists?.length > 0) {
-      const bookingActivityIsValid = activitySchedulesExists.map((schedule) =>
-        {
-          return isTimeBetween(
-            startTime,
-            schedule.startTime,
-            schedule?.endTime
-          );
-        }
-      );
-      if (!bookingActivityIsValid.includes(true)) {
-        throw new ValidationError('Service not available at this time');
-      }
-    }
-
     // CREATE BOOKING ACTIVITY
     const bookingActivity = this.bookingActivityRepository.create({
       startTime,
@@ -95,7 +79,9 @@ export class BookingActivityService {
       bookingId,
       activityId,
       numberOfAdults,
-      numberOfChildren
+      numberOfChildren,
+      numberOfSeats,
+      defaultRate
     });
 
     // SAVE BOOKING ACTIVITY
@@ -221,14 +207,18 @@ export class BookingActivityService {
     endTime,
     activityId,
     numberOfAdults,
-    numberOfChildren
+    numberOfChildren,
+    numberOfSeats,
+    defaultRate
   }: {
     id: UUID;
     startTime: Date;
     endTime?: Date;
     activityId: UUID;
     numberOfAdults?: number;
-    numberOfChildren?: number
+    numberOfChildren?: number;
+    numberOfSeats: number;
+    defaultRate?: number;
   }): Promise<BookingActivity> {
     // VALIDATE BOOKING ACTIVITY ID
     const { error } = validateUuid(id);
@@ -246,26 +236,6 @@ export class BookingActivityService {
       throw new ValidationError('Booking activity not found');
     }
 
-    /**
-     * VALIDATE START TIME
-     *  */
-    // FIND IF ACTIVITY SCHEDULE EXISTS
-    if (startTime) {
-      const activitySchedulesExists =
-        await this.activityScheduleRepository.find({
-          where: { activityId: activityId || bookingActivity.activityId },
-        });
-
-      if (activitySchedulesExists.length > 0) {
-        const bookingActivityIsValid = activitySchedulesExists.map((schedule) =>
-          isTimeBetween(startTime, schedule.startTime, schedule?.endTime)
-        );
-        if (!bookingActivityIsValid.includes(true)) {
-          throw new ValidationError('Service not available at this time');
-        }
-      }
-    }
-
     // UPDATE BOOKING ACTIVITY
     const updatedBookingActivity = await this.bookingActivityRepository.update(
       id,
@@ -273,7 +243,9 @@ export class BookingActivityService {
         startTime: startTime && moment(startTime).format(),
         endTime: endTime && moment(endTime).format(),
         numberOfAdults,
-        numberOfChildren
+        numberOfChildren,
+        numberOfSeats,
+        defaultRate
       }
     );
 

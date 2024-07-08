@@ -70,7 +70,9 @@ export class ActivityRate extends AbstractEntity {
   ageRange: string;
 
   // ACTIVITY
-  @ManyToOne(() => Activity, (activity) => activity.activityRates)
+  @ManyToOne(() => Activity, (activity) => activity.activityRates, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'activity_id' })
   activity: Activity;
 }

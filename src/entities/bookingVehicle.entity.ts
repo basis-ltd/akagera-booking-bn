@@ -48,7 +48,9 @@ export class BookingVehicle extends AbstractEntity {
   registrationCountry!: string;
 
   // BOOKING
-  @ManyToOne(() => Booking, (booking) => booking.bookingVehicles)
+  @ManyToOne(() => Booking, (booking) => booking.bookingVehicles, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'booking_id' })
   booking!: Booking;
 }

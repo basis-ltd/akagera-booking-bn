@@ -19,6 +19,8 @@ export const BookingActivityController = {
         numberOfAdults = 0,
         numberOfChildren = 0,
         bookingActivityPeople,
+        numberOfSeats = 1,
+        defaultRate
       } = req.body;
 
       // CREATE BOOKING ACTIVITY
@@ -30,6 +32,8 @@ export const BookingActivityController = {
           activityId,
           numberOfAdults,
           numberOfChildren,
+          numberOfSeats,
+          defaultRate
         });
 
       // IF BOOKING ACTIVITY PEOPLE PROVIDED
@@ -145,6 +149,8 @@ export const BookingActivityController = {
         activityId,
         numberOfAdults,
         numberOfChildren,
+        numberOfSeats,
+        defaultRate
       } = req.body;
 
       // UPDATE BOOKING ACTIVITY
@@ -156,6 +162,8 @@ export const BookingActivityController = {
           activityId,
           numberOfAdults,
           numberOfChildren,
+          numberOfSeats,
+          defaultRate
         });
 
       // RETURN RESPONSE

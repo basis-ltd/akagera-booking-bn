@@ -369,9 +369,13 @@ export class BookingService {
   async submitBooking({
     id,
     status,
+    totalAmountRwf,
+    totalAmountUsd,
   }: {
     id: UUID;
     status: string;
+    totalAmountRwf: number;
+    totalAmountUsd: number;
   }): Promise<Booking> {
     // VALIDATE UUID
     const { error } = validateUuid(id);
@@ -391,6 +395,8 @@ export class BookingService {
 
     const confirmedBooking = await this.bookingRepository.update(id, {
       status,
+      totalAmountRwf,
+      totalAmountUsd,
     });
 
     if (!confirmedBooking.affected) {

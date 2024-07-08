@@ -1,7 +1,10 @@
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { ACCOMODATION_OPTION, BOOKING_STATUS, EXIT_GATE } from '../constants/booking.constants';
+import {
+  ACCOMODATION_OPTION,
+  BOOKING_STATUS,
+  EXIT_GATE,
+} from '../constants/booking.constants';
 import { UUID } from 'crypto';
-import moment from 'moment';
 import { AbstractEntity } from './abstract.entity';
 import { User } from './user.entity';
 import { BookingPerson } from './bookingPerson.entity';
@@ -160,22 +163,17 @@ export class Booking extends AbstractEntity {
   approvedByUser: User;
 
   // BOOKING PEOPLE
-  @OneToMany(() => BookingPerson, (bookingPerson) => bookingPerson.booking, {
-    onDelete: 'CASCADE',
-  })
+  @OneToMany(() => BookingPerson, (bookingPerson) => bookingPerson.booking)
   bookingPeople: BookingPerson[];
 
   // BOOKING VEHICLES
-  @OneToMany(() => BookingVehicle, (bookingVehicle) => bookingVehicle.booking, {
-    onDelete: 'CASCADE',
-  })
+  @OneToMany(() => BookingVehicle, (bookingVehicle) => bookingVehicle.booking)
   bookingVehicles: BookingVehicle[];
 
   // BOOKING ACTIVITIES
   @OneToMany(
     () => BookingActivity,
-    (bookingActivity) => bookingActivity.booking,
-    { onDelete: 'CASCADE' }
+    (bookingActivity) => bookingActivity.booking
   )
   bookingActivities: BookingActivity[];
 }
