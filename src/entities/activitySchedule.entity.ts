@@ -29,6 +29,15 @@ export class ActivitySchedule extends AbstractEntity {
     })
     description: string;
 
+    // NUMBER OF SEATS
+    @Column({
+        name: 'number_of_seats',
+        type: 'int',
+        nullable: true,
+        default: 1000,
+    })
+    numberOfSeats: number;
+
     // DISCLAIMER
     @Column({
         name: 'disclaimer',
@@ -46,7 +55,9 @@ export class ActivitySchedule extends AbstractEntity {
     activityId!: string;
 
     // ACTIVITY
-    @ManyToOne(() => Activity, (activity) => activity.activitySchedules)
+    @ManyToOne(() => Activity, (activity) => activity.activitySchedules, {
+        onDelete: 'CASCADE',
+    })
     @JoinColumn({ name: 'activity_id' })
     activity: Activity;
 };

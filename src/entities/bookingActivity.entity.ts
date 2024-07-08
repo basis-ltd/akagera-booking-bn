@@ -23,6 +23,15 @@ export class BookingActivity extends AbstractEntity {
   @Column({ name: 'activity_id', type: 'uuid', nullable: false })
   activityId!: UUID;
 
+  // NUMBER OF SEATS
+  @Column({
+    name: 'number_of_seats',
+    type: 'integer',
+    nullable: false,
+    default: 1,
+  })
+  numberOfSeats!: number;
+
   // NUMBER OF ADULTS
   @Column({
     name: 'number_of_adults',
@@ -41,21 +50,27 @@ export class BookingActivity extends AbstractEntity {
   })
   numberOfChildren!: number;
 
+  // DEFAULT RATE
+  @Column({ name: 'default_rate', type: 'decimal', nullable: true })
+  defaultRate: number;
+
   // ACTIVITY
-  @ManyToOne(() => Activity, (activity) => activity.bookingActivities)
+  @ManyToOne(() => Activity, (activity) => activity.bookingActivities, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'activity_id' })
   activity!: Activity;
 
   // BOOKING
-  @ManyToOne(() => Booking, (booking) => booking.bookingActivities)
+  @ManyToOne(() => Booking, (booking) => booking.bookingActivities, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'booking_id' })
   booking!: Booking;
 
   // BOOKING ACTIVITY PEOPLE
   @OneToMany(
     () => BookingActivityPerson,
-    (bookingActivityPerson) => bookingActivityPerson.bookingActivity,
-    { onDelete: 'CASCADE' }
-  )
+    (bookingActivityPerson) => bookingActivityPerson.bookingActivity)
   bookingActivityPeople!: BookingActivityPerson[];
 };

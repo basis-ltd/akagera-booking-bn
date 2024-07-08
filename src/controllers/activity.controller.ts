@@ -10,7 +10,7 @@ export const ActivityController = {
     // CREATE ACTIVITY
     async createActivity(req: Request, res: Response, next: NextFunction) {
         try {
-            const { name, description, disclaimer, serviceId } = req.body;
+            const { name, description, disclaimer, serviceId, numberOfSeats = 1000 } = req.body;
 
             // CREATE ACTIVITY
             const newActivity = await activityService.createActivity({
@@ -18,6 +18,7 @@ export const ActivityController = {
                 description,
                 disclaimer,
                 serviceId,
+                numberOfSeats,
             });
 
             // RETURN RESPONSE
@@ -34,7 +35,7 @@ export const ActivityController = {
     async updateActivity(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
-            const { name, description, disclaimer, serviceId } = req.body;
+            const { name, description, disclaimer, serviceId, numberOfSeats } = req.body;
 
             // UPDATE ACTIVITY
             const updatedActivity = await activityService.updateActivity({
@@ -43,6 +44,7 @@ export const ActivityController = {
                 description,
                 disclaimer,
                 serviceId,
+                numberOfSeats,
             });
 
             // RETURN RESPONSE

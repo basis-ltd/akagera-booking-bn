@@ -26,12 +26,14 @@ export class ActivityScheduleService {
     description,
     disclaimer,
     activityId,
+    numberOfSeats
   }: {
     startTime: string;
     endTime: string;
     description: string;
     disclaimer: string;
     activityId: UUID;
+    numberOfSeats: number;
   }): Promise<ActivitySchedule> {
     // VALIDATE ACTIVITY ID
     if (!activityId) {
@@ -64,6 +66,7 @@ export class ActivityScheduleService {
       description,
       disclaimer,
       activityId,
+      numberOfSeats
     });
 
     // SAVE ACTIVITY SCHEDULE
@@ -113,6 +116,7 @@ export class ActivityScheduleService {
             disclaimer: true,
             createdAt: true,
             updatedAt: true,
+            numberOfSeats: true,
             activity: {
                 id: true,
                 name: true,
@@ -176,12 +180,14 @@ export class ActivityScheduleService {
         description,
         disclaimer,
         activityId,
+        numberOfSeats
         }: {
         startTime: string;
         endTime: string;
         description: string;
         disclaimer: string;
         activityId: UUID;
+        numberOfSeats: number;
         }
     ): Promise<ActivitySchedule> {
       // VALIDATE ID
@@ -237,6 +243,7 @@ export class ActivityScheduleService {
           description,
           disclaimer,
           activityId,
+          numberOfSeats
         });
 
       if (!updatedActivitySchedule.affected) {
