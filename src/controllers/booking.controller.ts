@@ -109,6 +109,29 @@ export const BookingController = {
     }
   },
 
+  // FETCH TIME SERIES BOOKINGS
+  async fetchTimeSeriesBookings(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { month, year, granularity = 'day', type } = req.query;
+
+      // FETCH BOOKINGS
+      const bookings = await bookingService.fetchTimeSeriesBookings({
+        month: Number(month),
+        year: Number(year),
+        granularity: granularity as 'day' | 'month',
+        type: type as 'booking' | 'registration',
+      });
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Bookings fetched successfully!',
+        data: bookings,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   // UPDATE BOOKING
   async updateBooking(req: Request, res: Response, next: NextFunction) {
     try {

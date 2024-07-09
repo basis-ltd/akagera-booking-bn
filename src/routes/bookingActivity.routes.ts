@@ -14,6 +14,9 @@ router.post("/", BookingActivityController.createBookingActivity);
 // FETCH BOOKING ACTIVITIES
 router.get("/", BookingActivityController.fetchBookingActivities);
 
+// FETCH POPULAR ACTIVITIES
+router.get("/popular", BookingActivityController.fetchPopularActivities);
+
 // GET BOOKING ACTIVITY BY ID
 router.get("/:id", BookingActivityController.getBookingActivityById);
 

@@ -14,6 +14,9 @@ router.post("/", BookingController.createBooking);
 // FETCH BOOKINGS
 router.get("/", BookingController.fetchBookings);
 
+// FETCH TIME SERIES BOOKINGS
+router.get("/time-series", BookingController.fetchTimeSeriesBookings);
+
 // UPDATE BOOKING
 router.patch("/:id", BookingController.updateBooking);
 

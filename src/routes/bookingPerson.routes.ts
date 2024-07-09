@@ -14,6 +14,9 @@ router.post('/', BookingPersonController.createBookingPerson);
 // FETCH BOOKING PEOPLE
 router.get('/', BookingPersonController.fetchBookingPeople);
 
+// FETCH POPULAR BOOKING PEOPLE
+router.get('/popular', BookingPersonController.fetchPopularBookingPeople);
+
 // GET BOOKING PERSON DETAILS
 router.get('/:id', BookingPersonController.getBookingPersonDetails);
 

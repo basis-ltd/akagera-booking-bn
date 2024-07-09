@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { LessThanOrEqual, Repository } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { Booking } from '../entities/booking.entity';
 import {
@@ -137,7 +137,75 @@ export class BookingService {
     return getPagingData(bookings, take, skip);
   }
 
-  // UPDATE BOOKING
+  // FETCH TIME SERIES DATA
+  async fetchTimeSeriesBookings({
+    year,
+    month,
+    granularity,
+    type,
+  }: {
+    year: number;
+    month?: number;
+    granularity: 'day' | 'month';
+    type?: string;
+  }) {
+    let startDate: Date;
+    let endDate: Date;
+    let selectClause: string;
+    let groupByClause: string;
+    let orderByClause: string;
+
+    // VALIDATE TYPE
+    if (type && !['booking', 'registration'].includes(type)){
+      throw new ValidationError('Invalid booking type');
+    }
+
+    if (granularity === 'day') {
+      if (month === undefined) {
+        throw new ValidationError('Month is required for day granularity');
+      }
+      startDate = moment().year(year).month(month - 1).startOf('month').toDate();
+      endDate = moment().year(year).month(month - 1).endOf('month').toDate();
+      selectClause = 'DATE(booking.startDate) as datePart, COUNT(*) as count';
+      groupByClause = 'DATE(booking.startDate)';
+      orderByClause = 'DATE(booking.startDate)';
+    } else if (granularity === 'month') {
+      startDate = moment().year(year).startOf('year').toDate();
+      endDate = moment().year(year).endOf('year').toDate();
+      selectClause = `date_part('year', booking.startDate) as yearPart, date_part('month', booking.startDate) as monthPart, COUNT(*) as count`;
+      groupByClause = `date_part('year', booking.startDate), date_part('month', booking.startDate)`;
+      orderByClause = `date_part('year', booking.startDate), date_part('month', booking.startDate)`;
+    } else {
+      throw new ValidationError('Invalid granularity. Use day or month.');
+    }
+
+    const query = this.bookingRepository.createQueryBuilder('booking')
+      .select(selectClause)
+      .where('booking.startDate >= :startDate', { startDate })
+      .andWhere('booking.startDate <= :endDate', { endDate })
+      .groupBy(groupByClause)
+      .orderBy(orderByClause, 'ASC');
+
+    if (type) {
+      query.andWhere('booking.type = :type', { type });
+    }
+
+    const result = await query.getRawMany();
+
+    const timeSeriesData = result.map((item) => {
+      return {
+        date:
+          granularity === 'day'
+            ? moment(item?.datepart).format('MM-DD')
+            : moment(item?.datepart).format('YYYY-MM'),
+        value: parseInt(item.count, 10),
+      };
+    });
+
+    return timeSeriesData;
+  }
+    
+    // UPDATE BOOKING
   async updateBooking({
     id,
     name,

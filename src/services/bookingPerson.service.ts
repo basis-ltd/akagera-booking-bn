@@ -154,6 +154,47 @@ export class BookingPersonService {
     return getPagingData(bookingPeople, take, skip);
   }
 
+  // FETCH POPULAR BOOKING PEOPLE
+  async fetchPopularBookingPeople({
+    criteria,
+    take,
+    skip
+  }: {
+    criteria: 'residence' | 'nationality' | 'dateOfBirth';
+    take?: number;
+    skip?: number;
+  }): Promise<{ value: string | number, count: number }[]> {
+    const queryBuilder =
+      this.bookingPersonRepository.createQueryBuilder('bookingPerson');
+
+    if (!['residence', 'nationality', 'dateOfBirth'].includes(criteria)) {
+      throw new ValidationError('Invalid criteria provided');
+    }
+
+    queryBuilder
+      .select(`bookingPerson.${criteria}`, 'value')
+      .addSelect('COUNT(bookingPerson.id)', 'count')
+      .groupBy(`bookingPerson.${criteria}`)
+      .orderBy('count', 'DESC');
+
+    if (take) {
+      queryBuilder.take(take);
+    }
+
+    if (skip) {
+      queryBuilder.skip(skip);
+    }
+
+    const result = await queryBuilder.getRawMany();
+
+    return result.map((item) => {
+      return {
+        value: criteria === 'dateOfBirth' ? moment().diff(item.value, 'years') : item.value,
+        count: Number(item.count),
+      };
+    });
+  }
+
   // GET BOOKING PERSON DETAILS
   async getBookingPersonDetails(id: UUID): Promise<BookingPerson> {
     // VALIDATE BOOKING PERSON ID
