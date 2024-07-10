@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { BookingActivityService } from '../services/bookingActivity.service';
 import { UUID } from 'crypto';
 import { BookingActivityPersonService } from '../services/bookingActivityPerson.service';
+import { Between } from 'typeorm';
+import moment from 'moment';
 
 // INITIALIZE BOOKING ACTIVITY SERVICE
 const bookingActivityService = new BookingActivityService();
@@ -20,7 +22,7 @@ export const BookingActivityController = {
         numberOfChildren = 0,
         bookingActivityPeople,
         numberOfSeats = 1,
-        defaultRate
+        defaultRate,
       } = req.body;
 
       // CREATE BOOKING ACTIVITY
@@ -33,7 +35,7 @@ export const BookingActivityController = {
           numberOfAdults,
           numberOfChildren,
           numberOfSeats,
-          defaultRate
+          defaultRate,
         });
 
       // IF BOOKING ACTIVITY PEOPLE PROVIDED
@@ -73,13 +75,21 @@ export const BookingActivityController = {
     next: NextFunction
   ) {
     try {
-      const { bookingId, take = 10, skip = 0, activityId } = req.query;
-      let condition: object = {};
-
-      // IF BOOKING ID PROVIDED
-      if (bookingId) {
-        condition = { ...condition, bookingId, activityId };
-      }
+      const {
+        bookingId,
+        take = 10,
+        skip = 0,
+        activityId,
+        startTime,
+      } = req.query;
+      let condition: object = {
+        bookingId,
+        activityId,
+        startTime: startTime && Between(
+          startTime,
+          String(moment(String(startTime)).add(1, 'day').format())
+        ),
+      };
 
       // FETCH BOOKING ACTIVITIES
       const bookingActivities =
@@ -175,7 +185,7 @@ export const BookingActivityController = {
         numberOfAdults,
         numberOfChildren,
         numberOfSeats,
-        defaultRate
+        defaultRate,
       } = req.body;
 
       // UPDATE BOOKING ACTIVITY
@@ -188,7 +198,7 @@ export const BookingActivityController = {
           numberOfAdults,
           numberOfChildren,
           numberOfSeats,
-          defaultRate
+          defaultRate,
         });
 
       // RETURN RESPONSE

@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { Between, FindOptionsWhere, Repository } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { BookingActivity } from '../entities/bookingActivity.entity';
 import { ValidationError } from '../helpers/errors.helper';
@@ -94,7 +94,7 @@ export class BookingActivityService {
     take,
     skip,
   }: {
-    condition: object;
+    condition: FindOptionsWhere<BookingActivity> | FindOptionsWhere<BookingActivity>[] | undefined;
     take?: number;
     skip?: number;
   }): Promise<BookingActivityPagination> {
@@ -107,6 +107,7 @@ export class BookingActivityService {
         relations: {
           activity: {
             activityRates: true,
+            activitySchedules: true,
           },
           booking: true,
           bookingActivityPeople: {
