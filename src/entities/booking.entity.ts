@@ -14,13 +14,13 @@ import { BookingActivity } from './bookingActivity.entity';
 @Entity()
 export class Booking extends AbstractEntity {
   // START DATE
-  @Column({ name: 'start_date', type: 'timestamp', nullable: false })
+  @Column({ name: 'start_date', type: 'date', nullable: false })
   startDate!: Date;
 
   // END DATE
   @Column({
     name: 'end_date',
-    type: 'timestamp',
+    type: 'date',
     nullable: true,
   })
   endDate: Date;
