@@ -1,6 +1,7 @@
 import { ValidationError } from './errors.helper';
 import sgMail from '@sendgrid/mail';
 import dotenv from 'dotenv';
+import { formatCurrency } from './strings.helper';
 
 // CONFIGURE DOTENV
 dotenv.config();
@@ -41,9 +42,13 @@ export const sendEmail = async (
 export function bookingSubmittedEmailTemplate({
   referenceId,
   name,
+  totalAmountUsd,
+  totalAmountRwf,
 }: {
   referenceId: string;
   name: string;
+  totalAmountUsd: number;
+  totalAmountRwf: number;
 }) {
   return `<!DOCTYPE html>
 <html>
@@ -93,6 +98,9 @@ export function bookingSubmittedEmailTemplate({
             <p>Dear ${name},</p>
             <p>Thank you for booking your visit to Akagera National Park. Your booking has been successfully submitted and is now being processed.</p>
             <p>Your reference ID for tracking and managing your booking is: <span class="reference-id">${referenceId}</span></p>
+            <p>Your total amount due is: ${formatCurrency(
+              totalAmountUsd
+            )}, or an equivalent of ${formatCurrency(totalAmountRwf, 'RWF')}</p>
             <p>We look forward to welcoming you to the park and hope you enjoy your visit!</p>
             <p>Best Regards,<br>Akagera National Park Team</p>
         </div>

@@ -16,11 +16,11 @@ export class BookingPerson extends AbstractUserEntity {
   email: string;
 
   // START DATE
-  @Column({ name: 'start_date', type: 'timestamp', nullable: false })
+  @Column({ name: 'start_date', type: 'date', nullable: false })
   startDate!: Date;
 
   // END DATE
-  @Column({ name: 'end_date', type: 'timestamp', nullable: true })
+  @Column({ name: 'end_date', type: 'date', nullable: true })
   endDate: Date;
 
   // ACCOMODATION

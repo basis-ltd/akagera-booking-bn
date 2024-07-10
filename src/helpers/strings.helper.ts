@@ -23,3 +23,13 @@ export const generateRandomPassword = (length: number = 8) => {
 
   return password;
 };
+
+export const formatCurrency = (
+  amount: number | undefined = 0,
+  currency = 'USD'
+) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+  }).format(amount);
+};

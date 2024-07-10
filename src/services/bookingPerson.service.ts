@@ -115,10 +115,8 @@ export class BookingPersonService {
       gender: gender?.toUpperCase() || 'M',
       phone,
       email,
-      startDate: startDate
-        ? moment(startDate).format()
-        : bookingExists?.startDate,
-      endDate: endDate ? endDate : bookingExists?.endDate,
+      startDate: bookingExists?.startDate,
+      endDate: bookingExists?.endDate,
       accomodation,
     });
 
