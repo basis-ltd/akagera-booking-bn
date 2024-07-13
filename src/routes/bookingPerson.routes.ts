@@ -17,6 +17,9 @@ router.get('/', BookingPersonController.fetchBookingPeople);
 // FETCH POPULAR BOOKING PEOPLE
 router.get('/popular', BookingPersonController.fetchPopularBookingPeople);
 
+// FETCH BOOKING PEOPLE STATS
+router.get('/stats', BookingPersonController.fetchBookingPeopleStats);
+
 // GET BOOKING PERSON DETAILS
 router.get('/:id', BookingPersonController.getBookingPersonDetails);
 
