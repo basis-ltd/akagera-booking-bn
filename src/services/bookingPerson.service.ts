@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { Between, FindOptionsWhere, Repository } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { BookingPerson } from '../entities/bookingPerson.entity';
 import { UUID } from 'crypto';
@@ -318,4 +318,33 @@ export class BookingPersonService {
       throw new NotFoundError('Booking person not found');
     }
   }
+
+  // FETCH BOOKING PEOPLE STATS
+  async fetchBookingPeopleStats({
+    condition,
+    take,
+    skip,
+  }: {
+    condition?: object;
+    take?: number;
+    skip?: number;
+  }): Promise<BookingPersonsPagination> {
+    if (!condition) {
+      throw new ValidationError('Month is required');
+    }
+
+    const bookingPeople = await this.bookingPersonRepository.findAndCount({
+      where: condition,
+      relations: {
+        booking: {
+          bookingActivities: true,
+          bookingVehicles: true,
+        },
+      },
+      take,
+      skip,
+    });
+
+    return getPagingData(bookingPeople, take, skip);
+  };
 }

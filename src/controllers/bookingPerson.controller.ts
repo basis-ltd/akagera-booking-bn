@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { BookingPersonService } from '../services/bookingPerson.service';
 import { UUID } from 'crypto';
+import { Between } from 'typeorm';
+import moment from 'moment';
 
 // INITIALIZE BOOKING PERSON SERVICE
 const bookingPersonService = new BookingPersonService();
@@ -165,6 +167,39 @@ export const BookingPersonController = {
       // RETURN RESPONSE
       return res.status(204).json({
         message: 'Booking person deleted successfully!',
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // FETCH BOOKING PEOPLE STATS
+  async fetchBookingPeopleStats(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { month, take = 5000, skip = 0 } = req.query;
+      const condition = {
+        startDate: Between(
+          moment(String(month)).startOf('month').format(),
+          moment(String(month)).endOf('month').format()
+        ),
+      };
+
+      // FETCH BOOKING PEOPLE STATS
+      const bookingPeopleStats =
+        await bookingPersonService.fetchBookingPeopleStats({
+          condition,
+          take: Number(take),
+          skip: Number(skip),
+        });
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Booking people stats fetched successfully!',
+        data: bookingPeopleStats,
       });
     } catch (error) {
       next(error);
