@@ -83,13 +83,21 @@ export const BookingPersonController = {
     next: NextFunction
   ) {
     try {
-      const { size = 10, page = 0, criteria = 'residence' } = req.query;
+      const {
+        size = 10,
+        page = 0,
+        criteria = 'residence',
+        startDate = moment().startOf('M'),
+        endDate = moment((startDate as string) || new Date()).endOf('M'),
+      } = req.query;
 
       // FETCH POPULAR BOOKING PEOPLE
       const popularBookingPeople =
         await bookingPersonService.fetchPopularBookingPeople({
           size: Number(size),
           page: Number(page),
+          startDate: startDate ? (startDate as unknown as Date) : undefined,
+          endDate: endDate ? (endDate as unknown as Date) : undefined,
           criteria: criteria as 'residence' | 'nationality' | 'dateOfBirth',
         });
 

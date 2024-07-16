@@ -156,36 +156,51 @@ export class BookingPersonService {
   async fetchPopularBookingPeople({
     criteria,
     size,
-    page
+    page,
+    startDate,
+    endDate
   }: {
-    criteria: 'residence' | 'nationality' | 'dateOfBirth';
+    criteria: 'residence' | 'nationality' | 'dateOfBirth' | 'gender';
     size?: number;
     page?: number;
-  }): Promise<{ value: string | number, count: number }[]> {
-    const {take, skip} = getPagination(page, size);
-    const queryBuilder =
-      this.bookingPersonRepository.createQueryBuilder('bookingPerson');
-
-    if (!['residence', 'nationality', 'dateOfBirth'].includes(criteria)) {
+    startDate?: Date;
+    endDate?: Date;
+  }): Promise<{ value: string | number; count: number }[]> {
+    const { take, skip } = getPagination(page, size);
+    const queryBuilder = this.bookingPersonRepository.createQueryBuilder('bookingPerson');
+  
+    if (!['residence', 'nationality', 'dateOfBirth', 'gender'].includes(criteria)) {
       throw new ValidationError('Invalid criteria provided');
     }
-
+  
     queryBuilder
       .select(`bookingPerson.${criteria}`, 'value')
       .addSelect('COUNT(bookingPerson.id)', 'count')
       .groupBy(`bookingPerson.${criteria}`)
       .orderBy('count', 'DESC');
+  
+    if (startDate) {
+      queryBuilder.andWhere('bookingPerson.startDate >= :startDate', {
+        startDate: moment(startDate).toDate(),
+      });
+    }
 
+    if (endDate) {
+      queryBuilder.andWhere('bookingPerson.startDate <= :endDate', {
+        endDate: moment(endDate).toDate(),
+      });
+    }
+  
     if (size) {
-      queryBuilder.take(size);
+      queryBuilder.take(take);
     }
-
+  
     if (page) {
-      queryBuilder.skip(page);
+      queryBuilder.skip(skip);
     }
-
+  
     const result = await queryBuilder.getRawMany();
-
+  
     return result.map((item) => {
       return {
         value:

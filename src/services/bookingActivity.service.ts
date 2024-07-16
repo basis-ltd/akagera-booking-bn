@@ -12,14 +12,11 @@ import { BookingActivityPerson } from '../entities/bookingActivityPerson.entity'
 
 export class BookingActivityService {
   private bookingActivityRepository: Repository<BookingActivity>;
-  private activityScheduleRepository: Repository<ActivitySchedule>;
   private bookingActivityPeopleRepository: Repository<BookingActivityPerson>;
 
   constructor() {
     this.bookingActivityRepository =
       AppDataSource.getRepository(BookingActivity);
-    this.activityScheduleRepository =
-      AppDataSource.getRepository(ActivitySchedule);
     this.bookingActivityPeopleRepository = AppDataSource.getRepository(
       BookingActivityPerson
     );
@@ -127,9 +124,13 @@ export class BookingActivityService {
   async fetchPopularActivities({
     size,
     page,
+    startDate,
+    endDate
   }: {
     size?: number;
     page?: number;
+    startDate?: Date;
+    endDate?: Date;
   }) {
     const { take, skip } = getPagination(page, size);
     // FETCH POPULAR ACTIVITIES
@@ -140,7 +141,19 @@ export class BookingActivityService {
       .leftJoinAndSelect('bookingActivity.activity', 'activity')
       .orderBy('count', 'DESC');
 
-    return await query.take(size).skip(page).getRawMany();
+      if (startDate) {
+        query.andWhere('bookingActivity.startTime >= :startDate', {
+          startDate: moment(startDate).format(),
+        });
+      }
+
+      if (endDate) {
+        query.andWhere('bookingActivity.startTime <= :endDate', {
+          endDate: moment(endDate).format(),
+        });
+      }
+
+    return await query.take(take).skip(skip).getRawMany();
   }
 
   // FIND BOOKING ACTIVITY BY ID

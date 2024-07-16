@@ -86,7 +86,7 @@ export const BookingActivityController = {
         bookingId,
         activityId,
         startTime: startTime && Between(
-          startTime,
+          moment(String(startTime)).startOf('day').format(),
           String(moment(String(startTime)).add(1, 'day').format())
         ),
       };
@@ -116,12 +116,19 @@ export const BookingActivityController = {
     next: NextFunction
   ) {
     try {
-      const { size = 10, page = 0 } = req.query;
+      const {
+        size = 10,
+        page = 0,
+        startDate = moment().startOf('M'),
+        endDate = moment((startDate as string) || new Date()).endOf('M'),
+      } = req.query;
       // FETCH POPULAR ACTIVITIES
       const popularActivities =
         await bookingActivityService.fetchPopularActivities({
           size: Number(size),
           page: Number(page),
+          startDate: startDate ? (startDate as unknown as Date) : undefined,
+          endDate: endDate ? (endDate as unknown as Date) : undefined,
         });
 
       // RETURN RESPONSE

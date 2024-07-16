@@ -53,7 +53,7 @@ export class ServiceService {
     page: number;
     condition: object;
   }): Promise<ServicePagination> {
-    const { take, skip } = getPagination(size, page);
+    const { take, skip } = getPagination(page, size);
     const services = await this.serviceRepository.findAndCount({
       where: condition,
       take,
