@@ -4,7 +4,7 @@ import { BookingActivityPerson } from '../entities/bookingActivityPerson.entity'
 import { UUID } from 'crypto';
 import { ValidationError } from '../helpers/errors.helper';
 import { BookingPersonsPagination } from '../types/bookingPerson.types';
-import { getPagingData } from '../helpers/pagination.helper';
+import { getPagination, getPagingData } from '../helpers/pagination.helper';
 
 export class BookingActivityPersonService {
   private bookingActivityPersonRepository: Repository<BookingActivityPerson>;
@@ -57,13 +57,14 @@ export class BookingActivityPersonService {
   // FETCH BOOKING ACTIVITY PEOPLE
   async fetchBookingActivityPeople({
     condition,
-    take,
-    skip,
+    size,
+    page,
   }: {
     condition: object;
-    take?: number;
-    skip?: number;
+    size?: number;
+    page?: number;
   }): Promise<BookingPersonsPagination> {
+    const { take, skip } = getPagination(page, size);
     // FETCH BOOKING ACTIVITY PEOPLE
     const bookingActivityPeople =
       await this.bookingActivityPersonRepository.findAndCount({
@@ -79,7 +80,7 @@ export class BookingActivityPersonService {
           },
         },
       });
-    return getPagingData(bookingActivityPeople, take, skip);
+    return getPagingData(bookingActivityPeople, size, page);
   }
 
   // FIND BOOKING ACTIVITY PERSON BY ID

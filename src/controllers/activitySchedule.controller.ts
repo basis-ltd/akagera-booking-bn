@@ -36,7 +36,7 @@ export const ActivityScheduleController = {
     async fetchActivitySchedules(req: Request, res: Response, next: NextFunction) {
         try {
 
-            const { take = 10, skip = 0, startTime, endTime, activityId } = req.query;
+            const { size = 10, page = 0, startTime, endTime, activityId } = req.query;
             let condition: object = {};
 
             // ADD START TIME TO CONDITION
@@ -56,8 +56,8 @@ export const ActivityScheduleController = {
 
             // FETCH ACTIVITY SCHEDULES
             const activitySchedules = await activityScheduleService.fetchActivitySchedules({
-                take: Number(take),
-                skip: Number(skip),
+                size: Number(size),
+                page: Number(page),
                 condition,
             });
 

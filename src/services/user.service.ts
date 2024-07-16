@@ -14,7 +14,7 @@ import {
   sendEmail,
 } from '../helpers/emails.helper';
 import { UUID } from 'crypto';
-import { getPagingData } from '../helpers/pagination.helper';
+import { getPagination, getPagingData } from '../helpers/pagination.helper';
 import { UserPagination } from '../types/user.types';
 
 export class UserService {
@@ -145,14 +145,15 @@ export class UserService {
 
   // FETCH USERS
   async fetchUsers({
-    take,
-    skip,
+    size,
+    page,
     condition,
   }: {
-    take?: number;
-    skip?: number;
+    size?: number;
+    page?: number;
     condition?: object;
   }): Promise<UserPagination> {
+    const { take, skip } = getPagination(page, size);
     const usersList = await this.userRepository.findAndCount({
       where: condition,
       take,
@@ -160,7 +161,7 @@ export class UserService {
       order: { updatedAt: 'DESC' },
     });
 
-    return getPagingData(usersList, take, skip);
+    return getPagingData(usersList, size, page);
   }
 
   // DELETE USER
@@ -168,7 +169,7 @@ export class UserService {
     const deletedUser = await this.userRepository.delete(id);
 
     if (!deletedUser.affected) {
-      throw new NotFoundError('User not found')
+      throw new NotFoundError('User not found');
     }
   }
 }

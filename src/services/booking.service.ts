@@ -8,7 +8,7 @@ import {
 } from '../helpers/errors.helper';
 import moment from 'moment';
 import { BookingPagination } from '../types/booking.types';
-import { getPagingData } from '../helpers/pagination.helper';
+import { getPagination, getPagingData } from '../helpers/pagination.helper';
 import { UUID } from 'crypto';
 import { validateUuid } from '../helpers/validations.helper';
 import { ACCOMODATION_OPTION, EXIT_GATE } from '../constants/booking.constants';
@@ -119,14 +119,15 @@ export class BookingService {
 
   // FETCH BOOKINGS
   async fetchBookings({
-    take,
-    skip,
+    size,
+    page,
     condition,
   }: {
-    take?: number;
-    skip?: number;
+    size?: number;
+    page?: number;
     condition?: object;
   }): Promise<BookingPagination> {
+    const {take, skip} = getPagination(page, size);
     const bookings = await this.bookingRepository.findAndCount({
       where: condition,
       take,
@@ -134,10 +135,9 @@ export class BookingService {
       order: { startDate: 'ASC' },
     });
 
-    return getPagingData(bookings, take, skip);
+    return getPagingData(bookings, size, page);
   }
 
-  // FETCH TIME SERIES DATA
 // FETCH TIME SERIES DATA
 async fetchTimeSeriesBookings({
   year,

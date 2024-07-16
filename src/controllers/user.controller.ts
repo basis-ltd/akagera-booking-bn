@@ -70,15 +70,15 @@ export const UserController = {
   // FETCH USERS
   async fetchUsers(req: Request, res: Response, next: NextFunction) {
     try {
-      const { take = 10, skip = 0, role, nationality } = req.query;
+      const { size = 10, page = 0, role, nationality } = req.query;
       let condition: object = {
         role,
         nationality,
       };
 
       const usersList = await userService.fetchUsers({
-        take: Number(take),
-        skip: Number(skip),
+        size: Number(size),
+        page: Number(page),
         condition,
       });
 

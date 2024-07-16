@@ -77,8 +77,8 @@ export const BookingActivityController = {
     try {
       const {
         bookingId,
-        take = 10,
-        skip = 0,
+        size = 10,
+        page = 0,
         activityId,
         startTime,
       } = req.query;
@@ -95,8 +95,8 @@ export const BookingActivityController = {
       const bookingActivities =
         await bookingActivityService.fetchBookingActivities({
           condition,
-          take: Number(take),
-          skip: Number(skip),
+          size: Number(size),
+          page: Number(page),
         });
 
       // RETURN RESPONSE
@@ -116,12 +116,12 @@ export const BookingActivityController = {
     next: NextFunction
   ) {
     try {
-      const { take = 10, skip = 0 } = req.query;
+      const { size = 10, page = 0 } = req.query;
       // FETCH POPULAR ACTIVITIES
       const popularActivities =
         await bookingActivityService.fetchPopularActivities({
-          take: Number(take),
-          skip: Number(skip),
+          size: Number(size),
+          page: Number(page),
         });
 
       // RETURN RESPONSE

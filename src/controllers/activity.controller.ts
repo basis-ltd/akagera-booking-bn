@@ -60,7 +60,7 @@ export const ActivityController = {
     // FETCH ACTIVITIES
     async fetchActivities(req: Request, res: Response, next: NextFunction) {
         try {
-          const { take = 10, skip = 0, serviceId } = req.query;
+          const { size = 10, page = 0, serviceId } = req.query;
           let condition: object = {};
 
           // ADD SERVICE ID TO CONDITION
@@ -70,8 +70,8 @@ export const ActivityController = {
 
           // FETCH ACTIVITIES
           const activities = await activityService.fetchActivities({
-            take: Number(take),
-            skip: Number(skip),
+            size: Number(size),
+            page: Number(page),
             condition,
           });
 

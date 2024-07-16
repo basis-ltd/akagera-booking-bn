@@ -53,7 +53,7 @@ export const BookingPersonController = {
   // FETCH BOOKING PEOPLE
   async fetchBookingPeople(req: Request, res: Response, next: NextFunction) {
     try {
-      const { bookingId, take = 10, skip = 0 } = req.query;
+      const { bookingId, size = 10, page = 0 } = req.query;
       let condition: object = {};
 
       // ADD BOOKING ID TO CONDITION
@@ -62,8 +62,8 @@ export const BookingPersonController = {
       // FETCH BOOKING PEOPLE
       const bookingPeople = await bookingPersonService.fetchBookingPeople({
         condition: { bookingId },
-        take: Number(take),
-        skip: Number(skip),
+        size: Number(size),
+        page: Number(page),
       });
 
       // RETURN RESPONSE
@@ -83,13 +83,13 @@ export const BookingPersonController = {
     next: NextFunction
   ) {
     try {
-      const { take = 10, skip = 0, criteria = 'residence' } = req.query;
+      const { size = 10, page = 0, criteria = 'residence' } = req.query;
 
       // FETCH POPULAR BOOKING PEOPLE
       const popularBookingPeople =
         await bookingPersonService.fetchPopularBookingPeople({
-          take: Number(take),
-          skip: Number(skip),
+          size: Number(size),
+          page: Number(page),
           criteria: criteria as 'residence' | 'nationality' | 'dateOfBirth',
         });
 
@@ -180,7 +180,7 @@ export const BookingPersonController = {
     next: NextFunction
   ) {
     try {
-      const { month, take = 5000, skip = 0 } = req.query;
+      const { month, size = 5000, page = 0 } = req.query;
       const condition = {
         startDate: Between(
           moment(String(month)).startOf('month').format(),
@@ -192,8 +192,8 @@ export const BookingPersonController = {
       const bookingPeopleStats =
         await bookingPersonService.fetchBookingPeopleStats({
           condition,
-          take: Number(take),
-          skip: Number(skip),
+          size: Number(size),
+          page: Number(page),
         });
 
       // RETURN RESPONSE

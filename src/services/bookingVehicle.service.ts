@@ -5,7 +5,7 @@ import { UUID } from 'crypto';
 import { validateUuid } from '../helpers/validations.helper';
 import { ConflictError, NotFoundError, ValidationError } from '../helpers/errors.helper';
 import { BookingVehiclesPagination } from '../types/bookingVehicle.types';
-import { getPagingData } from '../helpers/pagination.helper';
+import { getPagination, getPagingData } from '../helpers/pagination.helper';
 import { COUNTRIES } from '../constants/countries.constants';
 
 export class BookingVehicleService {
@@ -111,14 +111,15 @@ export class BookingVehicleService {
 
   // FETCH ALL BOOKING VEHICLES
   async fetchBookingVehicles({
-    take,
-    skip,
+    size,
+    page,
     condition,
   }: {
-    take: number;
-    skip: number;
+    size: number;
+    page: number;
     condition: object;
   }): Promise<BookingVehiclesPagination> {
+    const { take, skip } = getPagination(page, size);
     const bookingVehicles = await this.bookingVehicleRepository.findAndCount({
       where: condition,
       take,
@@ -128,7 +129,7 @@ export class BookingVehicleService {
       },
     });
 
-    return getPagingData(bookingVehicles, take, skip);
+    return getPagingData(bookingVehicles, size, page);
   }
 
   // UPDATE BOOKING VEHICLE

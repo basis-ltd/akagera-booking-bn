@@ -64,8 +64,8 @@ export const BookingController = {
       const {
         startDate,
         endDate,
-        take = 10,
-        skip = 0,
+        size = 10,
+        page = 0,
         referenceId,
         email,
         phone,
@@ -94,8 +94,8 @@ export const BookingController = {
 
       // FETCH BOOKINGS
       const bookings = await bookingService.fetchBookings({
-        take: Number(take),
-        skip: Number(skip),
+        size: Number(size),
+        page: Number(page),
         condition,
       });
 

@@ -3,7 +3,7 @@ import { AppDataSource } from '../data-source';
 import { Service } from '../entities/service.entity';
 import { NotFoundError, ValidationError } from '../helpers/errors.helper';
 import { ServicePagination } from '../types/service.types';
-import { getPagingData } from '../helpers/pagination.helper';
+import { getPagination, getPagingData } from '../helpers/pagination.helper';
 import { UUID } from 'crypto';
 import { validateUuid } from '../helpers/validations.helper';
 
@@ -45,14 +45,15 @@ export class ServiceService {
 
   // FETCH ALL SERVICES
   async fetchServices({
-    take,
-    skip,
+    size,
+    page,
     condition,
   }: {
-    take: number;
-    skip: number;
+    size: number;
+    page: number;
     condition: object;
   }): Promise<ServicePagination> {
+    const { take, skip } = getPagination(size, page);
     const services = await this.serviceRepository.findAndCount({
       where: condition,
       take,
@@ -60,7 +61,7 @@ export class ServiceService {
       order: { position: 'ASC' },
     });
 
-    return getPagingData(services, take, skip);
+    return getPagingData(services, size, page);
   }
 
   // FIND SERVICE BY ID
@@ -125,7 +126,7 @@ export class ServiceService {
     const updatedService = await this.serviceRepository.update(id, {
       name,
       description,
-      position
+      position,
     });
 
     if (!updatedService.affected) {
@@ -136,27 +137,27 @@ export class ServiceService {
   }
 
   // DELETE SERVICE
-    async deleteService(id: UUID): Promise<void> {
-        // VALIDATE SERVICE ID
-        if (!id) {
-        throw new ValidationError('Service ID is required');
-        }
-        const { error } = validateUuid(id);
-    
-        if (error) {
-        throw new ValidationError('Invalid service ID');
-        }
-    
-        // DELETE SERVICE
-        const deletedService = await this.serviceRepository.delete(id);
-    
-        if (!deletedService.affected) {
-        throw new NotFoundError('Service not found');
-        }
+  async deleteService(id: UUID): Promise<void> {
+    // VALIDATE SERVICE ID
+    if (!id) {
+      throw new ValidationError('Service ID is required');
+    }
+    const { error } = validateUuid(id);
+
+    if (error) {
+      throw new ValidationError('Invalid service ID');
     }
 
-    // COUNT SERVICES
-    async countServices(): Promise<number> {
-        return await this.serviceRepository.count();
+    // DELETE SERVICE
+    const deletedService = await this.serviceRepository.delete(id);
+
+    if (!deletedService.affected) {
+      throw new NotFoundError('Service not found');
     }
+  }
+
+  // COUNT SERVICES
+  async countServices(): Promise<number> {
+    return await this.serviceRepository.count();
+  }
 }

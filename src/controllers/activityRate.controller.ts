@@ -43,7 +43,7 @@ export const ActivityRateController = {
   // FETCH ACTIVITY RATES
   async fetchActivityRates(req: Request, res: Response, next: NextFunction) {
     try {
-      const { activityId, take = 10, skip = 0, ageRange } = req.query;
+      const { activityId, size = 10, page = 0, ageRange } = req.query;
       let condition: object = {};
 
       // IF ACTIVITY ID PROVIDED
@@ -53,8 +53,8 @@ export const ActivityRateController = {
 
       // FETCH ACTIVITY RATES
       const activityRates = await activityRateService.fetchActivityRates({
-        take: Number(take),
-        skip: Number(skip),
+        size: Number(size),
+        page: Number(page),
         condition,
       });
 
