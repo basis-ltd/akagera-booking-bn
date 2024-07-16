@@ -6,21 +6,17 @@ import { UUID } from 'crypto';
 import { validateUuid } from '../helpers/validations.helper';
 import { ActivitySchedule } from '../entities/activitySchedule.entity';
 import { BookingActivityPagination } from '../types/bookingActivity.types';
-import { getPagingData } from '../helpers/pagination.helper';
-import { isTimeBetween } from '../helpers/time.helper';
+import { getPagination, getPagingData } from '../helpers/pagination.helper';
 import moment from 'moment';
 import { BookingActivityPerson } from '../entities/bookingActivityPerson.entity';
 
 export class BookingActivityService {
   private bookingActivityRepository: Repository<BookingActivity>;
-  private activityScheduleRepository: Repository<ActivitySchedule>;
   private bookingActivityPeopleRepository: Repository<BookingActivityPerson>;
 
   constructor() {
     this.bookingActivityRepository =
       AppDataSource.getRepository(BookingActivity);
-    this.activityScheduleRepository =
-      AppDataSource.getRepository(ActivitySchedule);
     this.bookingActivityPeopleRepository = AppDataSource.getRepository(
       BookingActivityPerson
     );
@@ -91,13 +87,17 @@ export class BookingActivityService {
   // FETCH BOOKING ACTIVITIES BY BOOKING ID
   async fetchBookingActivities({
     condition,
-    take,
-    skip,
+    size,
+    page,
   }: {
-    condition: FindOptionsWhere<BookingActivity> | FindOptionsWhere<BookingActivity>[] | undefined;
-    take?: number;
-    skip?: number;
+    condition:
+      | FindOptionsWhere<BookingActivity>
+      | FindOptionsWhere<BookingActivity>[]
+      | undefined;
+    size?: number;
+    page?: number;
   }): Promise<BookingActivityPagination> {
+    const { take, skip } = getPagination(page, size);
     // FETCH BOOKING ACTIVITIES
     const bookingActivities = await this.bookingActivityRepository.findAndCount(
       {
@@ -117,17 +117,22 @@ export class BookingActivityService {
       }
     );
 
-    return getPagingData(bookingActivities, take, skip);
+    return getPagingData(bookingActivities, size, page);
   }
 
   // FETCH POPULAR ACTIVITIES
   async fetchPopularActivities({
-    take,
-    skip,
+    size,
+    page,
+    startDate,
+    endDate
   }: {
-    take?: number;
-    skip?: number;
+    size?: number;
+    page?: number;
+    startDate?: Date;
+    endDate?: Date;
   }) {
+    const { take, skip } = getPagination(page, size);
     // FETCH POPULAR ACTIVITIES
     const query = this.bookingActivityRepository
       .createQueryBuilder('bookingActivity')
@@ -135,6 +140,18 @@ export class BookingActivityService {
       .groupBy('activity.id')
       .leftJoinAndSelect('bookingActivity.activity', 'activity')
       .orderBy('count', 'DESC');
+
+      if (startDate) {
+        query.andWhere('bookingActivity.startTime >= :startDate', {
+          startDate: moment(startDate).format(),
+        });
+      }
+
+      if (endDate) {
+        query.andWhere('bookingActivity.startTime <= :endDate', {
+          endDate: moment(endDate).format(),
+        });
+      }
 
     return await query.take(take).skip(skip).getRawMany();
   }

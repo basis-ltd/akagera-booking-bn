@@ -1,29 +1,29 @@
-import express, { Application } from 'express';
-import cors from 'cors';
-import 'dotenv/config';
+import cluster from 'cluster';
+import os from 'os';
 import { AppDataSource } from './data-source';
-import routes from './routes';
-import errorHandler from './middlewares/errors.middleware';
 
-// LOAD ENVIRONMENT VARIABLES
-const { PORT = 8080 } = process.env;
+const numCPUs = os.cpus().length;
 
-// CREATE EXPRESS APP
-const app: Application = express();
+if (cluster.isMaster) {
+  console.log(`Master ${process.pid} is running`);
 
-// MIDDLEWARES
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: false }));
-app.use(cors());
-app.use('/api', routes);
-app.use(errorHandler);
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  try {
-    AppDataSource.initialize();
-    console.log('Database connected');
-  } catch (error) {
-    console.error('Database connection failed', error);
+  // Fork workers.
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
   }
-});
+
+  cluster.on('exit', (worker, code, signal) => {
+    console.log(`Worker ${worker.process.pid} died`);
+    // Optionally, you can fork a new worker here
+    cluster.fork();
+  });
+} else {
+  // Workers can share any TCP connection
+  // In this case, it is an HTTP server
+  import('./app').then(({ default: app }) => {
+    const { PORT = 8080 } = process.env;
+    app.listen(PORT, () => {
+      console.log(`Worker ${process.pid} started`);
+    });
+  });
+}

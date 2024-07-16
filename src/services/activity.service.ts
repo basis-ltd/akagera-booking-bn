@@ -6,7 +6,7 @@ import {
   NotFoundError,
   ValidationError,
 } from '../helpers/errors.helper';
-import { getPagingData } from '../helpers/pagination.helper';
+import { getPagination, getPagingData } from '../helpers/pagination.helper';
 import { ActivitiesPagination } from '../types/activity.types';
 import { UUID } from 'crypto';
 import { validateUuid } from '../helpers/validations.helper';
@@ -165,8 +165,6 @@ export class ActivityService {
       where: { id },
       relations: {
         service: true,
-        activitySchedules: true,
-        activityRates: true,
       }
     });
 
@@ -179,14 +177,15 @@ export class ActivityService {
 
   // FETCH ACTIVITIES
   async fetchActivities({
-    take,
-    skip,
+    size,
+    page,
     condition = undefined,
   }: {
-    take?: number;
-    skip?: number;
+    size?: number;
+    page?: number;
     condition?: object | undefined;
   }): Promise<ActivitiesPagination> {
+    const { take, skip } = getPagination(page, size);
     const activities = await this.activityRepository.findAndCount({
       take,
       skip,
@@ -199,7 +198,7 @@ export class ActivityService {
       order: { name: 'ASC' },
     });
 
-    return getPagingData(activities, take, skip);
+    return getPagingData(activities, size, page);
   }
 
   // DELETE ACTIVITY

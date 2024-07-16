@@ -6,7 +6,7 @@ import { validateUuid } from '../helpers/validations.helper';
 import { UUID } from 'crypto';
 import { ActivityService } from './activity.service';
 import { ActivityRatesPagination } from '../types/activityRate.types';
-import { getPagingData } from '../helpers/pagination.helper';
+import { getPagination, getPagingData } from '../helpers/pagination.helper';
 import { AGE_RANGE } from '../constants/booking.constants';
 
 export class ActivityRateService {
@@ -78,14 +78,15 @@ export class ActivityRateService {
 
   // FETCH ACTIVITY RATES
   async fetchActivityRates({
-    take,
-    skip,
+    size,
+    page,
     condition = undefined,
   }: {
-    take?: number;
-    skip?: number;
+    size?: number;
+    page?: number;
     condition?: object | undefined;
   }): Promise<ActivityRatesPagination> {
+    const { take, skip } = getPagination(page, size);
     const activityRates = await this.activityRateRepository.findAndCount({
       take,
       skip,
@@ -96,7 +97,7 @@ export class ActivityRateService {
       order: { name: 'ASC' },
     });
 
-    return getPagingData(activityRates, take, skip);
+    return getPagingData(activityRates, size, page);
   }
 
   // GET ACTIVITY RATE BY ID

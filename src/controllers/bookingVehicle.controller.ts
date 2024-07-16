@@ -44,8 +44,8 @@ export const BookingVehicleController = {
         bookingId,
         plateNumber,
         vehicleType,
-        take = 10,
-        skip = 0,
+        size = 10,
+        page = 0,
       } = req.query;
       let condition: object = {
         bookingId,
@@ -55,8 +55,8 @@ export const BookingVehicleController = {
       // FETCH BOOKING VEHICLES
       const bookingVehicles = await bookingVehicleService.fetchBookingVehicles({
         condition,
-        take: Number(take),
-        skip: Number(skip),
+        size: Number(size),
+        page: Number(page),
       });
 
       // RETURN RESPONSE

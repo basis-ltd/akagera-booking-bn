@@ -6,7 +6,7 @@ import { NotFoundError, ValidationError } from "../helpers/errors.helper";
 import { Repository } from "typeorm";
 import { Activity } from "../entities/activity.entity";
 import moment from "moment";
-import { getPagingData } from "../helpers/pagination.helper";
+import { getPagination, getPagingData } from "../helpers/pagination.helper";
 import { ActivitySchedulesPagination } from "../types/activitySchedule.types";
 
 export class ActivityScheduleService {
@@ -95,40 +95,41 @@ export class ActivityScheduleService {
 
   // GET ACTIVITY SCHEDULES
   async fetchActivitySchedules({
-    skip,
-    take,
+    page,
+    size,
     condition,
   }: {
-    skip?: number;
-    take?: number;
+    page?: number;
+    size?: number;
     condition?: object | undefined;
   }): Promise<ActivitySchedulesPagination> {
+    const { take, skip } = getPagination(page, size);
     const activitySchedules =
       await this.activityScheduleRepository.findAndCount({
         where: condition,
-        skip,
         take,
+        skip,
         select: {
+          id: true,
+          startTime: true,
+          endTime: true,
+          description: true,
+          disclaimer: true,
+          createdAt: true,
+          updatedAt: true,
+          numberOfSeats: true,
+          activity: {
             id: true,
-            startTime: true,
-            endTime: true,
+            name: true,
             description: true,
             disclaimer: true,
-            createdAt: true,
-            updatedAt: true,
-            numberOfSeats: true,
-            activity: {
-                id: true,
-                name: true,
-                description: true,
-                disclaimer: true,
-            }
+          },
         },
-        relations: {
-          activity: true,
-        },
+        // relations: {
+        //   activity: true,
+        // },
       });
-    return getPagingData(activitySchedules, take, skip);
+    return getPagingData(activitySchedules, size, page);
   }
 
   // GET ACTIVITY SCHEDULE DETAILS

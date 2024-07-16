@@ -10,7 +10,7 @@ import {
 import { validateUuid } from '../helpers/validations.helper';
 import moment from 'moment';
 import { BookingPersonsPagination } from '../types/bookingPerson.types';
-import { getPagingData } from '../helpers/pagination.helper';
+import { getPagination, getPagingData } from '../helpers/pagination.helper';
 import { Booking } from '../entities/booking.entity';
 import { ACCOMODATION_OPTION } from '../constants/booking.constants';
 
@@ -33,8 +33,6 @@ export class BookingPersonService {
     gender,
     phone,
     email,
-    startDate,
-    endDate,
     accomodation,
   }: {
     bookingId: UUID;
@@ -137,57 +135,76 @@ export class BookingPersonService {
   // FETCH BOOKING PEOPLE
   async fetchBookingPeople({
     condition,
-    take,
-    skip,
+    size,
+    page,
   }: {
     condition: object;
-    take?: number;
-    skip?: number;
+    size?: number;
+    page?: number;
   }): Promise<BookingPersonsPagination> {
     const bookingPeople = await this.bookingPersonRepository.findAndCount({
       where: condition,
       order: { updatedAt: 'DESC' },
     });
 
-    return getPagingData(bookingPeople, take, skip);
+    return getPagingData(bookingPeople, size, page);
   }
 
   // FETCH POPULAR BOOKING PEOPLE
   async fetchPopularBookingPeople({
     criteria,
-    take,
-    skip
+    size,
+    page,
+    startDate,
+    endDate
   }: {
-    criteria: 'residence' | 'nationality' | 'dateOfBirth';
-    take?: number;
-    skip?: number;
-  }): Promise<{ value: string | number, count: number }[]> {
-    const queryBuilder =
-      this.bookingPersonRepository.createQueryBuilder('bookingPerson');
-
-    if (!['residence', 'nationality', 'dateOfBirth'].includes(criteria)) {
+    criteria: 'residence' | 'nationality' | 'dateOfBirth' | 'gender';
+    size?: number;
+    page?: number;
+    startDate?: Date;
+    endDate?: Date;
+  }): Promise<{ value: string | number; count: number }[]> {
+    const { take, skip } = getPagination(page, size);
+    const queryBuilder = this.bookingPersonRepository.createQueryBuilder('bookingPerson');
+  
+    if (!['residence', 'nationality', 'dateOfBirth', 'gender'].includes(criteria)) {
       throw new ValidationError('Invalid criteria provided');
     }
-
+  
     queryBuilder
       .select(`bookingPerson.${criteria}`, 'value')
       .addSelect('COUNT(bookingPerson.id)', 'count')
       .groupBy(`bookingPerson.${criteria}`)
       .orderBy('count', 'DESC');
+  
+    if (startDate) {
+      queryBuilder.andWhere('bookingPerson.startDate >= :startDate', {
+        startDate: moment(startDate).toDate(),
+      });
+    }
 
-    if (take) {
+    if (endDate) {
+      queryBuilder.andWhere('bookingPerson.startDate <= :endDate', {
+        endDate: moment(endDate).toDate(),
+      });
+    }
+  
+    if (size) {
       queryBuilder.take(take);
     }
-
-    if (skip) {
+  
+    if (page) {
       queryBuilder.skip(skip);
     }
-
+  
     const result = await queryBuilder.getRawMany();
-
+  
     return result.map((item) => {
       return {
-        value: criteria === 'dateOfBirth' ? moment().diff(item.value, 'years') : item.value,
+        value:
+          criteria === 'dateOfBirth'
+            ? moment().diff(item.value, 'years')
+            : item.value,
         count: Number(item.count),
       };
     });
@@ -322,16 +339,17 @@ export class BookingPersonService {
   // FETCH BOOKING PEOPLE STATS
   async fetchBookingPeopleStats({
     condition,
-    take,
-    skip,
+    size,
+    page,
   }: {
     condition?: object;
-    take?: number;
-    skip?: number;
+    size?: number;
+    page?: number;
   }): Promise<BookingPersonsPagination> {
     if (!condition) {
       throw new ValidationError('Month is required');
     }
+    const {take, skip} = getPagination(page, size);
 
     const bookingPeople = await this.bookingPersonRepository.findAndCount({
       where: condition,
@@ -345,6 +363,6 @@ export class BookingPersonService {
       skip,
     });
 
-    return getPagingData(bookingPeople, take, skip);
+    return getPagingData(bookingPeople, size, page);
   };
 }

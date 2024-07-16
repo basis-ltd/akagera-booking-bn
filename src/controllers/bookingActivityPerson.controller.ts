@@ -38,7 +38,7 @@ export const BookingActivityPersonController = {
     next: NextFunction
   ) {
     try {
-      const { take = 10, skip = 0, bookingActivityId } = req.query;
+      const { size = 10, page = 0, bookingActivityId } = req.query;
       let condition: object = {
         bookingActivityId,
       };
@@ -47,8 +47,8 @@ export const BookingActivityPersonController = {
       const bookingActivityPeople =
         await bookingActivityPersonService.fetchBookingActivityPeople({
           condition,
-          take: Number(take),
-          skip: Number(skip),
+          size: Number(size),
+          page: Number(page),
         });
 
       // RETURN RESPONSE

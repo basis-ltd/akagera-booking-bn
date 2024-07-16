@@ -8,7 +8,7 @@ import {
 } from '../helpers/errors.helper';
 import moment from 'moment';
 import { BookingPagination } from '../types/booking.types';
-import { getPagingData } from '../helpers/pagination.helper';
+import { getPagination, getPagingData } from '../helpers/pagination.helper';
 import { UUID } from 'crypto';
 import { validateUuid } from '../helpers/validations.helper';
 import { ACCOMODATION_OPTION, EXIT_GATE } from '../constants/booking.constants';
@@ -119,14 +119,15 @@ export class BookingService {
 
   // FETCH BOOKINGS
   async fetchBookings({
-    take,
-    skip,
+    size,
+    page,
     condition,
   }: {
-    take?: number;
-    skip?: number;
+    size?: number;
+    page?: number;
     condition?: object;
   }): Promise<BookingPagination> {
+    const {take, skip} = getPagination(page, size);
     const bookings = await this.bookingRepository.findAndCount({
       where: condition,
       take,
@@ -134,71 +135,66 @@ export class BookingService {
       order: { startDate: 'ASC' },
     });
 
-    return getPagingData(bookings, take, skip);
+    return getPagingData(bookings, size, page);
   }
 
-  // FETCH TIME SERIES DATA
 // FETCH TIME SERIES DATA
 async fetchTimeSeriesBookings({
-  year,
-  month,
-  granularity,
+  startDate,
+  endDate,
   type,
 }: {
-  year: number;
-  month?: number;
-  granularity: 'day' | 'month';
   type?: string;
+  startDate?: Date;
+  endDate?: Date;
 }) {
-  let startDate: Date;
-  let endDate: Date;
   let selectClause: string;
   let groupByClause: string;
   let orderByClause: string;
+
+  if (startDate && !endDate) {
+    throw new ValidationError('End date is required');
+  }
 
   // VALIDATE TYPE
   if (type && !['booking', 'registration'].includes(type)){
     throw new ValidationError('Invalid booking type');
   }
 
-  if (granularity === 'day') {
-    if (month === undefined) {
-      throw new ValidationError('Month is required for day granularity');
-    }
-    startDate = moment().year(year).month(month - 1).startOf('month').toDate();
-    endDate = moment().year(year).month(month - 1).endOf('month').toDate();
-    selectClause = 'DATE(booking.startDate) as datepart, COUNT(*) as count, SUM(booking.totalAmountUsd) as totalAmountUsd';
-    groupByClause = 'DATE(booking.startDate)';
-    orderByClause = 'DATE(booking.startDate)';
-  } else if (granularity === 'month') {
-    startDate = moment().year(year).startOf('year').toDate();
-    endDate = moment().year(year).endOf('year').toDate();
+  const diff =
+    startDate && endDate && moment(endDate).diff(moment(startDate), 'months');
+
+  if (!diff || diff < 3) {
+    selectClause = `booking.startDate as date, COUNT(*) as count, SUM(booking.totalAmountUsd) as totalAmountUsd`;
+    groupByClause = `booking.startDate`;
+    orderByClause = `booking.startDate`;
+  } else {
     selectClause = `date_part('year', booking.startDate) as yearpart, date_part('month', booking.startDate) as monthpart, COUNT(*) as count, SUM(booking.totalAmountUsd) as totalAmountUsd`;
     groupByClause = `date_part('year', booking.startDate), date_part('month', booking.startDate)`;
     orderByClause = `date_part('year', booking.startDate), date_part('month', booking.startDate)`;
-  } else {
-    throw new ValidationError('Invalid granularity. Use day or month.');
   }
 
-  const query = this.bookingRepository.createQueryBuilder('booking')
-    .select(selectClause)
-    .where('booking.startDate >= :startDate', { startDate })
-    .andWhere('booking.startDate <= :endDate', { endDate })
-    .groupBy(groupByClause)
-    .orderBy(orderByClause, 'ASC');
+    const query = this.bookingRepository
+      .createQueryBuilder('booking')
+      .select(selectClause)
+      .where('booking.startDate >= :startDate', {
+        startDate: moment(startDate).toDate(),
+      })
+      .andWhere('booking.startDate <= :endDate', {
+        endDate: moment(endDate).toDate(),
+      })
+      .groupBy(groupByClause)
+      .orderBy(orderByClause, 'ASC');
 
-  if (type) {
-    query.andWhere('booking.type = :type', { type });
-  }
+    if (type) {
+      query.andWhere('booking.type = :type', { type });
+    }
 
   const result = await query.getRawMany();
 
   const timeSeriesData = result.map((item) => {
     return {
-      date:
-        granularity === 'day'
-          ? moment(item?.datepart).format('MM-DD')
-          : `${item.yearpart}-${String(item.monthpart).padStart(2, '0')}`,
+      date: diff && diff >= 3 ? `${item.yearpart}-${item.monthpart}` : moment(item.date).format('MM-DD'),
       value: parseInt(item.count, 10),
       totalAmountUsd: parseFloat(item.totalamountusd),
     };

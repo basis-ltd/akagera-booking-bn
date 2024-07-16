@@ -31,7 +31,7 @@ export const ServiceController = {
   // FETCH SERVICES
   async fetchServices(req: Request, res: Response, next: NextFunction) {
     try {
-      const { take = 10, skip = 0, name } = req.query;
+      const { size = 10, page = 0, name } = req.query;
       let condition: object = {};
 
       // ADD NAME TO CONDITION
@@ -41,8 +41,8 @@ export const ServiceController = {
 
       // FETCH SERVICES
       const services = await service.fetchServices({
-        take: Number(take),
-        skip: Number(skip),
+        size: Number(size),
+        page: Number(page),
         condition,
       });
 

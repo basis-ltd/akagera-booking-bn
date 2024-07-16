@@ -64,8 +64,8 @@ export const BookingController = {
       const {
         startDate,
         endDate,
-        take = 10,
-        skip = 0,
+        size = 10,
+        page = 0,
         referenceId,
         email,
         phone,
@@ -94,8 +94,8 @@ export const BookingController = {
 
       // FETCH BOOKINGS
       const bookings = await bookingService.fetchBookings({
-        take: Number(take),
-        skip: Number(skip),
+        size: Number(size),
+        page: Number(page),
         condition,
       });
 
@@ -112,13 +112,16 @@ export const BookingController = {
   // FETCH TIME SERIES BOOKINGS
   async fetchTimeSeriesBookings(req: Request, res: Response, next: NextFunction) {
     try {
-      const { month, year, granularity = 'day', type } = req.query;
+      const {
+        startDate = moment().startOf('M'),
+        endDate = moment(startDate as string || new Date()).endOf('M'),
+        type,
+      } = req.query;
 
       // FETCH BOOKINGS
       const bookings = await bookingService.fetchTimeSeriesBookings({
-        month: Number(month),
-        year: Number(year),
-        granularity: granularity as 'day' | 'month',
+        startDate: startDate ? startDate as unknown as Date : undefined,
+        endDate: endDate ? endDate as unknown as Date : undefined,
         type: type as 'booking' | 'registration',
       });
 

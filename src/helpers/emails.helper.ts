@@ -183,3 +183,70 @@ export function newUserCreatedEmailTemplate({
   </body>
   </html>`;
 }
+
+export function loginOtpEmailTemplate({
+  name,
+  otp,
+}: {
+  name: string;
+  otp: string;
+}) {
+  return `<!DOCTYPE html>
+  <html>
+  <head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #036124;
+      }
+      .email-container {
+        padding: 20px;
+        background-color: #f4f4f4;
+      }
+      .header {
+        background-color: #ffffff;
+        padding: 10px;
+        text-align: center;
+        color: white;
+      }
+      .content {
+        background-color: white;
+        padding: 20px;
+        margin-top: 10px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+      }
+      .footer {
+        text-align: center;
+        padding: 10px;
+        font-size: 12px;
+      }
+      .otp {
+        font-weight: bold;
+        color: #036124;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div class="header">
+        <img src="https://res.cloudinary.com/nishimweprince/image/upload/v1718954750/akagera-booking/gvcbmerwjceo9jf7z1az.png" alt="Akagera National Park Logo" style="max-width: 200px;">
+      </div>
+      <div class="content">
+        <h1>Verify Authentication</h1>
+        <p>Dear ${name},</p>
+        <p>Your One-time password for logging in to your Akagera National Park account is: <span class="otp">${otp}</span></p>
+        <p>Please enter this One-time password in the login form to access your account.</p>
+        <p>This One-time password expires in 10 minutes.</p>
+        <p>We look forward to providing you with the best service possible!</p>
+        <p>Best Regards,<br>Akagera National Park Team</p>
+      </div>
+      <div class="footer">
+        &copy; 2024 Akagera National Park. All rights reserved.
+      </div>
+    </div>
+  </body>
+  </html>`;
+}
