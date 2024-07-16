@@ -3,6 +3,7 @@ import { Column, Entity, OneToMany, Unique } from 'typeorm';
 import { ROLES } from '../constants/auth.constants';
 import { AbstractUserEntity } from './abstract.entity';
 import { Booking } from './booking.entity';
+import { Token } from './token.entity';
 
 @Entity()
 @Unique(['phone', 'email'])
@@ -50,4 +51,8 @@ export class User extends AbstractUserEntity {
   // BOOKINGS APPROVED
   @OneToMany(() => Booking, (booking) => booking.approvedByUser)
   bookingsApproved: Booking[];
+
+  // TOKENS
+  @OneToMany(() => Token, (token) => token.user)
+  tokens: Token[];
 }

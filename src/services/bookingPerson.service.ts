@@ -33,8 +33,6 @@ export class BookingPersonService {
     gender,
     phone,
     email,
-    startDate,
-    endDate,
     accomodation,
   }: {
     bookingId: UUID;
