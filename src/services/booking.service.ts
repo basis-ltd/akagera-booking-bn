@@ -339,6 +339,7 @@ async fetchTimeSeriesBookings({
         updatedAt: true,
         email: true,
         phone: true,
+        accomodation: true,
         type: true,
         approvedByUser: {
           id: true,
@@ -382,6 +383,7 @@ async fetchTimeSeriesBookings({
         referenceId: true,
         createdAt: true,
         updatedAt: true,
+        accomodation: true,
         approvedByUser: {
           id: true,
           name: true,
