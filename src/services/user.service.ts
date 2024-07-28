@@ -7,7 +7,7 @@ import {
   ValidationError,
 } from '../helpers/errors.helper';
 import { validateEmail } from '../helpers/validations.helper';
-import { hashPassword } from '../helpers/encryption.helper';
+import { comparePasswords, hashPassword } from '../helpers/encryption.helper';
 import { generateRandomPassword } from '../helpers/strings.helper';
 import {
   newUserCreatedEmailTemplate,
@@ -171,5 +171,62 @@ export class UserService {
     if (!deletedUser.affected) {
       throw new NotFoundError('User not found');
     }
+  }
+
+  // UPDATE USER PASSWORD
+  async updateUserPassword({
+    id,
+    existingPassword,
+    newPassword,
+  }: {
+    id: UUID;
+    existingPassword: string;
+    newPassword: string;
+  }): Promise<User> {
+
+    // IF NEW PASSWORD IS SAME AS EXISTING PASSWORD
+    if (existingPassword === newPassword) {
+      throw new ValidationError('New password cannot be the same as the existing password');
+    }
+
+    // GET USER
+    const userExists = await this.userRepository.findOne({
+      where: { id },
+      select: ['id', 'password', 'email'],
+    });
+
+    if (!userExists) {
+      throw new NotFoundError('User not found');
+    }
+
+    // CHECK IF PASSWORD MATCHES
+    const passwordMatch = await comparePasswords(existingPassword, userExists?.password);
+
+    if (!passwordMatch) {
+      throw new ValidationError('Existing password is incorrect');
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+
+    const updatedUser = await this.userRepository.update(id, {
+      password: hashedPassword,
+    });
+
+    if (!updatedUser.affected) {
+      throw new NotFoundError('User not found');
+    }
+
+    return updatedUser.raw[0];
+  }
+
+  // GET USER BY ID
+  async getUserById(id: UUID): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+
+    return user;
   }
 }

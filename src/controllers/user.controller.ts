@@ -107,5 +107,45 @@ export const UserController = {
     } catch (error) {
       next(error)
     }
-  }
+  },
+
+  // UPDATE USER PASSWORD
+  async updateUserPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { existingPassword, newPassword } = req.body;
+
+      // UPDATE USER PASSWORD
+      await userService.updateUserPassword({
+        id: id as UUID,
+        existingPassword,
+        newPassword,
+      });
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Password updated successfully',
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // GET USER PROFILE
+  async getUserProfile(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+
+      // FETCH USER PROFILE
+      const userProfile = await userService.getUserById(id as UUID);
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'User profile returned successfully',
+        data: userProfile,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

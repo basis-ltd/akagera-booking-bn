@@ -100,7 +100,7 @@ export class AuthService {
       .getOne();
 
     if (!userExists) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError('Email or password is incorrect');
     }
 
     const isPasswordMatch = await comparePasswords(

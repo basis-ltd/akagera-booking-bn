@@ -12,7 +12,4 @@ export const AppDataSource = new DataSource({
   synchronize: true,
   entities: [`${__dirname}/**/entities/*.{ts,js}`],
   migrations: [`${__dirname}/**/migrations/*.{ts,js}`],
-  ssl: {
-    rejectUnauthorized: false,
-  }
 });
