@@ -26,7 +26,9 @@ export class ActivityScheduleService {
     description,
     disclaimer,
     activityId,
-    numberOfSeats
+    numberOfSeats,
+    minNumberOfSeats,
+    maxNumberOfSeats,
   }: {
     startTime: string;
     endTime: string;
@@ -34,6 +36,8 @@ export class ActivityScheduleService {
     disclaimer: string;
     activityId: UUID;
     numberOfSeats: number;
+    minNumberOfSeats?: number;
+    maxNumberOfSeats?: number;
   }): Promise<ActivitySchedule> {
     // VALIDATE ACTIVITY ID
     if (!activityId) {
@@ -66,7 +70,9 @@ export class ActivityScheduleService {
       description,
       disclaimer,
       activityId,
-      numberOfSeats
+      numberOfSeats,
+      minNumberOfSeats,
+      maxNumberOfSeats
     });
 
     // SAVE ACTIVITY SCHEDULE
@@ -118,6 +124,8 @@ export class ActivityScheduleService {
           createdAt: true,
           updatedAt: true,
           numberOfSeats: true,
+          minNumberOfSeats: true,
+          maxNumberOfSeats: true,
           activity: {
             id: true,
             name: true,
@@ -181,7 +189,9 @@ export class ActivityScheduleService {
         description,
         disclaimer,
         activityId,
-        numberOfSeats
+        numberOfSeats,
+        minNumberOfSeats,
+        maxNumberOfSeats
         }: {
         startTime: string;
         endTime: string;
@@ -189,6 +199,8 @@ export class ActivityScheduleService {
         disclaimer: string;
         activityId: UUID;
         numberOfSeats: number;
+        minNumberOfSeats?: number;
+        maxNumberOfSeats?: number;
         }
     ): Promise<ActivitySchedule> {
       // VALIDATE ID
@@ -244,7 +256,9 @@ export class ActivityScheduleService {
           description,
           disclaimer,
           activityId,
-          numberOfSeats
+          numberOfSeats,
+          minNumberOfSeats,
+          maxNumberOfSeats
         });
 
       if (!updatedActivitySchedule.affected) {

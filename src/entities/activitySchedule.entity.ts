@@ -29,6 +29,22 @@ export class ActivitySchedule extends AbstractEntity {
     })
     description: string;
 
+    // MINIMUM NUMBER OF SEATS
+    @Column({
+        name: 'min_number_of_seats',
+        type: 'int',
+        nullable: true,
+    })
+    minNumberOfSeats?: number;
+
+    // MAXIMUM NUMBER OF SEATS
+    @Column({
+        name: 'max_number_of_seats',
+        type: 'int',
+        nullable: true,
+    })
+    maxNumberOfSeats?: number;
+
     // NUMBER OF SEATS
     @Column({
         name: 'number_of_seats',

@@ -10,6 +10,8 @@ import bookingVehicleRoutes from './bookingVehicle.routes';
 import serviceRoutes from './service.routes';
 import bookingaActivityPersonRoutes from './bookingActivityPerson.routes';
 import userRoutes from './user.routes'
+import paymentRoutes from './payment.routes';
+import termsRoutes from './terms.routes';
 
 // CREATE ROUTER
 const router = Router();
@@ -50,6 +52,12 @@ router.use('/booking-activity-people', bookingaActivityPersonRoutes);
 
 // USER ROUTES
 router.use('/users', userRoutes)
+
+// PAYMENT ROUTES
+router.use('/payments', paymentRoutes);
+
+// TERMS ROUTES
+router.use('/terms', termsRoutes);
 
 // EXPORT ROUTER
 export default router;

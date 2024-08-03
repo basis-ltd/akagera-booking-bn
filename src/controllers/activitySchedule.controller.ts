@@ -10,7 +10,7 @@ export const ActivityScheduleController = {
     // CREATE ACTIVITY SCHEDULE
     async createActivitySchedule(req: Request, res: Response, next: NextFunction) {
         try {
-            const { startTime, endTime, description, disclaimer, activityId, numberOfSeats = 1000 } = req.body;
+            const { startTime, endTime, description, disclaimer, activityId, numberOfSeats = 1000, minNumberOfSeats, maxNumberOfSeats } = req.body;
 
             // CREATE ACTIVITY SCHEDULE
             const newActivitySchedule = await activityScheduleService.createActivitySchedule({
@@ -20,6 +20,8 @@ export const ActivityScheduleController = {
                 disclaimer,
                 activityId,
                 numberOfSeats,
+                minNumberOfSeats,
+                maxNumberOfSeats,
             });
 
             // RETURN RESPONSE
@@ -110,7 +112,7 @@ export const ActivityScheduleController = {
     async updateActivitySchedule(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
-            const { startTime, endTime, description, disclaimer, activityId, numberOfSeats } = req.body;
+            const { startTime, endTime, description, disclaimer, activityId, numberOfSeats, minNumberOfSeats, maxNumberOfSeats } = req.body;
 
             // UPDATE ACTIVITY SCHEDULE
             const updatedActivitySchedule = await activityScheduleService.updateActivitySchedule(id as UUID, {
@@ -120,6 +122,8 @@ export const ActivityScheduleController = {
                 disclaimer,
                 activityId,
                 numberOfSeats,
+                minNumberOfSeats,
+                maxNumberOfSeats,
             });
 
             // RETURN RESPONSE

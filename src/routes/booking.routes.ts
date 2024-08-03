@@ -32,5 +32,8 @@ router.get("/all/statuses", BookingController.fetchBookingStatuses);
 // CONFIRM BOOKING
 router.patch("/:id/submit", BookingController.submitBooking);
 
+// UPDATE BOOKING CONSENT
+router.patch("/:id/consent", BookingController.updateBookingConsent);
+
 // EXPORT ROUTER
 export default router;

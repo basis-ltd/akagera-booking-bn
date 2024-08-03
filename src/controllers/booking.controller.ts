@@ -286,4 +286,26 @@ export const BookingController = {
       next(error);
     }
   },
+
+  // UPDATE BOOKING CONSENT
+  async updateBookingConsent(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { consent } = req.body;
+
+      // UPDATE BOOKING CONSENT
+      const updatedBooking = await bookingService.updateBookingConsent({
+        id: id as UUID,
+        consent,
+      });
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Booking consent updated successfully!',
+        data: updatedBooking,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

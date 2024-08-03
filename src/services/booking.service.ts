@@ -127,7 +127,7 @@ export class BookingService {
     page?: number;
     condition?: object;
   }): Promise<BookingPagination> {
-    const {take, skip} = getPagination(page, size);
+    const { take, skip } = getPagination(page, size);
     const bookings = await this.bookingRepository.findAndCount({
       where: condition,
       take,
@@ -485,5 +485,40 @@ async fetchTimeSeriesBookings({
     );
 
     return confirmedBooking.raw[0];
+  }
+
+  // UPDATE BOOKING CONSENT
+  async updateBookingConsent({
+    id,
+    consent,
+  }: {
+    id: UUID;
+    consent: boolean;
+  }): Promise<Booking> {
+    // VALIDATE UUID
+    const { error } = validateUuid(id);
+
+    if (error) {
+      throw new ValidationError('Invalid ID');
+    }
+
+    // CHECK IF BOOKING EXISTS
+    const bookingExists = await this.bookingRepository.findOne({
+      where: { id },
+    });
+
+    if (!bookingExists) {
+      throw new NotFoundError('Booking not found');
+    }
+
+    const updatedBooking = await this.bookingRepository.update(id, {
+      consent,
+    });
+
+    if (!updatedBooking.affected) {
+      throw new NotFoundError('Booking update failed');
+    }
+
+    return updatedBooking.raw[0];
   }
 }

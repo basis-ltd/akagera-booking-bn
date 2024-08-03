@@ -158,6 +158,14 @@ export class Booking extends AbstractEntity {
   })
   checkOut: Date;
 
+  // CONSENT
+  @Column({
+    name: 'consent',
+    type: 'boolean',
+    default: false,
+  })
+  consent: boolean;
+
   // APPROVED BY
   @ManyToOne(() => User, (user) => user.bookingsApproved)
   approvedByUser: User;
