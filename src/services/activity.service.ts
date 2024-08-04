@@ -27,13 +27,11 @@ export class ActivityService {
     serviceId,
     description,
     disclaimer,
-    numberOfSeats,
   }: {
     name: string;
     serviceId: UUID;
     description: string;
     disclaimer: string;
-    numberOfSeats: number;
   }): Promise<Activity> {
     // IF NAME NOT PROVIDED
     if (!name) {
@@ -77,7 +75,6 @@ export class ActivityService {
       description,
       disclaimer,
       serviceId,
-      numberOfSeats,
     });
 
     return this.activityRepository.save(newActivity);
@@ -90,14 +87,12 @@ export class ActivityService {
     description,
     disclaimer,
     serviceId,
-    numberOfSeats
   }: {
     id: UUID;
     name: string;
     description: string;
     disclaimer: string;
     serviceId: UUID;
-    numberOfSeats: number;
   }): Promise<Activity> {
     // VALIDATE UUID
     const { error } = validateUuid(id);
@@ -126,7 +121,7 @@ export class ActivityService {
     // UPDATE ACTIVITY
     const updatedActivity = await this.activityRepository.update(
       { id },
-      { name, description, disclaimer, serviceId, numberOfSeats }
+      { name, description, disclaimer, serviceId }
     );
 
     // IF ACTIVITY NOT FOUND

@@ -308,4 +308,24 @@ export const BookingController = {
       next(error);
     }
   },
+
+  // CALCUATE BOOKING AMOUNT
+  async calculateBookingAmount(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+
+      // CALCULATE BOOKING AMOUNT
+      const bookingAmount = await bookingService.calculateBookingAmount({
+        id: id as UUID,
+      });
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Booking amount calculated successfully!',
+        data: bookingAmount,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

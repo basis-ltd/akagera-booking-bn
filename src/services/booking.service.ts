@@ -17,12 +17,23 @@ import {
   bookingSubmittedEmailTemplate,
   sendEmail,
 } from '../helpers/emails.helper';
+import { BookingActivity } from '../entities/bookingActivity.entity';
+import { BookingPerson } from '../entities/bookingPerson.entity';
+import { BookingVehicle } from '../entities/bookingVehicle.entity';
+import { calculateActivityPrice, calculateEntryPrice, calculateVehiclePrice } from '../helpers/booking.helper';
 
 export class BookingService {
   private bookingRepository: Repository<Booking>;
+  private bookingActivityRepository: Repository<BookingActivity>;
+  private bookingVehicleRepository: Repository<BookingVehicle>;
+  private bookingPersonRepository: Repository<BookingPerson>;
 
   constructor() {
     this.bookingRepository = AppDataSource.getRepository(Booking);
+    this.bookingActivityRepository =
+      AppDataSource.getRepository(BookingActivity);
+    this.bookingVehicleRepository = AppDataSource.getRepository(BookingVehicle);
+    this.bookingPersonRepository = AppDataSource.getRepository(BookingPerson);
   }
 
   // CREATE BOOKING
@@ -138,41 +149,41 @@ export class BookingService {
     return getPagingData(bookings, size, page);
   }
 
-// FETCH TIME SERIES DATA
-async fetchTimeSeriesBookings({
-  startDate,
-  endDate,
-  type,
-}: {
-  type?: string;
-  startDate?: Date;
-  endDate?: Date;
-}) {
-  let selectClause: string;
-  let groupByClause: string;
-  let orderByClause: string;
+  // FETCH TIME SERIES DATA
+  async fetchTimeSeriesBookings({
+    startDate,
+    endDate,
+    type,
+  }: {
+    type?: string;
+    startDate?: Date;
+    endDate?: Date;
+  }) {
+    let selectClause: string;
+    let groupByClause: string;
+    let orderByClause: string;
 
-  if (startDate && !endDate) {
-    throw new ValidationError('End date is required');
-  }
+    if (startDate && !endDate) {
+      throw new ValidationError('End date is required');
+    }
 
-  // VALIDATE TYPE
-  if (type && !['booking', 'registration'].includes(type)){
-    throw new ValidationError('Invalid booking type');
-  }
+    // VALIDATE TYPE
+    if (type && !['booking', 'registration'].includes(type)) {
+      throw new ValidationError('Invalid booking type');
+    }
 
-  const diff =
-    startDate && endDate && moment(endDate).diff(moment(startDate), 'months');
+    const diff =
+      startDate && endDate && moment(endDate).diff(moment(startDate), 'months');
 
-  if (!diff || diff < 3) {
-    selectClause = `booking.startDate as date, COUNT(*) as count, SUM(booking.totalAmountUsd) as totalAmountUsd`;
-    groupByClause = `booking.startDate`;
-    orderByClause = `booking.startDate`;
-  } else {
-    selectClause = `date_part('year', booking.startDate) as yearpart, date_part('month', booking.startDate) as monthpart, COUNT(*) as count, SUM(booking.totalAmountUsd) as totalAmountUsd`;
-    groupByClause = `date_part('year', booking.startDate), date_part('month', booking.startDate)`;
-    orderByClause = `date_part('year', booking.startDate), date_part('month', booking.startDate)`;
-  }
+    if (!diff || diff < 3) {
+      selectClause = `booking.startDate as date, COUNT(*) as count, SUM(booking.totalAmountUsd) as totalAmountUsd`;
+      groupByClause = `booking.startDate`;
+      orderByClause = `booking.startDate`;
+    } else {
+      selectClause = `date_part('year', booking.startDate) as yearpart, date_part('month', booking.startDate) as monthpart, COUNT(*) as count, SUM(booking.totalAmountUsd) as totalAmountUsd`;
+      groupByClause = `date_part('year', booking.startDate), date_part('month', booking.startDate)`;
+      orderByClause = `date_part('year', booking.startDate), date_part('month', booking.startDate)`;
+    }
 
     const query = this.bookingRepository
       .createQueryBuilder('booking')
@@ -190,20 +201,23 @@ async fetchTimeSeriesBookings({
       query.andWhere('booking.type = :type', { type });
     }
 
-  const result = await query.getRawMany();
+    const result = await query.getRawMany();
 
-  const timeSeriesData = result.map((item) => {
-    return {
-      date: diff && diff >= 3 ? `${item.yearpart}-${item.monthpart}` : moment(item.date).format('MM-DD'),
-      value: parseInt(item.count, 10),
-      totalAmountUsd: parseFloat(item.totalamountusd),
-    };
-  });
+    const timeSeriesData = result.map((item) => {
+      return {
+        date:
+          diff && diff >= 3
+            ? `${item.yearpart}-${item.monthpart}`
+            : moment(item.date).format('MM-DD'),
+        value: parseInt(item.count, 10),
+        totalAmountUsd: parseFloat(item.totalamountusd),
+      };
+    });
 
-  return timeSeriesData;
-}
-    
-    // UPDATE BOOKING
+    return timeSeriesData;
+  }
+
+  // UPDATE BOOKING
   async updateBooking({
     id,
     name,
@@ -520,5 +534,77 @@ async fetchTimeSeriesBookings({
     }
 
     return updatedBooking.raw[0];
+  }
+
+  // CALCULATE BOOKING PRICE
+  async calculateBookingAmount({ id }: { id: UUID }): Promise<number> {
+    // VALIDATE UUID
+    const { error } = validateUuid(id);
+
+    if (error) {
+      throw new ValidationError('Invalid ID');
+    }
+
+    // CHECK IF BOOKING EXISTS
+    const bookingExists = await this.bookingRepository.findOne({
+      where: { id },
+    });
+
+    if (!bookingExists) {
+      throw new NotFoundError('Booking not found');
+    }
+
+    // FETCH BOOKING PEOPLE
+    const bookingPeople = await this.bookingPersonRepository.find({
+      where: { bookingId: id },
+    });
+
+    // FETCH BOOKING VEHICLES
+    const bookingVehicles = await this.bookingVehicleRepository.find({
+      where: { bookingId: id },
+    });
+
+    // FETCH BOOKING ACTIVITIES
+    const bookingActivities = await this.bookingActivityRepository.find({
+      where: { bookingId: id },
+      relations: {
+        activity: {
+          activityRates: true,
+        },
+      },
+    });
+
+    // CALCULATE ENTRY PRICE
+    const bookingPeoplePrice =
+      bookingPeople?.length > 0
+        ? bookingPeople?.reduce((acc, curr) => {
+            return acc + calculateEntryPrice(curr);
+          }, 0)
+        : 0;
+
+    // CALCULATE VEHICLE PRICE
+    const bookingVehiclePrice =
+      bookingVehicles?.length > 0
+        ? bookingVehicles?.reduce((acc, curr) => {
+            return acc + calculateVehiclePrice(curr);
+          }, 0)
+        : 0;
+
+    // CALCULATE ACTIVITY PRICE
+    const bookingActivityPrice =
+      bookingActivities?.length > 0
+        ? bookingActivities?.reduce((acc, curr) => {
+            return acc + calculateActivityPrice(curr);
+          }, 0)
+        : 0;
+    const bookingPrice =
+      bookingPeoplePrice + bookingVehiclePrice + bookingActivityPrice;
+
+    bookingExists.totalAmountUsd = bookingPrice;
+    bookingExists.totalAmountRwf = bookingPrice * 1318;
+
+    await this.bookingRepository.save(bookingExists);
+
+    return bookingPrice;
   }
 }

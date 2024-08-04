@@ -23,5 +23,8 @@ router.patch("/:id", ActivityScheduleController.updateActivitySchedule);
 // DELETE ACTIVITY SCHEDULE
 router.delete("/:id", ActivityScheduleController.deleteActivitySchedule);
 
+// CALCULATE REMAINING SEATS
+router.get("/:id/seats/remaining", ActivityScheduleController.calculateRemainingSeats);
+
 // EXPORT ROUTER
 export default router;

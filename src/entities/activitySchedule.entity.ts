@@ -50,7 +50,6 @@ export class ActivitySchedule extends AbstractEntity {
         name: 'number_of_seats',
         type: 'int',
         nullable: true,
-        default: 1000,
     })
     numberOfSeats: number;
 

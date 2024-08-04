@@ -6,133 +6,200 @@ import { UUID } from "crypto";
 const activityScheduleService = new ActivityScheduleService();
 
 export const ActivityScheduleController = {
+  // CREATE ACTIVITY SCHEDULE
+  async createActivitySchedule(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const {
+        startTime,
+        endTime,
+        description,
+        disclaimer,
+        activityId,
+        numberOfSeats = 1000,
+        minNumberOfSeats,
+        maxNumberOfSeats,
+      } = req.body;
 
-    // CREATE ACTIVITY SCHEDULE
-    async createActivitySchedule(req: Request, res: Response, next: NextFunction) {
-        try {
-            const { startTime, endTime, description, disclaimer, activityId, numberOfSeats = 1000, minNumberOfSeats, maxNumberOfSeats } = req.body;
+      // CREATE ACTIVITY SCHEDULE
+      const newActivitySchedule =
+        await activityScheduleService.createActivitySchedule({
+          startTime,
+          endTime,
+          description,
+          disclaimer,
+          activityId,
+          numberOfSeats,
+          minNumberOfSeats,
+          maxNumberOfSeats,
+        });
 
-            // CREATE ACTIVITY SCHEDULE
-            const newActivitySchedule = await activityScheduleService.createActivitySchedule({
-                startTime,
-                endTime,
-                description,
-                disclaimer,
-                activityId,
-                numberOfSeats,
-                minNumberOfSeats,
-                maxNumberOfSeats,
-            });
+      // RETURN RESPONSE
+      return res.status(201).json({
+        message: 'Activity schedule created successfully!',
+        data: newActivitySchedule,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 
-            // RETURN RESPONSE
-            return res.status(201).json({
-                message: "Activity schedule created successfully!",
-                data: newActivitySchedule,
-            });
-        } catch (error) {
-            next(error);
-        }
-    },
+  // FETCH ACTIVITY SCHEDULES
+  async fetchActivitySchedules(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { size = 10, page = 0, startTime, endTime, activityId } = req.query;
+      let condition: object = {};
 
-    // FETCH ACTIVITY SCHEDULES
-    async fetchActivitySchedules(req: Request, res: Response, next: NextFunction) {
-        try {
+      // ADD START TIME TO CONDITION
+      if (startTime) {
+        condition = { ...condition, startTime };
+      }
 
-            const { size = 10, page = 0, startTime, endTime, activityId } = req.query;
-            let condition: object = {};
+      // ADD END TIME TO CONDITION
+      if (endTime) {
+        condition = { ...condition, endTime };
+      }
 
-            // ADD START TIME TO CONDITION
-            if (startTime) {
-                condition = {...condition, startTime};
-            }
+      // ADD ACTIVITY ID TO CONDITION
+      if (activityId) {
+        condition = { ...condition, activityId };
+      }
 
-            // ADD END TIME TO CONDITION
-            if (endTime) {
-                condition = {...condition, endTime};
-            }
+      // FETCH ACTIVITY SCHEDULES
+      const activitySchedules =
+        await activityScheduleService.fetchActivitySchedules({
+          size: Number(size),
+          page: Number(page),
+          condition,
+        });
 
-            // ADD ACTIVITY ID TO CONDITION
-            if (activityId) {
-                condition = {...condition, activityId};
-            }
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Activity schedules fetched successfully!',
+        data: activitySchedules,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 
-            // FETCH ACTIVITY SCHEDULES
-            const activitySchedules = await activityScheduleService.fetchActivitySchedules({
-                size: Number(size),
-                page: Number(page),
-                condition,
-            });
+  // GET ACTIVITY SCHEDULE BY ID
+  async getActivityScheduleById(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { id } = req.params;
 
-            // RETURN RESPONSE
-            return res.status(200).json({
-                message: "Activity schedules fetched successfully!",
-                data: activitySchedules,
-            });
-        } catch (error) {
-            next(error);
-        }
-    },
+      // FETCH ACTIVITY SCHEDULE
+      const activitySchedule =
+        await activityScheduleService.getActivityScheduleDetails(id as UUID);
 
-    // GET ACTIVITY SCHEDULE BY ID
-    async getActivityScheduleById(req: Request, res: Response, next: NextFunction) {
-        try {
-            const { id } = req.params;
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Activity schedule fetched successfully!',
+        data: activitySchedule,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 
-            // FETCH ACTIVITY SCHEDULE
-            const activitySchedule = await activityScheduleService.getActivityScheduleDetails(id as UUID);
+  // DELETE ACTIVITY SCHEDULE
+  async deleteActivitySchedule(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { id } = req.params;
 
-            // RETURN RESPONSE
-            return res.status(200).json({
-                message: "Activity schedule fetched successfully!",
-                data: activitySchedule,
-            });
-        } catch (error) {
-            next(error);
-        }
-    },
+      // DELETE ACTIVITY SCHEDULE
+      await activityScheduleService.deleteActivitySchedule(id as UUID);
 
-    // DELETE ACTIVITY SCHEDULE
-    async deleteActivitySchedule(req: Request, res: Response, next: NextFunction) {
-        try {
-            const { id } = req.params;
+      // RETURN RESPONSE
+      return res.status(204).json({
+        message: 'Activity schedule deleted successfully!',
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 
-            // DELETE ACTIVITY SCHEDULE
-            await activityScheduleService.deleteActivitySchedule(id as UUID);
+  // UPDATE ACTIVITY SCHEDULE
+  async updateActivitySchedule(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { id } = req.params;
+      const {
+        startTime,
+        endTime,
+        description,
+        disclaimer,
+        activityId,
+        numberOfSeats,
+        minNumberOfSeats,
+        maxNumberOfSeats,
+      } = req.body;
 
-            // RETURN RESPONSE
-            return res.status(204).json({
-                message: "Activity schedule deleted successfully!",
-            });
-        } catch (error) {
-            next(error);
-        }
-    },
+      // UPDATE ACTIVITY SCHEDULE
+      const updatedActivitySchedule =
+        await activityScheduleService.updateActivitySchedule(id as UUID, {
+          startTime,
+          endTime,
+          description,
+          disclaimer,
+          activityId,
+          numberOfSeats,
+          minNumberOfSeats,
+          maxNumberOfSeats,
+        });
 
-    // UPDATE ACTIVITY SCHEDULE
-    async updateActivitySchedule(req: Request, res: Response, next: NextFunction) {
-        try {
-            const { id } = req.params;
-            const { startTime, endTime, description, disclaimer, activityId, numberOfSeats, minNumberOfSeats, maxNumberOfSeats } = req.body;
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Activity schedule updated successfully!',
+        data: updatedActivitySchedule,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 
-            // UPDATE ACTIVITY SCHEDULE
-            const updatedActivitySchedule = await activityScheduleService.updateActivitySchedule(id as UUID, {
-                startTime,
-                endTime,
-                description,
-                disclaimer,
-                activityId,
-                numberOfSeats,
-                minNumberOfSeats,
-                maxNumberOfSeats,
-            });
+  // CALULATE REMAINING SEATS
+  async calculateRemainingSeats(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { id } = req.params;
+      const { date } = req.query;
 
-            // RETURN RESPONSE
-            return res.status(200).json({
-                message: "Activity schedule updated successfully!",
-                data: updatedActivitySchedule,
-            });
-        } catch (error) {
-            next(error);
-        }
-    },
+      // CALCULATE REMAINING SEATS
+      const remainingSeats =
+        await activityScheduleService.calculateRemainingSeats({
+          id: id as UUID,
+          date: date as unknown as Date,
+        });
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Remaining seats calculated successfully!',
+        data: remainingSeats,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

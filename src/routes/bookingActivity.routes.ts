@@ -24,10 +24,7 @@ router.get("/:id", BookingActivityController.getBookingActivityById);
 router.delete("/:id", BookingActivityController.deleteBookingActivity);
 
 // UPDATE BOOKING ACTIVITY
-router.patch("/:id", BookingActivityController.updateBookingActivity);
-
-// CALCULATE REMAINING SEATS
-router.get("/seats/remaining", BookingActivityController.calculateRemainingSeats);
+router.patch("/:id", BookingActivityController.updateBookingActivity)
 
 // EXPORT ROUTER
 export default router;

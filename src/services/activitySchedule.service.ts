@@ -8,15 +8,18 @@ import { Activity } from "../entities/activity.entity";
 import moment from "moment";
 import { getPagination, getPagingData } from "../helpers/pagination.helper";
 import { ActivitySchedulesPagination } from "../types/activitySchedule.types";
+import { BookingActivity } from "../entities/bookingActivity.entity";
 
 export class ActivityScheduleService {
   private activityScheduleRepository: Repository<ActivitySchedule>;
   private activityRepository: Repository<Activity>;
+  private bookingActivityRepository: Repository<BookingActivity>;
 
   constructor() {
     this.activityScheduleRepository =
       AppDataSource.getRepository(ActivitySchedule);
     this.activityRepository = AppDataSource.getRepository(Activity);
+    this.bookingActivityRepository = AppDataSource.getRepository(BookingActivity);
   }
 
   // CREATE ACTIVITY SCHEDULE
@@ -210,27 +213,6 @@ export class ActivityScheduleService {
         throw new ValidationError('Invalid ID');
       }
 
-      // VALIDATE ACTIVITY ID
-      if (!activityId) {
-        throw new ValidationError('Activity ID is required');
-      }
-
-      const { error: activityIdError } = validateUuid(activityId);
-
-      if (activityIdError) {
-        throw new ValidationError('Invalid Activity ID');
-      }
-
-      // CHECK IF ACTIVITY EXISTS
-      const activityExists = await this.activityRepository.findOne({
-        where: { id: activityId },
-      });
-
-      // IF ACTIVITY DOES NOT EXIST
-      if (!activityExists) {
-        throw new ValidationError('Activity not found');
-      }
-
       // CHECK IF ACTIVITY SCHEDULE EXISTS
       const activityScheduleExists =
         await this.activityScheduleRepository.findOne({
@@ -267,4 +249,40 @@ export class ActivityScheduleService {
 
       return updatedActivitySchedule.raw[0];
     }
+
+      // CALCULATE REMAINING SEATS
+  async calculateRemainingSeats({
+    id,
+    date,
+  }: {
+    id: UUID;
+    date: Date;
+  }): Promise<number | boolean> {
+    // Fetch the activity schedule
+    const activitySchedule = await this.activityScheduleRepository.findOne({
+      where: { id },
+    });
+    if (!activitySchedule) {
+      throw new NotFoundError("Activity schedule not found");
+    }
+
+    // Format start and end time
+    const startDateTime = new Date(`${date}T${activitySchedule.startTime}Z`);
+    const endDateTime = new Date(`${date}T${activitySchedule.endTime}Z`);
+
+    // Query to get the number of people scheduled for the specific activity and date
+    const bookingActivities = await this.bookingActivityRepository
+      .createQueryBuilder("bookingActivity")
+      .where("bookingActivity.activityId = :activityId", { activityId: activitySchedule.activityId })
+      .andWhere("bookingActivity.startTime >= :startDateTime", { startDateTime })
+      .andWhere("bookingActivity.endTime <= :endDateTime", { endDateTime })
+      .getMany();
+
+    // Calculate the total number of people (adults + children)
+    const totalPeople = bookingActivities.reduce((acc, booking) => {
+      return acc + booking.numberOfAdults + booking.numberOfChildren + booking?.numberOfSeats;
+    }, 0);
+
+    return activitySchedule?.numberOfSeats ? activitySchedule?.numberOfSeats - totalPeople : true;
+  }
 };

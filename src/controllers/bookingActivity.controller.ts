@@ -217,30 +217,4 @@ export const BookingActivityController = {
       next(error);
     }
   },
-
-  // CALULATE REMAINING SEATS
-  async calculateRemainingSeats(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      const { activityScheduleId, activityStartTime } = req.query;
-
-      // CALCULATE REMAINING SEATS
-      const remainingSeats =
-        await bookingActivityService.calculateRemainingSeats({
-          activityScheduleId: activityScheduleId as UUID,
-          date: activityStartTime as unknown as Date,
-        });
-
-      // RETURN RESPONSE
-      return res.status(200).json({
-        message: 'Remaining seats calculated successfully!',
-        data: remainingSeats,
-      });
-    } catch (error) {
-      next(error);
-    }
-  },
 };

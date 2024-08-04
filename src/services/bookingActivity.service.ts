@@ -294,44 +294,4 @@ export class BookingActivityService {
     return updatedBookingActivity.raw[0];
   }
 
-  // CALCULATE REMAINING SEATS
-  async calculateRemainingSeats({
-    activityScheduleId,
-    date,
-  }: {
-    activityScheduleId: UUID;
-    date: Date;
-  }): Promise<number> {
-    // Find the activity schedule by ID
-    const activitySchedule = await this.activityScheduleRepository.findOne({
-      where: { id: activityScheduleId },
-    });
-    if (!activitySchedule) {
-      throw new NotFoundError('Activity schedule not found');
-    }
-
-    // Parse the date to match only bookings on the given date
-    const parsedDate = new Date(date);
-
-    // Get all booking activities for the given date and schedule
-    const bookingActivities = await this.bookingActivityRepository
-      .createQueryBuilder('bookingActivity')
-      .where('bookingActivity.activityId = :activityId', { activityId: activitySchedule.activityId })
-      .andWhere('DATE(bookingActivity.startTime) = DATE(:date)', { date: parsedDate })
-      .andWhere('TIME(bookingActivity.startTime) >= TIME(:startTime)', { startTime: activitySchedule.startTime })
-      .andWhere('TIME(bookingActivity.endTime) <= TIME(:endTime)', { endTime: activitySchedule.endTime })
-      .getMany();
-
-      console.log(bookingActivities)
-
-    // Calculate the total number of booked seats
-    const totalBookedSeats = bookingActivities.reduce((total, booking) => {
-      return total + booking.numberOfAdults + booking.numberOfChildren;
-    }, 0);
-
-    // Calculate remaining seats
-    const remainingSeats = activitySchedule.numberOfSeats - totalBookedSeats;
-
-    return remainingSeats;
-  }
 }

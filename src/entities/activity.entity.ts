@@ -20,15 +20,6 @@ export class Activity extends AbstractEntity {
   @Column({ name: 'disclaimer', type: 'text', nullable: true })
   disclaimer: string;
 
-    // NUMBER OF SEATS
-    @Column({
-      name: 'number_of_seats',
-      type: 'int',
-      nullable: true,
-      default: 1000,
-    })
-    numberOfSeats: number;
-
   // ACTIVITY RATES
   @OneToMany(() => ActivityRate, (activityRate) => activityRate.activity, {
     onDelete: 'CASCADE',

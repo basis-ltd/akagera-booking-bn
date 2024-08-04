@@ -28,7 +28,7 @@ export class BookingActivity extends AbstractEntity {
     name: 'number_of_seats',
     type: 'integer',
     nullable: false,
-    default: 1,
+    default: 0,
   })
   numberOfSeats!: number;
 
