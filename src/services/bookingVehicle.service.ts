@@ -21,7 +21,7 @@ export class BookingVehicleService {
     plateNumber,
     vehicleType,
     registrationCountry,
-    vehiclesCount
+    vehiclesCount,
   }: {
     bookingId: UUID;
     plateNumber: string;
@@ -61,7 +61,7 @@ export class BookingVehicleService {
       plateNumber,
       vehicleType,
       registrationCountry,
-      vehiclesCount
+      vehiclesCount,
     });
 
     // SAVE BOOKING VEHICLE
@@ -139,7 +139,7 @@ export class BookingVehicleService {
     vehicleType,
     bookingId,
     registrationCountry,
-    vehiclesCount
+    vehiclesCount,
   }: {
     id: UUID;
     plateNumber: string;
@@ -170,7 +170,7 @@ export class BookingVehicleService {
         plateNumber,
         vehicleType,
         bookingId,
-        vehiclesCount
+        vehiclesCount,
       }
     );
 
@@ -209,4 +209,51 @@ export class BookingVehicleService {
 
     return existingBookingVehicle;
   }
+
+  // FETCH POPULAR BOOKING VEHICLES
+async fetchPopularBookingVehicles({
+  registrationCountry,
+  vehicleType,
+  startDate,
+  endDate,
+}: {
+  registrationCountry?: string;
+  vehicleType?: string;
+  startDate?: Date;
+  endDate?: Date;
+}): Promise<{ value: string | number; count: string | number }[]> {
+  const popularBookingVehicles = this.bookingVehicleRepository
+    .createQueryBuilder('bookingVehicle')
+    .select('bookingVehicle.vehicleType', 'value')
+    .addSelect('COUNT(bookingVehicle.id)', 'count')
+    .groupBy('bookingVehicle.vehicleType')
+    .orderBy('count', 'DESC');
+
+  if (registrationCountry) {
+    popularBookingVehicles.andWhere(
+      'bookingVehicle.registrationCountry = :registrationCountry',
+      { registrationCountry }
+    );
+  }
+
+  if (vehicleType) {
+    popularBookingVehicles.andWhere('bookingVehicle.vehicleType = :vehicleType', {
+      vehicleType,
+    });
+  }
+
+  if (startDate && endDate) {
+    popularBookingVehicles.andWhere(
+      'bookingVehicle.createdAt BETWEEN :startDate AND :endDate',
+      {
+        startDate,
+        endDate,
+      }
+    );
+  }
+
+  const result = await popularBookingVehicles.getRawMany();
+
+  return result;
+}
 }

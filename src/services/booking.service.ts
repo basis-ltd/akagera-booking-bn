@@ -597,6 +597,7 @@ export class BookingService {
             return acc + calculateActivityPrice(curr);
           }, 0)
         : 0;
+
     const bookingPrice =
       bookingPeoplePrice + bookingVehiclePrice + bookingActivityPrice;
 

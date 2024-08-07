@@ -2,6 +2,7 @@ import { Repository } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { Terms } from '../entities/terms.entity';
 import { NotFoundError } from '../helpers/errors.helper';
+import { UUID } from 'crypto';
 
 export class TermsService {
   private termsRepository: Repository<Terms>;
@@ -29,6 +30,26 @@ export class TermsService {
     const terms = this.termsRepository.create({
       termsOfService,
     });
+    await this.termsRepository.save(terms);
+
+    return terms;
+  }
+
+  // UPDATE TERMS OF SERVICE
+  async updateTermsOfService({
+    id,
+    termsOfService,
+  }: {
+    id: UUID;
+    termsOfService: string;
+  }): Promise<Terms> {
+    const terms = await this.termsRepository.findOne({ where: { id } });
+
+    if (!terms) {
+      throw new NotFoundError('Terms of service not found');
+    }
+
+    terms.termsOfService = termsOfService;
     await this.termsRepository.save(terms);
 
     return terms;

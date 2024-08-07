@@ -14,5 +14,8 @@ router.get("/", TermsController.getTermsOfService);
 // CREATE TERMS OF SERVICE
 router.post("/", TermsController.createTermsOfService);
 
+// UPDATE TERMS OF SERVICE
+router.patch("/:id", TermsController.updateTermsOfService);
+
 // EXPORT ROUTER
 export default router;

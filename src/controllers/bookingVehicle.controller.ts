@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { BookingVehicleService } from '../services/bookingVehicle.service';
 import { UUID } from 'crypto';
+import moment from 'moment';
 
 // INITIALIZE BOOKING VEHICLE SERVICE
 const bookingVehicleService = new BookingVehicleService();
@@ -136,6 +137,41 @@ export const BookingVehicleController = {
       // RETURN RESPONSE
       return res.status(204).json({
         message: 'Booking vehicle deleted successfully!',
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // FETCH POPULAR BOOKING VEHICLES
+  async fetchPopularBookingVehicles(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const {
+        registrationCountry,
+        vehicleType,
+        startDate = moment().startOf('month').toDate(),
+        endDate = moment(startDate as string)
+          .endOf('month')
+          .toDate(),
+      } = req.query;
+
+      // FETCH POPULAR BOOKING VEHICLES
+      const popularBookingVehicles =
+        await bookingVehicleService.fetchPopularBookingVehicles({
+          registrationCountry: registrationCountry as string,
+          vehicleType: vehicleType as string,
+          startDate: new Date(startDate as string),
+          endDate: new Date(endDate as string),
+        });
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Popular booking vehicles fetched successfully!',
+        data: popularBookingVehicles,
       });
     } catch (error) {
       next(error);

@@ -14,6 +14,9 @@ router.post('/', BookingVehicleController.createBookingVehicle);
 // FETCH BOOKING VEHICLES
 router.get('/', BookingVehicleController.fetchBookingVehicles);
 
+// FETCH POPULAR BOOKING VEHICLES
+router.get('/popular', BookingVehicleController.fetchPopularBookingVehicles);
+
 // GET BOOKING VEHICLE DETAILS
 router.get('/:id', BookingVehicleController.getBookingVehicleDetails);
 

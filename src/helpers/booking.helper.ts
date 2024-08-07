@@ -53,6 +53,14 @@ export const calculateActivityPrice = (bookingActivity: BookingActivity) => {
           (rate: ActivityRate) => rate?.ageRange === 'children'
         )?.amountUsd
       ),
+    Number(bookingActivity?.numberOfSeats || bookingActivity?.numberOfAdults) *
+      Number(
+        bookingActivity?.activity?.activityRates?.find(
+          (rate: ActivityRate) => rate?.ageRange === 'adults'
+        )?.amountRwf
+      ),
+    Number(bookingActivity?.defaultRate) *
+      Number(bookingActivity?.numberOfSeats || bookingActivity?.numberOfAdults),
   ];
 
   return prices?.reduce((acc, curr) => acc + Number(curr), 0);
