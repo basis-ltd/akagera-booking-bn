@@ -34,7 +34,7 @@ export const ActivityController = {
     async updateActivity(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
-            const { name, description, disclaimer, serviceId } = req.body;
+            const { name, description, disclaimer, serviceId, slug } = req.body;
 
             // UPDATE ACTIVITY
             const updatedActivity = await activityService.updateActivity({
@@ -43,6 +43,7 @@ export const ActivityController = {
                 description,
                 disclaimer,
                 serviceId,
+                slug
             });
 
             // RETURN RESPONSE

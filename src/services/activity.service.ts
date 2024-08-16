@@ -87,12 +87,14 @@ export class ActivityService {
     description,
     disclaimer,
     serviceId,
+    slug,
   }: {
     id: UUID;
     name: string;
     description: string;
     disclaimer: string;
     serviceId: UUID;
+    slug: string;
   }): Promise<Activity> {
     // VALIDATE UUID
     const { error } = validateUuid(id);
@@ -121,7 +123,7 @@ export class ActivityService {
     // UPDATE ACTIVITY
     const updatedActivity = await this.activityRepository.update(
       { id },
-      { name, description, disclaimer, serviceId }
+      { name, description, disclaimer, serviceId, slug }
     );
 
     // IF ACTIVITY NOT FOUND

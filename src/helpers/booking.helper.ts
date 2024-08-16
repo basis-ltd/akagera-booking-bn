@@ -37,31 +37,30 @@ const pricingStructure: PricingStructure = {
 export const calculateActivityPrice = (bookingActivity: BookingActivity) => {
   if (
     bookingActivity?.numberOfAdults === 0 &&
-    bookingActivity?.numberOfChildren === 0
+    bookingActivity?.numberOfChildren === 0 &&
+    !Number(bookingActivity?.defaultRate) &&
+    bookingActivity?.numberOfSeats === 0
   )
     return 0;
-  const prices = [
-    Number(bookingActivity?.numberOfAdults) *
-      Number(
-        bookingActivity?.activity?.activityRates?.find(
-          (rate: ActivityRate) => rate?.ageRange === 'adults'
-        )?.amountUsd
-      ),
-    Number(bookingActivity?.numberOfChildren) *
-      Number(
-        bookingActivity?.activity?.activityRates?.find(
-          (rate: ActivityRate) => rate?.ageRange === 'children'
-        )?.amountUsd
-      ),
-    Number(bookingActivity?.numberOfSeats || bookingActivity?.numberOfAdults) *
-      Number(
-        bookingActivity?.activity?.activityRates?.find(
-          (rate: ActivityRate) => rate?.ageRange === 'adults'
-        )?.amountRwf
-      ),
-    Number(bookingActivity?.defaultRate) *
-      Number(bookingActivity?.numberOfSeats || bookingActivity?.numberOfAdults),
-  ];
+  let prices = [];
+  if (Number(bookingActivity?.defaultRate)) {
+    prices = [Number(bookingActivity?.defaultRate)];
+  } else {
+    prices = [
+      Number(bookingActivity?.numberOfAdults) *
+        Number(
+          bookingActivity?.activity?.activityRates?.find(
+            (rate: ActivityRate) => rate?.ageRange === 'adults'
+          )?.amountUsd
+        ),
+      Number(bookingActivity?.numberOfChildren) *
+        Number(
+          bookingActivity?.activity?.activityRates?.find(
+            (rate: ActivityRate) => rate?.ageRange === 'children'
+          )?.amountUsd
+        ),
+    ];
+  }
 
   return prices?.reduce((acc, curr) => acc + Number(curr), 0);
 };

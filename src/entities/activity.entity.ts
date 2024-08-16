@@ -30,6 +30,10 @@ export class Activity extends AbstractEntity {
   @Column({ name: 'service_id', type: 'uuid', nullable: false })
   serviceId!: string;
 
+  // SLUG
+  @Column({ name: 'slug', type: 'varchar', length: 255, nullable: true })
+  slug: string;
+
   // ACTIVITY SCHEDULES
   @OneToMany(
     () => ActivitySchedule,

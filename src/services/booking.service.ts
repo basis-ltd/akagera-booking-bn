@@ -20,7 +20,11 @@ import {
 import { BookingActivity } from '../entities/bookingActivity.entity';
 import { BookingPerson } from '../entities/bookingPerson.entity';
 import { BookingVehicle } from '../entities/bookingVehicle.entity';
-import { calculateActivityPrice, calculateEntryPrice, calculateVehiclePrice } from '../helpers/booking.helper';
+import {
+  calculateActivityPrice,
+  calculateEntryPrice,
+  calculateVehiclePrice,
+} from '../helpers/booking.helper';
 
 export class BookingService {
   private bookingRepository: Repository<Booking>;
@@ -352,6 +356,7 @@ export class BookingService {
         createdAt: true,
         updatedAt: true,
         email: true,
+        consent: true,
         phone: true,
         accomodation: true,
         type: true,
