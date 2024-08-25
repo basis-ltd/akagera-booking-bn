@@ -198,6 +198,9 @@ export class BookingService {
       .andWhere('booking.startDate <= :endDate', {
         endDate: moment(endDate).toDate(),
       })
+      .andWhere('booking.status IN (:...status)', {
+        status: ['confirmed', 'cash_received'],
+      })
       .groupBy(groupByClause)
       .orderBy(orderByClause, 'ASC');
 

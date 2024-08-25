@@ -159,5 +159,6 @@ export function getPriceCategory(nationality: string, residence: string) {
 }
 
 export function calculateNights(startDate: Date, endDate: Date) {
+  console.log(moment(endDate).diff(moment(startDate), 'days'))
   return moment(endDate).diff(moment(startDate), 'days');
 }

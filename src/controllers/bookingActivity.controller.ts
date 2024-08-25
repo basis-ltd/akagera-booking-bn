@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { BookingActivityService } from '../services/bookingActivity.service';
 import { UUID } from 'crypto';
 import { BookingActivityPersonService } from '../services/bookingActivityPerson.service';
-import { Between } from 'typeorm';
+import { Between, In } from 'typeorm';
 import moment from 'moment';
 
 // INITIALIZE BOOKING ACTIVITY SERVICE
@@ -21,7 +21,7 @@ export const BookingActivityController = {
         numberOfAdults = 0,
         numberOfChildren = 0,
         bookingActivityPeople,
-        numberOfSeats = 1,
+        numberOfSeats = 0,
         defaultRate,
       } = req.body;
 
@@ -85,10 +85,12 @@ export const BookingActivityController = {
       let condition: object = {
         bookingId,
         activityId,
-        startTime: startTime && Between(
-          moment(String(startTime)).startOf('day').format(),
-          String(moment(String(startTime)).add(1, 'day').format())
-        ),
+        startTime:
+          startTime &&
+          Between(
+            moment(String(startTime)).startOf('day').format(),
+            String(moment(String(startTime)).add(1, 'day').format())
+          ),
       };
 
       // FETCH BOOKING ACTIVITIES

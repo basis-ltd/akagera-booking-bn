@@ -279,7 +279,9 @@ export class ActivityScheduleService {
       .getMany();
 
     // Calculate the total number of people (adults + children)
-    const totalPeople = bookingActivities.reduce((acc, booking) => {
+    let totalPeople = 0;
+
+    totalPeople = bookingActivities.reduce((acc, booking) => {
       return acc + booking.numberOfAdults + booking.numberOfChildren + booking?.numberOfSeats;
     }, 0);
 
