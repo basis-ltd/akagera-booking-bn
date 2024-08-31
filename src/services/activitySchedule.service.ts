@@ -3,7 +3,7 @@ import { AppDataSource } from "../data-source";
 import { UUID } from "crypto";
 import { validateStartAndEndTime, validateUuid } from "../helpers/validations.helper";
 import { NotFoundError, ValidationError } from "../helpers/errors.helper";
-import { Repository } from "typeorm";
+import { Between, Repository } from "typeorm";
 import { Activity } from "../entities/activity.entity";
 import moment from "moment";
 import { getPagination, getPagingData } from "../helpers/pagination.helper";
@@ -263,12 +263,18 @@ export class ActivityScheduleService {
       where: { id },
     });
     if (!activitySchedule) {
-      throw new NotFoundError("Activity schedule not found");
+      throw new NotFoundError('Activity schedule not found');
     }
 
     // Format start and end time
-    const startDateTime = new Date(`${date}T${activitySchedule.startTime}Z`);
-    const endDateTime = new Date(`${date}T${activitySchedule.endTime}Z`);
+    const startDateTime = new Date(
+      moment(`${date}T${activitySchedule.startTime}`)
+        .format() as unknown as string
+    );
+    const endDateTime = new Date(
+      moment(`${date}T${activitySchedule.endTime}`)
+        .format() as unknown as string
+    );
 
     // Query to get the number of people scheduled for the specific activity and date
     const bookingActivities = await this.bookingActivityRepository
@@ -278,13 +284,21 @@ export class ActivityScheduleService {
       .andWhere("bookingActivity.endTime <= :endDateTime", { endDateTime })
       .getMany();
 
+    console.log(bookingActivities);
     // Calculate the total number of people (adults + children)
     let totalPeople = 0;
 
     totalPeople = bookingActivities.reduce((acc, booking) => {
-      return acc + booking.numberOfAdults + booking.numberOfChildren + booking?.numberOfSeats;
+      return (
+        acc +
+        booking.numberOfAdults +
+        booking.numberOfChildren +
+        booking?.numberOfSeats
+      );
     }, 0);
 
-    return activitySchedule?.numberOfSeats ? activitySchedule?.numberOfSeats - totalPeople : true;
+    return activitySchedule?.numberOfSeats
+      ? activitySchedule?.numberOfSeats - totalPeople
+      : true;
   }
 };

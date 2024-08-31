@@ -74,8 +74,8 @@ export class BookingActivityService {
 
     // CREATE BOOKING ACTIVITY
     const bookingActivity = this.bookingActivityRepository.create({
-      startTime,
-      endTime,
+      startTime: new Date(startTime),
+      endTime: endTime && new Date(endTime),
       bookingId,
       activityId,
       numberOfAdults,
