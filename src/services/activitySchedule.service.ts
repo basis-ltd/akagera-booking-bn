@@ -276,15 +276,21 @@ export class ActivityScheduleService {
         .format() as unknown as string
     );
 
-    // Query to get the number of people scheduled for the specific activity and date
     const bookingActivities = await this.bookingActivityRepository
-      .createQueryBuilder("bookingActivity")
-      .where("bookingActivity.activityId = :activityId", { activityId: activitySchedule.activityId })
-      .andWhere("bookingActivity.startTime >= :startDateTime", { startDateTime })
-      .andWhere("bookingActivity.endTime <= :endDateTime", { endDateTime })
-      .getMany();
+    .createQueryBuilder('bookingActivity')
+    .leftJoinAndSelect('bookingActivity.booking', 'booking')
+    .where('bookingActivity.activityId = :activityId', {
+      activityId: activitySchedule.activityId,
+    })
+    .andWhere('bookingActivity.startTime >= :startDateTime', {
+      startDateTime,
+    })
+    .andWhere('bookingActivity.endTime <= :endDateTime', { endDateTime })
+    .andWhere('booking.status IN (:...status)', {
+      status: ['confirmed', 'cash_received'],
+    })
+    .getMany();
 
-    console.log(bookingActivities);
     // Calculate the total number of people (adults + children)
     let totalPeople = 0;
 

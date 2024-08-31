@@ -15,14 +15,6 @@ export class BookingPerson extends AbstractUserEntity {
   @Column({ name: 'email', type: 'varchar', length: 255, nullable: true })
   email: string;
 
-  // START DATE
-  @Column({ name: 'start_date', type: 'date', nullable: false })
-  startDate!: Date;
-
-  // END DATE
-  @Column({ name: 'end_date', type: 'date', nullable: true })
-  endDate: Date;
-
   // ACCOMODATION
   @Column({
     name: 'accomodation',

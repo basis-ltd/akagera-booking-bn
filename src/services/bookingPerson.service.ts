@@ -113,8 +113,6 @@ export class BookingPersonService {
       gender: gender?.toUpperCase() || 'M',
       phone,
       email,
-      startDate: bookingExists?.startDate,
-      endDate: bookingExists?.endDate,
       accomodation,
     });
 
@@ -144,6 +142,9 @@ export class BookingPersonService {
   }): Promise<BookingPersonsPagination> {
     const bookingPeople = await this.bookingPersonRepository.findAndCount({
       where: condition,
+      relations: {
+        booking: true,
+      },
       order: { updatedAt: 'DESC' },
     });
 
@@ -156,7 +157,7 @@ export class BookingPersonService {
     size,
     page,
     startDate,
-    endDate
+    endDate,
   }: {
     criteria: 'residence' | 'nationality' | 'dateOfBirth' | 'gender';
     size?: number;
@@ -165,40 +166,44 @@ export class BookingPersonService {
     endDate?: Date;
   }): Promise<{ value: string | number; count: number }[]> {
     const { take, skip } = getPagination(page, size);
-    const queryBuilder = this.bookingPersonRepository.createQueryBuilder('bookingPerson');
-  
-    if (!['residence', 'nationality', 'dateOfBirth', 'gender'].includes(criteria)) {
+    const queryBuilder =
+      this.bookingPersonRepository.createQueryBuilder('bookingPerson');
+
+    if (
+      !['residence', 'nationality', 'dateOfBirth', 'gender'].includes(criteria)
+    ) {
       throw new ValidationError('Invalid criteria provided');
     }
-  
+
     queryBuilder
       .select(`bookingPerson.${criteria}`, 'value')
-      .addSelect('COUNT(bookingPerson.id)', 'count')
+      .addSelect('COUNT(DISTINCT bookingPerson.id)', 'count')
+      .leftJoin('bookingPerson.booking', 'booking')
       .groupBy(`bookingPerson.${criteria}`)
       .orderBy('count', 'DESC');
-  
+
     if (startDate) {
-      queryBuilder.andWhere('bookingPerson.startDate >= :startDate', {
+      queryBuilder.andWhere('booking.startDate >= :startDate', {
         startDate: moment(startDate).toDate(),
       });
     }
 
     if (endDate) {
-      queryBuilder.andWhere('bookingPerson.startDate <= :endDate', {
+      queryBuilder.andWhere('booking.startDate <= :endDate', {
         endDate: moment(endDate).toDate(),
       });
     }
-  
+
     if (size) {
       queryBuilder.take(take);
     }
-  
+
     if (page) {
       queryBuilder.skip(skip);
     }
-  
+
     const result = await queryBuilder.getRawMany();
-  
+
     return result.map((item) => {
       return {
         value:
@@ -305,8 +310,6 @@ export class BookingPersonService {
       residence,
       phone,
       email,
-      startDate,
-      endDate,
       accomodation,
     });
 
@@ -349,7 +352,7 @@ export class BookingPersonService {
     if (!condition) {
       throw new ValidationError('Month is required');
     }
-    const {take, skip} = getPagination(page, size);
+    const { take, skip } = getPagination(page, size);
 
     const bookingPeople = await this.bookingPersonRepository.findAndCount({
       where: condition,
@@ -364,5 +367,5 @@ export class BookingPersonService {
     });
 
     return getPagingData(bookingPeople, size, page);
-  };
+  }
 }
