@@ -15,10 +15,13 @@ router.post('/', PaymentController.createPayment);
 router.get('/', PaymentController.fetchPayments);
 
 // UPDATE PAYMENT
-router.patch('/', PaymentController.updatePayment);
+router.patch('/', PaymentController.paymentCallback);
 
 // CONFIRM PAYMENT
 router.patch('/:id/confirm', PaymentController.confirmPayment);
+
+// PAYMENT CALLBACK
+router.post('/callback', PaymentController.paymentCallback);
 
 // EXPORT ROUTER
 export default router;

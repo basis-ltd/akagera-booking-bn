@@ -13,13 +13,7 @@ export const PaymentController = {
   // CREATE PAYMENT
   async createPayment(req: Request, res: Response, next: NextFunction) {
     try {
-      const { amount, currency = 'USD', bookingId, email } = req.body;
-
-      // CREATE PAYMENT INTENT
-      const paymentIntent = await paymentService.createPaymentIntent({
-        amount,
-        currency,
-      });
+      const { amount, currency = 'RWF', bookingId, email } = req.body;
 
       // CREATE PAYMENT
       const newPayment = await paymentService.createPayment({
@@ -27,14 +21,12 @@ export const PaymentController = {
         amount,
         currency,
         bookingId,
-        paymentIntentId: paymentIntent?.id,
       });
 
       // RETURN RESPONSE
       return res.status(201).json({
         message: 'Payment created successfully!',
         data: {
-          paymentIntent,
           payment: newPayment,
           stripeKeys: {
             publishableKey: STRIPE_PUBLISHABLE_KEY,
@@ -75,27 +67,6 @@ export const PaymentController = {
     }
   },
 
-  // UPDATE PAYMENT
-  async updatePayment(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { paymentIntentId, status = 'PAID' } = req.body;
-
-      // UPDATE PAYMENT
-      const updatedPayment = await paymentService.updatePayment({
-        paymentIntentId,
-        status,
-      });
-
-      // RETURN RESPONSE
-      return res.status(200).json({
-        message: 'Payment updated successfully!',
-        data: updatedPayment,
-      });
-    } catch (error) {
-      next(error);
-    }
-  },
-
   // CONFIRM PAYMENT
   async confirmPayment(req: Request, res: Response, next: NextFunction) {
     try {
@@ -110,6 +81,30 @@ export const PaymentController = {
       return res.status(200).json({
         message: 'Payment confirmed successfully!',
         data: confirmedPayment,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // PAYMENT CALLBACK
+  async paymentCallback(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { CompanyRef, TransID, CCDapproval } = req.query;
+      const { status = 'PAID' } = req.body;
+
+      // UPDATE PAYMENT
+      const updatedPayment = await paymentService.updatePayment({
+        id: CompanyRef as UUID,
+        status,
+        transactionId: TransID as string,
+        approvalCode: CCDapproval as string,
+      });
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Payment updated successfully!',
+        data: updatedPayment,
       });
     } catch (error) {
       next(error);

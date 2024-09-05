@@ -1,14 +1,21 @@
-import { AppDataSource } from "../data-source";
-import Stripe from "stripe";
-import { Repository } from "typeorm";
-import { Payment } from "../entities/payment.entity";
-import { NotFoundError, ValidationError } from "../helpers/errors.helper";
-import { PaymentPagination } from "../types/payment.types";
-import { getPagination, getPagingData } from "../helpers/pagination.helper";
-import { UUID } from "crypto";
+import { AppDataSource } from '../data-source';
+import Stripe from 'stripe';
+import { Repository } from 'typeorm';
+import { Payment } from '../entities/payment.entity';
+import { NotFoundError, ValidationError } from '../helpers/errors.helper';
+import { PaymentPagination } from '../types/payment.types';
+import { getPagination, getPagingData } from '../helpers/pagination.helper';
+import { UUID } from 'crypto';
+import { xml2js, js2xml } from 'xml-js';
+import axios from 'axios';
 
 // LOAD ENVIROMENT VARIABLES
-const { STRIPE_SECRET_KEY } = process.env
+const {
+  STRIPE_SECRET_KEY,
+  PAYMENT_REDIRECT_URL,
+  PAYMENT_BACK_URL,
+  APPLICATION_LINK,
+} = process.env;
 
 // INITIALIZE STRIPE
 const stripePay = new Stripe(String(STRIPE_SECRET_KEY));
@@ -20,20 +27,101 @@ export class PaymentService {
     this.paymentRepository = AppDataSource.getRepository(Payment);
   }
 
+  private parseXmlResponse(xmlResponse: string): any {
+    return xml2js(xmlResponse, { compact: true, ignoreComment: true });
+  }
+
+  private prepareXmlPayload(
+    amount: number,
+    currency: string,
+    paymentId: string,
+    RedirectURL: string,
+  ): string {
+    const payload = {
+      API3G: {
+        CompanyToken: '8D3DA73D-9D7F-4E09-96D4-3D44E7A83EA3',
+        Request: 'createToken',
+        Transaction: {
+          PaymentAmount: amount.toFixed(2),
+          PaymentCurrency: currency,
+          CompanyRef: paymentId,
+          RedirectURL,
+          CompanyRefUnique: '1',
+          PTL: '5',
+        },
+        Services: {
+          Service: {
+            ServiceType: '3978',
+            ServiceDescription: 'Booking Akagera Activities',
+            ServiceDate:
+              new Date().toISOString().split('T')[0].replace(/-/g, '/') +
+              ' 19:00',
+          },
+        },
+      },
+    };
+
+    return js2xml(payload, { compact: true, ignoreComment: true, spaces: 4 });
+  }
+
+  private prepareVerificationXml(transactionToken: string): string {
+    const payload = {
+      API3G: {
+        CompanyToken: '8D3DA73D-9D7F-4E09-96D4-3D44E7A83EA3',
+        Request: 'verifyToken',
+        TransactionToken: transactionToken,
+      },
+    };
+
+    return js2xml(payload, { compact: true, ignoreComment: true, spaces: 4 });
+  }
+
+  private parseXmlVerificationResponse(xmlResponse: string): any {
+    const jsonResponse = xml2js(xmlResponse, { compact: true, ignoreComment: true });
+    const api3g = (jsonResponse as {
+      API3G: {  [key: string]: { _text: string } };
+    }).API3G;
+
+    return {
+      Result: api3g.Result._text,
+      ResultExplanation: api3g.ResultExplanation._text,
+      CustomerName: api3g.CustomerName?._text,
+      CustomerCredit: api3g.CustomerCredit?._text,
+      CustomerCreditType: api3g.CustomerCreditType?._text,
+      TransactionApproval: api3g.TransactionApproval?._text,
+      TransactionCurrency: api3g.TransactionCurrency?._text,
+      TransactionAmount: api3g.TransactionAmount?._text,
+      FraudAlert: api3g.FraudAlert?._text,
+      FraudExplanation: api3g.FraudExplnation?._text, // Note: Typo in the XML
+      TransactionNetAmount: api3g.TransactionNetAmount?._text,
+      TransactionSettlementDate: api3g.TransactionSettlementDate?._text,
+      TransactionRollingReserveAmount: api3g.TransactionRollingReserveAmount?._text,
+      TransactionRollingReserveDate: api3g.TransactionRollingReserveDate?._text,
+      CustomerPhone: api3g.CustomerPhone?._text,
+      CustomerCountry: api3g.CustomerCountry?._text,
+      CustomerAddress: api3g.CustomerAddress?._text,
+      CustomerCity: api3g.CustomerCity?._text,
+      CustomerZip: api3g.CustomerZip?._text,
+      MobilePaymentRequest: api3g.MobilePaymentRequest?._text,
+      AccRef: api3g.AccRef?._text,
+      TransactionFinalCurrency: api3g.TransactionFinalCurrency?._text,
+      TransactionFinalAmount: api3g.TransactionFinalAmount?._text,
+    };
+  }
+
+
   // CREATE PAYMENT
   async createPayment({
     email,
     amount,
     currency,
     bookingId,
-    paymentIntentId,
   }: {
     email: string;
     amount: number;
     currency: string;
     bookingId: string;
-    paymentIntentId?: string;
-  }): Promise<Payment> {
+  }) {
     // IF NO USER ID
     if (!email) {
       throw new ValidationError('Email is required');
@@ -55,47 +143,51 @@ export class PaymentService {
     }
 
     // CREATE PAYMENT
-    const newPayment = this.paymentRepository.create({
+    const newPayment = await this.paymentRepository.save({
       email,
       amount,
       currency,
       bookingId,
       status: 'PENDING',
-      paymentIntentId: paymentIntentId,
     });
 
-    // SAVE PAYMENT
-    return this.paymentRepository.save(newPayment);
-  }
+    // Prepare XML payload
+    const xmlPayload = this.prepareXmlPayload(
+      amount,
+      currency,
+      newPayment.id.toString(),
+      `${PAYMENT_REDIRECT_URL}`,
+    );
+    const response = await axios.post(
+      'https://secure.3gdirectpay.com/API/v6/',
+      xmlPayload,
+      {
+        headers: { 'Content-Type': 'application/xml' },
+      }
+    );
 
-  // CREATE PAYMENT INTENT
-    async createPaymentIntent({
-        amount,
-        currency,
-    }: {
-        amount: number;
-        currency: string;
-    }): Promise<any> {
-        // CREATE PAYMENT INTENT
-        return stripePay.paymentIntents.create({
-        amount: Number(amount) * 100,
-        currency: currency?.toLowerCase(),
-        automatic_payment_methods: {
-            enabled: true,
-        },
-        });
-    }
+    // Parse XML response
+    const jsonResponse = this.parseXmlResponse(response.data);
+
+    return {
+      ...newPayment,
+      redirectUrl: generateRedirectUrl(jsonResponse),
+    };
+  }
 
   // UPDATE PAYMENT
   async updatePayment({
-    paymentIntentId,
+    id,
     status,
+    transactionId,
+    approvalCode,
   }: {
-    paymentIntentId: string;
+    id: UUID;
     status: string;
-  }): Promise<Payment> {
+    transactionId?: string;
+    approvalCode?: string;}) {
     // IF NO PAYMENT ID
-    if (!paymentIntentId) {
+    if (!id) {
       throw new ValidationError('Payment ID is required');
     }
 
@@ -105,20 +197,23 @@ export class PaymentService {
     }
 
     // FIND PAYMENT
-    const payment = await this.paymentRepository.findOne({
-      where: { paymentIntentId },
+    const paymentExists = await this.paymentRepository.findOne({
+      where: { id },
     });
 
-    // IF NO PAYMENT
-    if (!payment) {
-      throw new ValidationError('Payment not found');
+    if (!paymentExists) {
+      throw new NotFoundError('Payment not found');
     }
 
     // UPDATE PAYMENT
-    payment.status = status;
+    const updatedPayment = this.paymentRepository.merge(paymentExists, {
+      transactionId,
+      status,
+      approvalCode,
+    })
 
     // SAVE PAYMENT
-    return this.paymentRepository.save(payment);
+    return this.paymentRepository.save(updatedPayment);
   }
 
   // FETCH PAYMENTS
@@ -145,11 +240,7 @@ export class PaymentService {
   }
 
   // CONFIRM PAYMENT
-  async confirmPayment({
-    id,
-  }: {
-    id: UUID;
-  }): Promise<Payment> {
+  async confirmPayment({ id }: { id: UUID }): Promise<Payment> {
     // IF NO PAYMENT ID
     if (!id) {
       throw new ValidationError('Payment ID is required');
@@ -170,4 +261,22 @@ export class PaymentService {
     // SAVE PAYMENT
     return this.paymentRepository.save(payment);
   }
+}
+
+
+interface APIResponse {
+  API3G: {
+    Result: { _text: string };
+    ResultExplanation: { _text: string };
+    TransToken: { _text: string };
+    TransRef: { _text: string };
+  };
+}
+
+function generateRedirectUrl(apiResponse: APIResponse): string {
+  const baseUrl = 'https://secure.3gdirectpay.com/dpopayment.php';
+  const token = apiResponse.API3G.TransToken._text;
+  const redirectUrl = `${baseUrl}?ID=${token}`;
+
+  return redirectUrl;
 }

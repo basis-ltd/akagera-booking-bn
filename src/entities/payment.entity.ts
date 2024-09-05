@@ -56,11 +56,17 @@ export class Payment extends AbstractEntity {
   })
   status!: string;
 
-  // PAYMENT INTEND ID
-    @Column({
-        name: 'payment_intent_id',
-        type: 'varchar',
-        nullable: true,
-    })
-    paymentIntentId: string;
+  @Column({
+    name: 'transaction_id',
+    type: 'varchar',
+    nullable: true,
+  })
+  transactionId: string;
+
+  @Column({
+    name: 'approval_code',
+    type: 'varchar',
+    nullable: true,
+  })
+  approvalCode: string;
 }
