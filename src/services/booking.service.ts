@@ -25,6 +25,7 @@ import {
   calculateEntryPrice,
   calculateVehiclePrice,
 } from '../helpers/booking.helper';
+import { createCombinedPDF } from '../helpers/pdf.helper';
 
 export class BookingService {
   private bookingRepository: Repository<Booking>;
@@ -493,6 +494,12 @@ export class BookingService {
       throw new NotFoundError('Booking confirmation not found');
     }
 
+    const bookingPeople = await this.bookingPersonRepository.find({
+      where: { bookingId: id },
+    });
+
+    const combinedPdf = await createCombinedPDF(bookingPeople);
+
     // SEND EMAIL TO USER
     await sendEmail(
       bookingExists?.email,
@@ -503,7 +510,15 @@ export class BookingService {
         name: bookingExists?.name,
         totalAmountUsd,
         totalAmountRwf,
-      })
+      }),
+      [
+        {
+          content: combinedPdf.toString('base64'),
+          filename: `Booking_${bookingExists?.referenceId}.pdf`,
+          type: 'application/pdf',
+          disposition: 'attachment',
+        },
+      ]
     );
 
     return confirmedBooking.raw[0];
@@ -615,5 +630,33 @@ export class BookingService {
     await this.bookingRepository.save(bookingExists);
 
     return bookingPrice;
+  }
+
+  // DOWNLOAD BOOKING CONSENT
+  async downloadBookingConsent({ id }: { id: UUID }): Promise<Buffer> {
+    // VALIDATE UUID
+    const { error } = validateUuid(id);
+
+    if (error) {
+      throw new ValidationError('Invalid ID');
+    }
+
+    // CHECK IF BOOKING EXISTS
+    const bookingExists = await this.bookingRepository.findOne({
+      where: { id },
+    });
+
+    if (!bookingExists) {
+      throw new NotFoundError('Booking not found');
+    }
+
+    // FIND BOOKING PEOPLE
+    const bookingPeople = await this.bookingPersonRepository.find({
+      where: { bookingId: id },
+    });
+
+    const consentPdf = await createCombinedPDF(bookingPeople);
+
+    return consentPdf;
   }
 }

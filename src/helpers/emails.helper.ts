@@ -22,13 +22,15 @@ export const sendEmail = async (
   toEmail: string,
   fromEmail: string,
   subject: string,
-  htmlContent: string
+  htmlContent: string,
+  attachments?: { content: string; filename: string, type?: string, disposition?: string }[]
 ) => {
   const msg = {
     to: toEmail,
     from: fromEmail,
     subject: subject,
     html: htmlContent,
+    attachments: attachments,
   };
 
   try {

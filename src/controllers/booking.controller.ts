@@ -26,7 +26,7 @@ export const BookingController = {
         accomodation,
         exitGate,
         entryGate,
-        type
+        type,
       } = req.body;
 
       // CREATE BOOKING
@@ -45,7 +45,7 @@ export const BookingController = {
         accomodation,
         exitGate,
         entryGate,
-        type
+        type,
       });
 
       // RETURN RESPONSE
@@ -110,18 +110,22 @@ export const BookingController = {
   },
 
   // FETCH TIME SERIES BOOKINGS
-  async fetchTimeSeriesBookings(req: Request, res: Response, next: NextFunction) {
+  async fetchTimeSeriesBookings(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const {
         startDate = moment().startOf('M'),
-        endDate = moment(startDate as string || new Date()).endOf('M'),
+        endDate = moment((startDate as string) || new Date()).endOf('M'),
         type,
       } = req.query;
 
       // FETCH BOOKINGS
       const bookings = await bookingService.fetchTimeSeriesBookings({
-        startDate: startDate ? startDate as unknown as Date : undefined,
-        endDate: endDate ? endDate as unknown as Date : undefined,
+        startDate: startDate ? (startDate as unknown as Date) : undefined,
+        endDate: endDate ? (endDate as unknown as Date) : undefined,
         type: type as 'booking' | 'registration',
       });
 
@@ -144,7 +148,8 @@ export const BookingController = {
         startDate,
         endDate,
         notes,
-        email, phone,
+        email,
+        phone,
         approvedAt,
         status,
         totalAmountRwf,
@@ -162,7 +167,8 @@ export const BookingController = {
         startDate,
         endDate,
         notes,
-        email, phone,
+        email,
+        phone,
         approvedAt,
         status,
         totalAmountRwf,
@@ -272,10 +278,19 @@ export const BookingController = {
   async submitBooking(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { status = 'pending_contact', totalAmountRwf, totalAmountUsd } = req.body;
+      const {
+        status = 'pending_contact',
+        totalAmountRwf,
+        totalAmountUsd,
+      } = req.body;
 
       // CONFIRM BOOKING
-      const confirmedBooking = await bookingService.submitBooking({ id: id as UUID, status, totalAmountRwf, totalAmountUsd });
+      const confirmedBooking = await bookingService.submitBooking({
+        id: id as UUID,
+        status,
+        totalAmountRwf,
+        totalAmountUsd,
+      });
 
       // RETURN RESPONSE
       return res.status(200).json({
@@ -310,7 +325,11 @@ export const BookingController = {
   },
 
   // CALCUATE BOOKING AMOUNT
-  async calculateBookingAmount(req: Request, res: Response, next: NextFunction) {
+  async calculateBookingAmount(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const { id } = req.params;
 
@@ -324,6 +343,34 @@ export const BookingController = {
         message: 'Booking amount calculated successfully!',
         data: bookingAmount,
       });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // DOWNLOAD BOOKING CONSENT
+  async downloadBookingConsent(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { id } = req.params;
+
+      // DOWNLOAD BOOKING CONSENT
+      const consent = await bookingService.downloadBookingConsent({
+        id: id as UUID,
+      });
+
+      // Set response headers for file download
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="booking_consent.pdf"`
+      );
+
+      // Send the PDF buffer as the response
+      res.send(consent);
     } catch (error) {
       next(error);
     }

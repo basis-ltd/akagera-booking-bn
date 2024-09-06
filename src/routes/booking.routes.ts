@@ -35,6 +35,9 @@ router.patch("/:id/submit", BookingController.submitBooking);
 // UPDATE BOOKING CONSENT
 router.patch("/:id/consent", BookingController.updateBookingConsent);
 
+// DOWNLOAD BOOKING CONSENT
+router.get("/:id/consent/download", BookingController.downloadBookingConsent);
+
 // GET BOOKING AMOUNT
 router.get("/:id/amount", BookingController.calculateBookingAmount);
 
