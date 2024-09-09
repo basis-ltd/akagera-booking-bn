@@ -1,0 +1,39 @@
+
+services:
+  akagerabookingbn:
+    image: akagerabookingbn
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - NODE_ENV=${NODE_ENV}
+        - DB_HOST=${DB_HOST}
+        - DB_PORT=${DB_PORT}
+        - DB_NAME=${DB_NAME}
+        - DB_USER=${DB_USER}
+        - DB_PASSWORD=${DB_PASSWORD}
+        - JWT_SECRET=${JWT_SECRET}
+        - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+        - SENDGRID_SEND_FROM=${SENDGRID_SEND_FROM}
+        - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+        - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
+        - APPLICATION_LINK=${APPLICATION_LINK}
+        - PAYMENT_REDIRECT_URL=${PAYMENT_REDIRECT_URL}
+        - PAYMENT_BACK_URL=${PAYMENT_BACK_URL}
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - SENDGRID_SEND_FROM=${SENDGRID_SEND_FROM}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
+      - APPLICATION_LINK=${APPLICATION_LINK}
+      - PAYMENT_REDIRECT_URL=${PAYMENT_REDIRECT_URL}
+      - PAYMENT_BACK_URL=${PAYMENT_BACK_URL}
+    ports:
+      - 8080:8080
