@@ -1,6 +1,7 @@
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { AbstractEntity } from "./abstract.entity";
 import { Activity } from "./activity.entity";
+import { SeatsAdjustment } from "./seatsAdjustment.entity";
 
 @Entity()
 export class ActivitySchedule extends AbstractEntity {
@@ -75,4 +76,8 @@ export class ActivitySchedule extends AbstractEntity {
     })
     @JoinColumn({ name: 'activity_id' })
     activity: Activity;
+
+    // SEATS ADJUSTMENTS
+    @OneToMany(() => SeatsAdjustment, (seatsAdjustment) => seatsAdjustment.activitySchedule)
+    seatsAdjustments: SeatsAdjustment[];
 };

@@ -4,6 +4,7 @@ import { ROLES } from '../constants/auth.constants';
 import { AbstractUserEntity } from './abstract.entity';
 import { Booking } from './booking.entity';
 import { Token } from './token.entity';
+import { SeatsAdjustment } from './seatsAdjustment.entity';
 
 @Entity()
 @Unique(['phone', 'email'])
@@ -55,4 +56,8 @@ export class User extends AbstractUserEntity {
   // TOKENS
   @OneToMany(() => Token, (token) => token.user)
   tokens: Token[];
+
+  // SEATS ADJUSTMENTS
+  @OneToMany(() => SeatsAdjustment, (seatsAdjustment) => seatsAdjustment.user)
+  seatsAdjustments: SeatsAdjustment[];
 }
