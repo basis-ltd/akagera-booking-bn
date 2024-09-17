@@ -71,10 +71,12 @@ export const PaymentController = {
   async confirmPayment(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      const { transactionToken } = req.body;
 
       // CONFIRM PAYMENT
       const confirmedPayment = await paymentService.confirmPayment({
         id: id as UUID,
+        transactionToken,
       });
 
       // RETURN RESPONSE

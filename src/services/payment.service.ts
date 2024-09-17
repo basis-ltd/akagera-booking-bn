@@ -1,5 +1,4 @@
 import { AppDataSource } from '../data-source';
-import Stripe from 'stripe';
 import { Repository } from 'typeorm';
 import { Payment } from '../entities/payment.entity';
 import { NotFoundError, ValidationError } from '../helpers/errors.helper';
@@ -11,14 +10,8 @@ import axios from 'axios';
 
 // LOAD ENVIROMENT VARIABLES
 const {
-  STRIPE_SECRET_KEY,
   PAYMENT_REDIRECT_URL,
-  PAYMENT_BACK_URL,
-  APPLICATION_LINK,
 } = process.env;
-
-// INITIALIZE STRIPE
-const stripePay = new Stripe(String(STRIPE_SECRET_KEY));
 
 export class PaymentService {
   private paymentRepository: Repository<Payment>;
@@ -35,7 +28,7 @@ export class PaymentService {
     amount: number,
     currency: string,
     paymentId: string,
-    RedirectURL: string,
+    RedirectURL: string
   ): string {
     const payload = {
       API3G: {
@@ -77,10 +70,15 @@ export class PaymentService {
   }
 
   private parseXmlVerificationResponse(xmlResponse: string): any {
-    const jsonResponse = xml2js(xmlResponse, { compact: true, ignoreComment: true });
-    const api3g = (jsonResponse as {
-      API3G: {  [key: string]: { _text: string } };
-    }).API3G;
+    const jsonResponse = xml2js(xmlResponse, {
+      compact: true,
+      ignoreComment: true,
+    });
+    const api3g = (
+      jsonResponse as {
+        API3G: { [key: string]: { _text: string } };
+      }
+    ).API3G;
 
     return {
       Result: api3g.Result._text,
@@ -92,10 +90,11 @@ export class PaymentService {
       TransactionCurrency: api3g.TransactionCurrency?._text,
       TransactionAmount: api3g.TransactionAmount?._text,
       FraudAlert: api3g.FraudAlert?._text,
-      FraudExplanation: api3g.FraudExplnation?._text, // Note: Typo in the XML
+      FraudExplanation: api3g.FraudExplnation?._text,
       TransactionNetAmount: api3g.TransactionNetAmount?._text,
       TransactionSettlementDate: api3g.TransactionSettlementDate?._text,
-      TransactionRollingReserveAmount: api3g.TransactionRollingReserveAmount?._text,
+      TransactionRollingReserveAmount:
+        api3g.TransactionRollingReserveAmount?._text,
       TransactionRollingReserveDate: api3g.TransactionRollingReserveDate?._text,
       CustomerPhone: api3g.CustomerPhone?._text,
       CustomerCountry: api3g.CustomerCountry?._text,
@@ -108,7 +107,6 @@ export class PaymentService {
       TransactionFinalAmount: api3g.TransactionFinalAmount?._text,
     };
   }
-
 
   // CREATE PAYMENT
   async createPayment({
@@ -156,7 +154,7 @@ export class PaymentService {
       amount,
       currency,
       newPayment.id.toString(),
-      `${PAYMENT_REDIRECT_URL}`,
+      `${PAYMENT_REDIRECT_URL}`
     );
     const response = await axios.post(
       'https://secure.3gdirectpay.com/API/v6/',
@@ -168,6 +166,11 @@ export class PaymentService {
 
     // Parse XML response
     const jsonResponse = this.parseXmlResponse(response.data);
+
+    // SAVE PAYMENT
+    newPayment.transactionId = jsonResponse.API3G.TransToken._text;
+
+    this.paymentRepository.save(newPayment);
 
     return {
       ...newPayment,
@@ -185,7 +188,8 @@ export class PaymentService {
     id: UUID;
     status: string;
     transactionId?: string;
-    approvalCode?: string;}) {
+    approvalCode?: string;
+  }) {
     // IF NO PAYMENT ID
     if (!id) {
       throw new ValidationError('Payment ID is required');
@@ -210,7 +214,7 @@ export class PaymentService {
       transactionId,
       status,
       approvalCode,
-    })
+    });
 
     // SAVE PAYMENT
     return this.paymentRepository.save(updatedPayment);
@@ -240,10 +244,21 @@ export class PaymentService {
   }
 
   // CONFIRM PAYMENT
-  async confirmPayment({ id }: { id: UUID }): Promise<Payment> {
+  async confirmPayment({
+    id,
+    transactionToken,
+  }: {
+    id: UUID;
+    transactionToken: string;
+  }): Promise<Payment> {
     // IF NO PAYMENT ID
     if (!id) {
       throw new ValidationError('Payment ID is required');
+    }
+
+    // IF NO TRANSACTION TOKEN
+    if (!transactionToken) {
+      throw new ValidationError('Transaction Token is required');
     }
 
     // FIND PAYMENT
@@ -255,14 +270,25 @@ export class PaymentService {
       throw new NotFoundError('Payment not found');
     }
 
-    // UPDATE PAYMENT
-    payment.status = 'CONFIRMED';
+    // Prepare XML payload
+    const xmlPayload = this.prepareVerificationXml(transactionToken);
+
+    // Verify transaction
+    const response = await axios.post(
+      'https://secure.3gdirectpay.com/API/v6/',
+      xmlPayload,
+      {
+        headers: { 'Content-Type': 'application/xml' },
+      }
+    );
+
+    // Parse XML response
+    const jsonResponse = this.parseXmlVerificationResponse(response.data);
 
     // SAVE PAYMENT
-    return this.paymentRepository.save(payment);
+    return jsonResponse;
   }
 }
-
 
 interface APIResponse {
   API3G: {

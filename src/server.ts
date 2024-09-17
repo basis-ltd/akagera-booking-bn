@@ -1,6 +1,5 @@
 import cluster from 'cluster';
 import os from 'os';
-import { AppDataSource } from './data-source';
 
 const numCPUs = os.cpus().length;
 

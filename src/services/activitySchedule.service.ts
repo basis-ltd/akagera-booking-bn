@@ -299,7 +299,7 @@ export class ActivityScheduleService {
       })
       .andWhere('bookingActivity.endTime <= :endDateTime', { endDateTime })
       .andWhere('booking.status IN (:...status)', {
-        status: ['confirmed', 'cash_received'],
+        status: ['confirmed', 'payment_received'],
       })
       .getMany();
 

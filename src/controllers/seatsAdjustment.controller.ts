@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { SeatsAdjustmentService } from '../services/seatsAdjustment.service';
 import { AuthenticatedRequest } from '../types/auth.types';
+import { UUID } from 'crypto';
 
 // INITIALIZE SEATS ADJUSTMENT SERVICE
 const seatsAdjustmentService = new SeatsAdjustmentService();
@@ -62,6 +63,49 @@ export const SeatsAdjustmentController = {
       return res.status(200).json({
         message: 'Seats adjustments fetched successfully!',
         data: seatsAdjustments,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // UPDATE SEATS ADJUSTMENT
+  async updateSeatsAdjustment(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { adjustedSeats, startDate, endDate, reason } = req.body;
+
+      // UPDATE SEATS ADJUSTMENT
+      const updatedSeatsAdjustment =
+        await seatsAdjustmentService.updateSeatsAdjustment({
+          id: id as UUID,
+          adjustedSeats,
+          startDate,
+          endDate,
+          reason,
+        });
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Seats adjustment updated successfully!',
+        data: updatedSeatsAdjustment,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // DELETE SEATS ADJUSTMENT
+  async deleteSeatsAdjustment(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+
+      // DELETE SEATS ADJUSTMENT
+      await seatsAdjustmentService.deleteSeatsAdjustment(id as UUID);
+
+      // RETURN RESPONSE
+      return res.status(204).json({
+        message: 'Seats adjustment deleted successfully!',
       });
     } catch (error) {
       next(error);

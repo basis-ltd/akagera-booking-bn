@@ -23,5 +23,21 @@ router.post(
 // FETCH SEATS ADJUSTMENTS
 router.get('/', SeatsAdjustmentController.fetchSeatsAdjustments);
 
+// UPDATE SEATS ADJUSTMENT
+router.patch(
+  '/:id',
+  authMiddleware,
+  adminMiddleware,
+  SeatsAdjustmentController.updateSeatsAdjustment
+);
+
+// DELETE SEATS ADJUSTMENT
+router.delete(
+  '/:id',
+  authMiddleware,
+  adminMiddleware,
+  SeatsAdjustmentController.deleteSeatsAdjustment
+);
+
 // EXPORT ROUTER
 export default router;

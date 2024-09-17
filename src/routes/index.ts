@@ -13,6 +13,7 @@ import userRoutes from './user.routes';
 import paymentRoutes from './payment.routes';
 import termsRoutes from './terms.routes';
 import seatsAdjustmentRoutes from './seatsAdjustment.routes';
+import settingsRoutes from './settings.routes';
 
 // CREATE ROUTER
 const router = Router();
@@ -62,6 +63,9 @@ router.use('/terms', termsRoutes);
 
 // SEATS ADJUSTMENT ROUTES
 router.use('/seats-adjustments', seatsAdjustmentRoutes);
+
+// SETTINGS ROUTES
+router.use('/settings', settingsRoutes);
 
 // EXPORT ROUTER
 export default router;

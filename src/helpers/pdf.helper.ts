@@ -40,7 +40,7 @@ export async function createCombinedPDF(
     const tableLeft = 50;
     const tableRight = width - 50;
     const tableWidth = tableRight - tableLeft;
-    const headers = ['Full Names', 'Date', 'Signature'];
+    const headers = ['Full Names', 'Date', 'I agree'];
     const colWidths = headers.map(() => tableWidth / headers.length);
     const rowHeight = 25;
     const fontSize = 9;
@@ -97,6 +97,21 @@ export async function createCombinedPDF(
         size: fontSize,
         font,
       });
+
+      // Draw checkbox in the third column, centered horizontally
+      const checkBoxField = pdfDoc
+        .getForm()
+        .createCheckBox(`checkbox_${index}`);
+      checkBoxField.addToPage(page, {
+        x: tableLeft + colWidths[0] + colWidths[1] + 10,
+        y: y + rowHeight / 2 - 10 / 2,
+        width: 10,
+        height: 10,
+      });
+      if (participant?.booking?.consent) {
+        checkBoxField.check();
+      }
+      checkBoxField.enableReadOnly();
     });
 
     const pdfBytes = await pdfDoc.save();

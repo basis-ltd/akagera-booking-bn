@@ -22,7 +22,7 @@ import { BookingPerson } from '../entities/bookingPerson.entity';
 import { BookingVehicle } from '../entities/bookingVehicle.entity';
 import {
   calculateActivityPrice,
-  calculateEntryPrice,
+  calculateBookingPersonPrice,
   calculateVehiclePrice,
 } from '../helpers/booking.helper';
 import { createCombinedPDF } from '../helpers/pdf.helper';
@@ -200,7 +200,7 @@ export class BookingService {
         endDate: moment(endDate).toDate(),
       })
       .andWhere('booking.status IN (:...status)', {
-        status: ['confirmed', 'cash_received'],
+        status: ['confirmed', 'payment_received'],
       })
       .groupBy(groupByClause)
       .orderBy(orderByClause, 'ASC');
@@ -580,6 +580,9 @@ export class BookingService {
     // FETCH BOOKING PEOPLE
     const bookingPeople = await this.bookingPersonRepository.find({
       where: { bookingId: id },
+      relations: {
+        booking: true,
+      }
     });
 
     // FETCH BOOKING VEHICLES
@@ -601,7 +604,7 @@ export class BookingService {
     const bookingPeoplePrice =
       bookingPeople?.length > 0
         ? bookingPeople?.reduce((acc, curr) => {
-            return acc + calculateEntryPrice(curr);
+            return acc + calculateBookingPersonPrice(curr);
           }, 0)
         : 0;
 
@@ -612,6 +615,7 @@ export class BookingService {
             return acc + calculateVehiclePrice(curr);
           }, 0)
         : 0;
+
 
     // CALCULATE ACTIVITY PRICE
     const bookingActivityPrice =
