@@ -148,4 +148,26 @@ export const UserController = {
       next(error);
     }
   },
+
+  // UPDATE USER PHOTO
+  async updateUserPhoto(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { file } = req;
+
+      // UPDATE USER PHOTO
+      const updatedUser = await userService.updateUserPhoto({
+        id: id as UUID,
+        file: file as Express.Multer.File,
+      });
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'User photo updated successfully',
+        data: updatedUser,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { UserController } from "../controllers/user.controller";
+import multer from 'multer';
 
 // CREATE ROUTER
 const router = Router();
@@ -25,6 +26,9 @@ router.delete('/:id', UserController.deleteUser)
 
 // UPDATE USER PASSWORD
 router.patch('/:id/password', UserController.updateUserPassword)
+
+// UPDATE USER PHOTO
+router.patch('/:id/photo', multer().single('file'), UserController.updateUserPhoto)
 
 // EXPORT ROUTER
 export default router;

@@ -13,17 +13,32 @@ export class SettingsService {
   // SET USD RATE
   async setUsdRate({ usdRate }: { usdRate: number }): Promise<Settings> {
     // FIND SETTINGS
-    let settings = await this.settingsRepository.findOne({
-      where: usdRate as any,
-    });
-    if (!settings) {
-      settings = new Settings();
+    let settings = await this.settingsRepository.find();
+    let newSettings = undefined;
+    if (settings?.length <= 0) {
+      newSettings = new Settings();
+    } else {
+      newSettings = settings[0];
+      newSettings.usdRate = usdRate;
     }
 
-    // SET USD RATE
-    settings.usdRate = usdRate;
-
     // SAVE SETTINGS
-    return this.settingsRepository.save(settings);
+    return this.settingsRepository.save(newSettings);
+  }
+
+  // GET USD RATE
+  async getUsdRate(): Promise<Settings> {
+    // FIND SETTINGS
+    const settings = await this.settingsRepository.find({
+      order: {
+        updatedAt: 'DESC',
+      },
+    });
+
+    if (settings?.length <= 0) {
+      throw new NotFoundError('USD rate not found!');
+    }
+
+    return settings?.[0];
   }
 }

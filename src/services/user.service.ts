@@ -16,6 +16,7 @@ import {
 import { UUID } from 'crypto';
 import { getPagination, getPagingData } from '../helpers/pagination.helper';
 import { UserPagination } from '../types/user.types';
+import { uploadFile } from '../helpers/uploads.helper';
 
 export class UserService {
   private userRepository: Repository<User>;
@@ -183,10 +184,11 @@ export class UserService {
     existingPassword: string;
     newPassword: string;
   }): Promise<User> {
-
     // IF NEW PASSWORD IS SAME AS EXISTING PASSWORD
     if (existingPassword === newPassword) {
-      throw new ValidationError('New password cannot be the same as the existing password');
+      throw new ValidationError(
+        'New password cannot be the same as the existing password'
+      );
     }
 
     // GET USER
@@ -200,7 +202,10 @@ export class UserService {
     }
 
     // CHECK IF PASSWORD MATCHES
-    const passwordMatch = await comparePasswords(existingPassword, userExists?.password);
+    const passwordMatch = await comparePasswords(
+      existingPassword,
+      userExists?.password
+    );
 
     if (!passwordMatch) {
       throw new ValidationError('Existing password is incorrect');
@@ -228,5 +233,29 @@ export class UserService {
     }
 
     return user;
+  }
+
+  // UPDATE USER PHOTO
+  async updateUserPhoto({
+    id,
+    file,
+  }: {
+    id: UUID;
+    file: Express.Multer.File;
+  }): Promise<User> {
+    const photoUrl = await uploadFile(file, 'akagera-booking');
+
+    const userExists = await this.userRepository.findOne({
+      where: { id },
+      select: ['id', 'photo'],
+    });
+
+    if (!userExists) {
+      throw new NotFoundError('User not found');
+    }
+
+    userExists.photo = photoUrl;
+
+    return this.userRepository.save(userExists);
   }
 }

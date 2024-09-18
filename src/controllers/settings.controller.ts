@@ -22,4 +22,20 @@ export const SettingsController = {
       next(error);
     }
   },
+
+  // GET USD RATE
+  async getUsdRate(req: Request, res: Response, next: NextFunction) {
+    try {
+      // GET USD RATE
+      const usdRate = await settingsService.getUsdRate();
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'USD rate fetched successfully!',
+        data: usdRate,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

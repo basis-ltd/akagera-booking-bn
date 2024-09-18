@@ -11,5 +11,8 @@ const router = Router();
 // SET USD RATE
 router.patch('/usd-rate', SettingsController.setUsdRate);
 
+// GET USD RATE
+router.get('/usd-rate', SettingsController.getUsdRate);
+
 // EXPORT ROUTER
 export default router;

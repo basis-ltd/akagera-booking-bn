@@ -1,4 +1,4 @@
-import { LessThanOrEqual, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { Booking } from '../entities/booking.entity';
 import {
@@ -26,13 +26,15 @@ import {
   calculateVehiclePrice,
 } from '../helpers/booking.helper';
 import { createCombinedPDF } from '../helpers/pdf.helper';
+import { SettingsService } from './settings.service';
+
+const settingsService = new SettingsService();
 
 export class BookingService {
   private bookingRepository: Repository<Booking>;
   private bookingActivityRepository: Repository<BookingActivity>;
   private bookingVehicleRepository: Repository<BookingVehicle>;
   private bookingPersonRepository: Repository<BookingPerson>;
-
   constructor() {
     this.bookingRepository = AppDataSource.getRepository(Booking);
     this.bookingActivityRepository =
@@ -582,7 +584,7 @@ export class BookingService {
       where: { bookingId: id },
       relations: {
         booking: true,
-      }
+      },
     });
 
     // FETCH BOOKING VEHICLES
@@ -616,7 +618,6 @@ export class BookingService {
           }, 0)
         : 0;
 
-
     // CALCULATE ACTIVITY PRICE
     const bookingActivityPrice =
       bookingActivities?.length > 0
@@ -628,8 +629,11 @@ export class BookingService {
     const bookingPrice =
       bookingPeoplePrice + bookingVehiclePrice + bookingActivityPrice;
 
+    // GET USD RATE
+    const usdRate = await settingsService.getUsdRate();
+
     bookingExists.totalAmountUsd = bookingPrice;
-    bookingExists.totalAmountRwf = bookingPrice * 1318;
+    bookingExists.totalAmountRwf = bookingPrice * Number(usdRate?.usdRate);
 
     await this.bookingRepository.save(bookingExists);
 
