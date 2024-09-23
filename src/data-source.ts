@@ -13,6 +13,9 @@ export const AppDataSource = new DataSource({
   logging: false,
   entities: [`${__dirname}/**/entities/*.{ts,js}`],
   migrations: [`${__dirname}/**/migrations/*.{ts,js}`],
-  ssl:
-    process.env.DB_HOST === 'localhost' ? false : { rejectUnauthorized: false },
+  ssl: ['localhost', 'host.docker.internal'].includes(
+    String(process.env.DB_HOST)
+  )
+    ? false
+    : { rejectUnauthorized: false },
 });

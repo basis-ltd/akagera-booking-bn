@@ -13,16 +13,15 @@ if (cluster.isPrimary) {
 
   cluster.on('exit', (worker, code, signal) => {
     console.log(`Worker ${worker.process.pid} died`);
-    // Optionally, you can fork a new worker here
     cluster.fork();
   });
 } else {
-  // Workers can share any TCP connection
-  // In this case, it is an HTTP server
   import('./app').then(({ default: app }) => {
-    const { PORT = 8080 } = process.env;
+    const { PORT = 8080, DB_NAME } = process.env;
     app.listen(PORT, () => {
-      console.log(`Worker ${process.pid} started`);
+      console.log(
+        `Worker ${process.pid} started on port ${PORT} and connected to ${DB_NAME}`
+      );
     });
   });
 }
