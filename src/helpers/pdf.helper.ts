@@ -1,19 +1,19 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import fs from 'fs/promises';
-import path from 'path';
 import { BookingPerson } from '../entities/bookingPerson.entity';
 import moment from 'moment';
+import axios from 'axios';
 
 export async function createCombinedPDF(
   participants: BookingPerson[]
 ): Promise<Buffer> {
   try {
     const pdfDoc = await PDFDocument.create();
-    const indemnityPdfPath = path.join(
-      __dirname,
-      '../assets/indemnity agreement_Akagera NP_Rwanda.pdf'
-    );
-    const indemnityPdfBytes = await fs.readFile(indemnityPdfPath);
+    const indemnityPdfUrl =
+      'https://res.cloudinary.com/nishimweprince/image/upload/v1727372945/akagera-booking/indemnity_agreement_Akagera_NP_Rwanda_mbdu1z.pdf';
+    const response = await axios.get(indemnityPdfUrl, {
+      responseType: 'arraybuffer',
+    });
+    const indemnityPdfBytes = response.data;
     const indemnityPdf = await PDFDocument.load(indemnityPdfBytes);
 
     const copiedPages = await pdfDoc.copyPages(

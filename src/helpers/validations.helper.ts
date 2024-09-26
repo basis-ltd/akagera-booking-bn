@@ -59,9 +59,5 @@ export const validateStartAndEndTime = (
       throw new ValidationError('Invalid End Time');
     }
 
-    // IF END TIME IS BEFORE START TIME
-    if (moment(endTime, 'HH:mm:ss').isBefore(moment(startTime, 'HH:mm:ss'))) {
-      throw new ValidationError('End Time cannot be before Start Time');
-    }
   }
 };

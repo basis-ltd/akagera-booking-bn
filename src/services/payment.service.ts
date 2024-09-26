@@ -40,7 +40,7 @@ export class PaymentService {
           CompanyRef: paymentId,
           RedirectURL,
           CompanyRefUnique: '1',
-          PTL: '5',
+          PTL: '24',
         },
         Services: {
           Service: {
