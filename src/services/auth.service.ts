@@ -4,18 +4,18 @@ import { User } from '../entities/user.entity';
 import { comparePasswords, hashPassword } from '../helpers/encryption.helper';
 import { NotFoundError, ValidationError } from '../helpers/errors.helper';
 import { validateEmail } from '../helpers/validations.helper';
-import { Token } from '../entities/token.entity';
+import { UserToken } from '../entities/token.entity';
 import { generateOTP } from '../helpers/auth.helper';
 import moment from 'moment';
 import { loginOtpEmailTemplate, sendEmail } from '../helpers/emails.helper';
 
 export class AuthService {
   private userRepository: Repository<User>;
-  private tokenRepository: Repository<Token>;
+  private userTokenRepository: Repository<UserToken>;
 
   constructor() {
     this.userRepository = AppDataSource.getRepository(User);
-    this.tokenRepository = AppDataSource.getRepository(Token);
+    this.userTokenRepository = AppDataSource.getRepository(UserToken);
   }
 
   // SIGNUP
@@ -118,20 +118,20 @@ export class AuthService {
       const otp = generateOTP();
 
       // DELETE EXISTING TOKENS
-      await this.tokenRepository.delete({
+      await this.userTokenRepository.delete({
         userId: userExists?.id,
         type: 'auth',
       });
 
       // CREATE TOKEN
-      const token = this.tokenRepository.create({
+      const token = this.userTokenRepository.create({
         token: otp.toString(),
         userId: userExists?.id,
         type: 'auth',
         expiresAt: moment().add(10, 'minutes').toDate(),
       });
 
-      await this.tokenRepository.save(token);
+      await this.userTokenRepository.save(token);
 
       // SEND EMAIL WITH OTP
       await sendEmail(
@@ -152,19 +152,19 @@ export class AuthService {
   async verifyAuth({ email, otp }: { email: string; otp: string }) {
     // IF EMAIL NOT PROVIDED
     if (!email) {
-      throw new Error('Email is required');
+      throw new ValidationError('Email is required');
     }
 
     // IF OTP NOT PROVIDED
     if (!otp) {
-      throw new Error('OTP is required');
+      throw new ValidationError('OTP is required');
     }
 
     // VALIDATE EMAIL
     const { error } = validateEmail(email);
 
     if (error) {
-      throw new Error('Invalid email address');
+      throw new ValidationError('Invalid email address');
     }
 
     const userExists = await this.userRepository.findOne({ where: { email } });
@@ -173,7 +173,7 @@ export class AuthService {
       throw new NotFoundError('User not found');
     }
 
-    const tokenExists = await this.tokenRepository.findOne({
+    const tokenExists = await this.userTokenRepository.findOne({
       where: {
         userId: userExists.id,
         token: otp,
@@ -192,7 +192,7 @@ export class AuthService {
     }
 
     // DELETE TOKEN
-    await this.tokenRepository.delete({
+    await this.userTokenRepository.delete({
       userId: userExists.id,
       type: 'auth',
     });
@@ -224,20 +224,20 @@ export class AuthService {
     const otp = generateOTP();
 
     // DELETE EXISTING TOKENS
-    await this.tokenRepository.delete({
+    await this.userTokenRepository.delete({
       userId: userExists.id,
       type: 'auth',
     });
 
     // CREATE TOKEN
-    const token = this.tokenRepository.create({
+    const token = this.userTokenRepository.create({
       token: otp.toString(),
       userId: userExists.id,
       type: 'auth',
       expiresAt: moment().add(10, 'minutes').toDate(),
     });
 
-    await this.tokenRepository.save(token);
+    await this.userTokenRepository.save(token);
 
     // SEND EMAIL WITH OTP
     await sendEmail(

@@ -1,18 +1,10 @@
 import { Column, Entity, JoinColumn, JoinTable, ManyToOne } from 'typeorm';
-import { AbstractEntity } from './abstract.entity';
+import { AbstractTokenEntity } from './abstract.entity';
 import { User } from './user.entity';
-import { TOKEN_TYPES } from '../constants/auth.constants';
+import { Booking } from './booking.entity';
 
 @Entity()
-export class Token extends AbstractEntity {
-  // TOKEN
-  @Column({
-    name: 'token',
-    type: 'varchar',
-    nullable: false,
-  })
-  token: string;
-
+export class UserToken extends AbstractTokenEntity {
   // USER ID
   @Column({
     name: 'user_id',
@@ -21,23 +13,6 @@ export class Token extends AbstractEntity {
   })
   userId: string;
 
-  // TYPE
-  @Column({
-    name: 'type',
-    type: 'enum',
-    enum: Object.values(TOKEN_TYPES),
-    default: TOKEN_TYPES.AUTH,
-  })
-  type: string;
-
-  // EXPIRES AT
-  @Column({
-    name: 'expires_at',
-    type: 'timestamp',
-    nullable: false,
-  })
-  expiresAt: Date;
-
   // USER
   @ManyToOne(() => User, (user) => user.tokens, {
     onDelete: 'CASCADE',
@@ -45,4 +20,23 @@ export class Token extends AbstractEntity {
   })
   @JoinColumn({ name: 'user_id' })
   user: User;
+}
+
+@Entity()
+export class BookingToken extends AbstractTokenEntity {
+  // BOOKING ID
+  @Column({
+    name: 'booking_id',
+    type: 'uuid',
+    nullable: false,
+  })
+  bookingId: string;
+
+  // BOOKING
+  @ManyToOne(() => Booking, (booking) => booking.tokens, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'booking_id' })
+  booking: Booking;
 }

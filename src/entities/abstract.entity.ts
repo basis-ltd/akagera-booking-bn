@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { COUNTRIES } from '../constants/countries.constants';
 import { IsNotEmpty } from 'class-validator';
+import { TOKEN_TYPES } from '../constants/auth.constants';
 
 export abstract class AbstractEntity {
   // ID
@@ -80,4 +81,31 @@ export class AbstractUserEntity extends AbstractEntity {
   // PHONE
   @Column({ name: 'phone', type: 'varchar', length: 255, nullable: true })
   phone: string;
+}
+
+export class AbstractTokenEntity extends AbstractEntity {
+  // TOKEN
+  @Column({
+    name: 'token',
+    type: 'varchar',
+    nullable: false,
+  })
+  token: string;
+
+  // TYPE
+  @Column({
+    name: 'type',
+    type: 'enum',
+    enum: Object.values(TOKEN_TYPES),
+    default: TOKEN_TYPES.AUTH,
+  })
+  type: string;
+
+  // EXPIRES AT
+  @Column({
+    name: 'expires_at',
+    type: 'timestamp',
+    nullable: false,
+  })
+  expiresAt: Date;
 }

@@ -63,6 +63,7 @@ export class PaymentService {
         CompanyToken: '8D3DA73D-9D7F-4E09-96D4-3D44E7A83EA3',
         Request: 'verifyToken',
         TransactionToken: transactionToken,
+        VerifyTransaction: 1
       },
     };
 
@@ -81,8 +82,8 @@ export class PaymentService {
     ).API3G;
 
     return {
-      Result: api3g.Result._text,
-      ResultExplanation: api3g.ResultExplanation._text,
+      Result: api3g.Result?._text,
+      ResultExplanation: api3g.ResultExplanation?._text,
       CustomerName: api3g.CustomerName?._text,
       CustomerCredit: api3g.CustomerCredit?._text,
       CustomerCreditType: api3g.CustomerCreditType?._text,
@@ -166,6 +167,11 @@ export class PaymentService {
 
     // Parse XML response
     const jsonResponse = this.parseXmlResponse(response.data);
+
+    if (jsonResponse.API3G.Result._text !== '000') {
+      await this.paymentRepository.delete(newPayment?.id);
+      throw new ValidationError(jsonResponse.API3G.ResultExplanation._text);
+    }
 
     // SAVE PAYMENT
     newPayment.transactionId = jsonResponse.API3G.TransToken._text;

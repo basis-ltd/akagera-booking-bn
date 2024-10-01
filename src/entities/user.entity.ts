@@ -3,8 +3,8 @@ import { Column, Entity, OneToMany, Unique } from 'typeorm';
 import { ROLES } from '../constants/auth.constants';
 import { AbstractUserEntity } from './abstract.entity';
 import { Booking } from './booking.entity';
-import { Token } from './token.entity';
 import { SeatsAdjustment } from './seatsAdjustment.entity';
+import { UserToken } from './token.entity';
 
 @Entity()
 @Unique(['phone', 'email'])
@@ -54,8 +54,8 @@ export class User extends AbstractUserEntity {
   bookingsApproved: Booking[];
 
   // TOKENS
-  @OneToMany(() => Token, (token) => token.user)
-  tokens: Token[];
+  @OneToMany(() => UserToken, (userToken) => userToken.user)
+  tokens: UserToken[];
 
   // SEATS ADJUSTMENTS
   @OneToMany(() => SeatsAdjustment, (seatsAdjustment) => seatsAdjustment.user)

@@ -8,4 +8,5 @@ export const ROLES = {
 export const TOKEN_TYPES = {
   AUTH: 'auth',
   RESET_PASSWORD: 'reset_password',
+  BOOKING: 'booking',
 };

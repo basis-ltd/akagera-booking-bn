@@ -2,10 +2,13 @@ import { Request, Response, NextFunction } from 'express';
 import { BookingService } from '../services/booking.service';
 import moment from 'moment';
 import { UUID } from 'crypto';
-import { LessThanOrEqual } from 'typeorm';
+import jwt from 'jsonwebtoken';
 
 // INITIALIZE BOOKING SERVICE
 const bookingService = new BookingService();
+
+// LOAD ENVIROMENT VARIABLES
+const { JWT_SECRET } = process.env;
 
 export const BookingController = {
   // CREATE BOOKING
@@ -371,6 +374,75 @@ export const BookingController = {
 
       // Send the PDF buffer as the response
       res.send(consent);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // FIND BOOKING EMAIL
+  async findBookingEmail(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, phone, referenceId } = req.query;
+
+      // FIND BOOKING EMAIL
+      const bookingEmail = await bookingService.findBookingEmail({
+        email: String(email),
+        phone: String(phone),
+        referenceId: String(referenceId),
+      });
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Booking email found successfully!',
+        data: bookingEmail,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // REQUEST BOOKING OTP
+  async requestBookingOTP(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = req.body;
+
+      // REQUEST OTP
+      await bookingService.requestBookingOTP({ email });
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'OTP sent successfully!',
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // VERIFY BOOKING OTP
+  async verifyBookingOTP(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, otp } = req.body;
+
+      // VERIFY OTP
+      const booking = await bookingService.verifyBookingOTP({ email, otp });
+
+      // CREATE TOKEN
+      const token = jwt.sign(
+        { id: booking?.id, email: booking.email },
+        JWT_SECRET!,
+        {
+          expiresIn: '1d',
+        }
+      );
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'OTP verified successfully!',
+        data: {
+          booking,
+          token,
+        },
+      });
     } catch (error) {
       next(error);
     }

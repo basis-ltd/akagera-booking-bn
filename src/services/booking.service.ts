@@ -10,10 +10,11 @@ import moment from 'moment';
 import { BookingPagination } from '../types/booking.types';
 import { getPagination, getPagingData } from '../helpers/pagination.helper';
 import { UUID } from 'crypto';
-import { validateUuid } from '../helpers/validations.helper';
+import { validateEmail, validateUuid } from '../helpers/validations.helper';
 import { ACCOMODATION_OPTION, EXIT_GATE } from '../constants/booking.constants';
 import { generateReferenceID } from '../helpers/strings.helper';
 import {
+  bookingsSearchOtpEmailTemplate,
   bookingSubmittedEmailTemplate,
   sendEmail,
 } from '../helpers/emails.helper';
@@ -27,6 +28,8 @@ import {
 } from '../helpers/booking.helper';
 import { createCombinedPDF } from '../helpers/pdf.helper';
 import { SettingsService } from './settings.service';
+import { BookingToken } from '../entities/token.entity';
+import { generateOTP } from '../helpers/auth.helper';
 
 const settingsService = new SettingsService();
 
@@ -35,12 +38,15 @@ export class BookingService {
   private bookingActivityRepository: Repository<BookingActivity>;
   private bookingVehicleRepository: Repository<BookingVehicle>;
   private bookingPersonRepository: Repository<BookingPerson>;
+  private bookingTokenRepository: Repository<BookingToken>;
+
   constructor() {
     this.bookingRepository = AppDataSource.getRepository(Booking);
     this.bookingActivityRepository =
       AppDataSource.getRepository(BookingActivity);
     this.bookingVehicleRepository = AppDataSource.getRepository(BookingVehicle);
     this.bookingPersonRepository = AppDataSource.getRepository(BookingPerson);
+    this.bookingTokenRepository = AppDataSource.getRepository(BookingToken);
   }
 
   // CREATE BOOKING
@@ -303,7 +309,7 @@ export class BookingService {
       throw new ValidationError('Start date cannot be after end date');
     }
 
-    const updatedBooking = await this.bookingRepository.update(id, {
+    await this.bookingRepository.update(id, {
       startDate,
       endDate,
       name,
@@ -322,11 +328,13 @@ export class BookingService {
       type,
     });
 
-    if (!updatedBooking.affected) {
-      throw new AppError('Booking update failed', 500, 'INTERNAL_SERVER_ERROR');
+    const updatedBooking = await this.bookingRepository.findOne({ where: { id } });
+
+    if (!updatedBooking) {
+      throw new NotFoundError('Booking not found');
     }
 
-    return updatedBooking.raw[0];
+    return updatedBooking;
   }
 
   // FIND BOOKING BY ID
@@ -498,6 +506,7 @@ export class BookingService {
 
     const bookingPeople = await this.bookingPersonRepository.find({
       where: { bookingId: id },
+      relations: { booking: true },
     });
 
     const combinedPdf = await createCombinedPDF(bookingPeople);
@@ -661,10 +670,144 @@ export class BookingService {
     // FIND BOOKING PEOPLE
     const bookingPeople = await this.bookingPersonRepository.find({
       where: { bookingId: id },
+      relations: { booking: true },
     });
 
     const consentPdf = await createCombinedPDF(bookingPeople);
 
     return consentPdf;
+  }
+
+  // FIND BOOKING EMAIL
+  async findBookingEmail({
+    email,
+    phone,
+    referenceId,
+  }: {
+    email?: string;
+    phone?: string;
+    referenceId?: string;
+  }): Promise<Booking> {
+    const bookingEmail = await this.bookingRepository.findOne({
+      where: [{ email }, { phone }, { referenceId }],
+      select: [
+        'id',
+        'name',
+        'startDate',
+        'endDate',
+        'status',
+        'email',
+        'referenceId',
+      ],
+    });
+
+    if (!bookingEmail) {
+      throw new NotFoundError('Booking not found');
+    }
+
+    return bookingEmail;
+  }
+
+  // REQUEST BOOKING OTP
+  async requestBookingOTP({ email }: { email: string }): Promise<void> {
+    // CHECK IF EMAIL OR PHONE IS PROVIDED
+    if (!email) {
+      throw new ValidationError('Provide email or phone number');
+    }
+
+    // FIND BOOKING
+    const bookingExists = await this.bookingRepository.findOne({
+      where: [{ email }],
+    });
+
+    if (!bookingExists) {
+      throw new NotFoundError('Booking not found');
+    }
+
+    // GENERATE OTP
+    const otp = generateOTP();
+
+    // SEND OTP TO EMAIL
+    await sendEmail(
+      email,
+      String(process.env.SENDGRID_SEND_FROM),
+      `Your OTP to access search results`,
+      bookingsSearchOtpEmailTemplate({
+        otp: String(otp),
+      })
+    );
+
+    // DELETE ALL EXISTING OTPS
+    await this.bookingTokenRepository.delete({
+      bookingId: bookingExists.id,
+      type: 'booking',
+    });
+
+    // SAVE OTP
+    await this.bookingTokenRepository.save({
+      bookingId: bookingExists.id,
+      token: String(otp),
+      type: 'booking',
+      expiresAt: moment().add(10, 'minutes').toDate(),
+    });
+
+    return;
+  }
+
+  // VERIFY BOOKING OTP
+  async verifyBookingOTP({ email, otp }: { email: string; otp: string }): Promise<Booking> {
+    // IF EMAIL NOT PROVIDED
+    if (!email) {
+      throw new ValidationError('Email is required');
+    }
+
+    // IF OTP NOT PROVIDED
+    if (!otp) {
+      throw new ValidationError('OTP is required');
+    }
+
+    // VALIDATE EMAIL
+    const { error } = validateEmail(email);
+
+    if (error) {
+      throw new ValidationError('Invalid email address');
+    }
+
+    // FIND BOOKING
+    const bookingExists = await this.bookingRepository.findOne({
+      where: { email },
+    });
+
+    // IF BOOKING NOT FOUND
+    if (!bookingExists) {
+      throw new NotFoundError('Booking not found');
+    }
+
+    // FIND OTP
+    const tokenExists = await this.bookingTokenRepository.findOne({
+      where: {
+        bookingId: bookingExists.id,
+        token: otp,
+        type: 'booking',
+      },
+    });
+
+    // IF OTP NOT FOUND
+    if (!tokenExists) {
+      throw new NotFoundError('Invalid OTP');
+    }
+
+    // CHECK IF TOKEN IS NOT EXPIRED
+    if (moment(tokenExists?.expiresAt).format() < moment().format()) {
+      throw new ValidationError('Token has expired. Please request a new one');
+    }
+
+    // DELETE TOKEN
+    await this.bookingTokenRepository.delete({
+      bookingId: bookingExists.id,
+      type: 'booking',
+    });
+
+    return bookingExists;
   }
 }

@@ -23,7 +23,12 @@ export const sendEmail = async (
   fromEmail: string,
   subject: string,
   htmlContent: string,
-  attachments?: { content: string; filename: string, type?: string, disposition?: string }[]
+  attachments?: {
+    content: string;
+    filename: string;
+    type?: string;
+    disposition?: string;
+  }[]
 ) => {
   const msg = {
     to: toEmail,
@@ -247,6 +252,84 @@ export function loginOtpEmailTemplate({
       </div>
       <div class="footer">
         &copy; 2024 Akagera National Park. All rights reserved.
+      </div>
+    </div>
+  </body>
+  </html>`;
+}
+
+export function bookingsSearchOtpEmailTemplate({
+  otp,
+}: {
+  otp: string;
+}) {
+  return `<!DOCTYPE html>
+  <html>
+  <head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #333333;
+      }
+      .email-container {
+        padding: 20px;
+        background-color: #f4f4f4;
+      }
+      .header {
+        background-color: #ffffff;
+        padding: 20px;
+        text-align: center;
+      }
+      .content {
+        background-color: white;
+        padding: 30px;
+        margin-top: 20px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+      }
+      .footer {
+        text-align: center;
+        padding: 20px;
+        font-size: 12px;
+        color: #666666;
+      }
+      .otp {
+        font-size: 36px;
+        font-weight: bold;
+        color: #036124;
+        display: block;
+        text-align: center;
+        margin: 20px 0;
+        padding: 10px;
+        background-color: #e8f5e9;
+        border-radius: 4px;
+      }
+      h1 {
+        color: #036124;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div class="header">
+        <img src="https://res.cloudinary.com/nishimweprince/image/upload/v1718954750/akagera-booking/gvcbmerwjceo9jf7z1az.png" alt="Akagera National Park Logo" style="max-width: 200px;">
+      </div>
+      <div class="content">
+        <h1>Search Bookings Authentication</h1>
+        <p>Hello,</p>
+        <p>To proceed with searching bookings on your Akagera National Park account, please use the following One-Time Password (OTP):</p>
+        <div class="otp">${otp}</div>
+        <p>Please enter this OTP in the search bookings form to access your booking information.</p>
+        <p><strong>Important:</strong> This OTP will expire in 10 minutes.</p>
+        <p>If you didn't request this OTP, please ignore this email or contact our support team immediately.</p>
+        <p>We're excited to assist you with your booking search!</p>
+        <p>Best Regards,<br>Akagera National Park Team</p>
+      </div>
+      <div class="footer">
+        &copy; 2024 Akagera National Park. All rights reserved.<br>
+        This email is intended for booking verification purposes only.
       </div>
     </div>
   </body>
