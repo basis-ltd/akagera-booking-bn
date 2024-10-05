@@ -9,6 +9,7 @@ import { BookingActivityPagination } from '../types/bookingActivity.types';
 import { getPagination, getPagingData } from '../helpers/pagination.helper';
 import moment from 'moment';
 import { BookingActivityPerson } from '../entities/bookingActivityPerson.entity';
+import logger from '../helpers/logger.helper';
 
 export class BookingActivityService {
   private bookingActivityRepository: Repository<BookingActivity>;
@@ -219,13 +220,13 @@ export class BookingActivityService {
       throw new ValidationError('Invalid booking activity ID');
     }
 
-    // CHECK IF BOOKING ACTIVITY HAS ASSOCIATED BOOKING ACTIVITY PEOPLE AND DELETE
-    const bookingActivityPeople =
-      await this.bookingActivityPeopleRepository.find({
-        where: { bookingActivityId: id },
-      });
+    // CHECK IF BOOKING ACTIVITY EXISTS
+    const bookingActivityExists = await this.bookingActivityRepository.findOne({
+      where: { id },
+      relations: ['bookingActivityPeople', 'activity', 'booking'],
+    });
 
-    if (bookingActivityPeople.length > 0) {
+    if ((bookingActivityExists?.bookingActivityPeople.length ?? 0) > 0) {
       await this.bookingActivityPeopleRepository.delete({
         bookingActivityId: id,
       });
@@ -240,6 +241,10 @@ export class BookingActivityService {
     if (!bookingActivityDeleted.affected) {
       throw new ValidationError('Booking activity not found');
     }
+
+    logger.warn(
+      `Booking activity: ${bookingActivityExists?.activity?.name} has been deleted removed from booking: ${bookingActivityExists?.booking?.referenceId}`
+    );
   }
 
   // UPDATE BOOKING ACTIVITY
@@ -247,7 +252,6 @@ export class BookingActivityService {
     id,
     startTime,
     endTime,
-    activityId,
     numberOfAdults,
     numberOfChildren,
     numberOfSeats,

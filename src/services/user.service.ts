@@ -17,6 +17,7 @@ import { UUID } from 'crypto';
 import { getPagination, getPagingData } from '../helpers/pagination.helper';
 import { UserPagination } from '../types/user.types';
 import { uploadFile } from '../helpers/uploads.helper';
+import logger from '../helpers/logger.helper';
 
 export class UserService {
   private userRepository: Repository<User>;
@@ -112,6 +113,8 @@ export class UserService {
       })
     );
 
+    logger.info(`New user with email ${email} has been added`);
+
     return this.userRepository.save(newUser);
   }
 
@@ -141,6 +144,11 @@ export class UserService {
       throw new NotFoundError('User not found');
     }
 
+    // USER
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    logger.info(`User with email ${user?.email} has been updated`);
+
     return updatedUser.raw[0];
   }
 
@@ -167,11 +175,17 @@ export class UserService {
 
   // DELETE USER
   async deleteUser(id: UUID): Promise<void> {
-    const deletedUser = await this.userRepository.delete(id);
+    // CHECK IF USER EXISTS
+    const userExists = await this.userRepository.findOne({ where: { id } });
 
-    if (!deletedUser.affected) {
+    // IF USER DOES NOT EXISTS
+    if (!userExists) {
       throw new NotFoundError('User not found');
     }
+
+    await this.userRepository.delete(userExists);
+
+    logger.error(`User with email ${userExists?.email} has been deleted`);
   }
 
   // UPDATE USER PASSWORD
@@ -220,6 +234,10 @@ export class UserService {
     if (!updatedUser.affected) {
       throw new NotFoundError('User not found');
     }
+
+    logger.info(
+      `User with email ${userExists.email} has updated their password`
+    );
 
     return updatedUser.raw[0];
   }

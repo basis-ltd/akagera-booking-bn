@@ -209,6 +209,7 @@ export class PaymentService {
     // FIND PAYMENT
     const paymentExists = await this.paymentRepository.findOne({
       where: { id },
+      relations: ['booking'],
     });
 
     if (!paymentExists) {
@@ -221,6 +222,9 @@ export class PaymentService {
       status,
       approvalCode,
     });
+
+    // LOGGER IF STATUS IS APPROVED
+    logger.info(`Payment with token: ${transactionId} has been paid successfully to booking: ${paymentExists.booking.referenceId}`)
 
     // SAVE PAYMENT
     return this.paymentRepository.save(updatedPayment);

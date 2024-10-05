@@ -13,6 +13,7 @@ import { getPagination, getPagingData } from '../helpers/pagination.helper';
 import { ActivitySchedulesPagination } from '../types/activitySchedule.types';
 import { BookingActivity } from '../entities/bookingActivity.entity';
 import { SeatsAdjustment } from '../entities/seatsAdjustment.entity';
+import logger from '../helpers/logger.helper';
 
 export class ActivityScheduleService {
   private activityScheduleRepository: Repository<ActivitySchedule>;
@@ -26,7 +27,8 @@ export class ActivityScheduleService {
     this.activityRepository = AppDataSource.getRepository(Activity);
     this.bookingActivityRepository =
       AppDataSource.getRepository(BookingActivity);
-    this.seatsAdjustmentRepository = AppDataSource.getRepository(SeatsAdjustment);
+    this.seatsAdjustmentRepository =
+      AppDataSource.getRepository(SeatsAdjustment);
   }
 
   // CREATE ACTIVITY SCHEDULE
@@ -88,6 +90,10 @@ export class ActivityScheduleService {
       minNumberOfSeats,
       maxNumberOfSeats,
     });
+
+    logger.info(
+      `New activity schedule ${startTime} - ${endTime} has been added for activity ${activityExists?.name}`
+    );
 
     // SAVE ACTIVITY SCHEDULE
     return this.activityScheduleRepository.save(activitySchedule);
@@ -186,12 +192,23 @@ export class ActivityScheduleService {
       throw new ValidationError('Invalid ID');
     }
 
+    // CHECK IF ACTIVITY SCHEDULE EXISTS
+    const activityScheduleExists =
+      await this.activityScheduleRepository.findOne({
+        where: { id },
+        relations: ['activity'],
+      });
+
     // DELETE ACTIVITY SCHEDULE
     const result = await this.activityScheduleRepository.delete(id);
 
     if (!result.affected) {
       throw new NotFoundError('Activity Schedule not found');
     }
+
+    logger.error(
+      `Activity Schedule ${activityScheduleExists?.startTime} - ${activityScheduleExists?.endTime} for ${activityScheduleExists?.activity?.name} has been deleted`
+    );
   }
 
   // UPDATE ACTIVITY SCHEDULE
@@ -228,6 +245,7 @@ export class ActivityScheduleService {
     const activityScheduleExists =
       await this.activityScheduleRepository.findOne({
         where: { id },
+        relations: ['activity'],
       });
 
     // VALIDATE START AND END TIME
@@ -256,6 +274,10 @@ export class ActivityScheduleService {
     if (!updatedActivitySchedule.affected) {
       throw new NotFoundError('Activity Schedule not found');
     }
+
+    logger.warn(
+      `Activity Schedule ${startTime} - ${endTime} for ${activityScheduleExists?.activity?.name} has been updated`
+    );
 
     return updatedActivitySchedule.raw[0];
   }
@@ -307,8 +329,11 @@ export class ActivityScheduleService {
     let totalPeople = 0;
 
     // FIND SEATS ADJUSTMENTS
-    const seatsAdjustments = await this.seatsAdjustmentRepository.createQueryBuilder('seatsAdjustment')
-      .where('seatsAdjustment.activityScheduleId = :activityScheduleId', { activityScheduleId: id })
+    const seatsAdjustments = await this.seatsAdjustmentRepository
+      .createQueryBuilder('seatsAdjustment')
+      .where('seatsAdjustment.activityScheduleId = :activityScheduleId', {
+        activityScheduleId: id,
+      })
       .andWhere('seatsAdjustment.startDate <= :date', { date })
       .andWhere('seatsAdjustment.endDate >= :date', { date })
       .orderBy('seatsAdjustment.updatedAt', 'DESC')

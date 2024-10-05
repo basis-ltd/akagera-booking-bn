@@ -3,6 +3,7 @@ import { AppDataSource } from '../data-source';
 import { Terms } from '../entities/terms.entity';
 import { NotFoundError } from '../helpers/errors.helper';
 import { UUID } from 'crypto';
+import logger from '../helpers/logger.helper';
 
 export class TermsService {
   private termsRepository: Repository<Terms>;
@@ -51,6 +52,8 @@ export class TermsService {
 
     terms.termsOfService = termsOfService;
     await this.termsRepository.save(terms);
+
+    logger.warn(`Terms of service updated`);
 
     return terms;
   }

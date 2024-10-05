@@ -8,6 +8,7 @@ import { UserToken } from '../entities/token.entity';
 import { generateOTP } from '../helpers/auth.helper';
 import moment from 'moment';
 import { loginOtpEmailTemplate, sendEmail } from '../helpers/emails.helper';
+import logger from '../helpers/logger.helper';
 
 export class AuthService {
   private userRepository: Repository<User>;
@@ -64,6 +65,8 @@ export class AuthService {
       role,
     });
 
+    logger.info(`New user with email ${email} signed up`);
+
     return this.userRepository.save(newUser);
   }
 
@@ -95,6 +98,7 @@ export class AuthService {
         'user.phone',
         'user.password',
         'user.role',
+        'user.name',
       ])
       .where('user.email = :email', { email })
       .getOne();
@@ -143,6 +147,10 @@ export class AuthService {
           otp,
         })
       );
+
+      logger.info(
+        `${userExists?.name} with email ${userExists?.email} tried to login`
+      );
     }
 
     return userExists;
@@ -183,6 +191,9 @@ export class AuthService {
 
     // IF TOKEN DOES NOT EXIST
     if (!tokenExists) {
+      logger.error(
+        `Invalid OTP for ${userExists.name} with email ${userExists.email}`
+      );
       throw new ValidationError('Invalid OTP');
     }
 
@@ -196,6 +207,10 @@ export class AuthService {
       userId: userExists.id,
       type: 'auth',
     });
+
+    logger.info(
+      `${userExists.name} with email ${userExists.email} logged in successfully`
+    );
 
     return userExists;
   }

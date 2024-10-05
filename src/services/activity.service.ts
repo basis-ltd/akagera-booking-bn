@@ -11,6 +11,7 @@ import { ActivitiesPagination } from '../types/activity.types';
 import { UUID } from 'crypto';
 import { validateUuid } from '../helpers/validations.helper';
 import { Service } from '../entities/service.entity';
+import logger from '../helpers/logger.helper';
 
 export class ActivityService {
   private activityRepository: Repository<Activity>;
@@ -77,6 +78,8 @@ export class ActivityService {
       serviceId,
     });
 
+    logger.info(`New activity with name ${name} created`);
+
     return this.activityRepository.save(newActivity);
   }
 
@@ -131,12 +134,16 @@ export class ActivityService {
       throw new NotFoundError('Activity not found');
     }
 
+    // FETCH UPDATED ACTIVITY
+    const activity = await this.activityRepository.findOne({ where: { id } });
+
+    logger.warn(`Activity with name ${activity?.name} has been updated`);
+
     return updatedActivity.raw[0];
   }
 
   // FIND ACTIVITY BY ID
   async findActivityById(id: UUID): Promise<Activity> {
-
     // VALIDATE UUID
     const { error } = validateUuid(id);
 
@@ -162,7 +169,7 @@ export class ActivityService {
       where: { id },
       relations: {
         service: true,
-      }
+      },
     });
 
     if (!activityExists) {
@@ -213,6 +220,9 @@ export class ActivityService {
     if (!activityExists) {
       throw new NotFoundError('Activity not found');
     }
+
+    logger.error(`Activity with name ${activityExists.name} has been deleted`);
+
     return await this.activityRepository.delete({ id });
   }
 }

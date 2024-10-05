@@ -30,6 +30,7 @@ import { createCombinedPDF } from '../helpers/pdf.helper';
 import { SettingsService } from './settings.service';
 import { BookingToken } from '../entities/token.entity';
 import { generateOTP } from '../helpers/auth.helper';
+import logger from '../helpers/logger.helper';
 
 const settingsService = new SettingsService();
 
@@ -447,11 +448,25 @@ export class BookingService {
       throw new ValidationError('Invalid ID');
     }
 
+    // CHECK IF A BOOKING EXISTS
+    const bookingExists = await this.bookingRepository.findOne({
+      where: { id },
+    });
+
+    // IF BOOKING DOES NOT EXIST
+    if (!bookingExists) {
+      throw new NotFoundError('Booking not found');
+    }
+
     const deletedBooking = await this.bookingRepository.delete(id);
 
     if (!deletedBooking.affected) {
       throw new NotFoundError('Booking not found');
     }
+
+    logger.error(
+      `Booking with reference ID ${bookingExists.referenceId} has been deleted`
+    );
   }
 
   // FETCH BOOKING STATUSES

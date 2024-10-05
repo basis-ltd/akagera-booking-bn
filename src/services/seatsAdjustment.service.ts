@@ -10,6 +10,7 @@ import {
 } from '../helpers/errors.helper';
 import { SeatsAdjustmentPagination } from '../types/seatsAdjustment.types';
 import { getPagination, getPagingData } from '../helpers/pagination.helper';
+import logger from '../helpers/logger.helper';
 
 export class SeatsAdjustmentService {
   private seatsAdjustmentRepository: Repository<SeatsAdjustment>;
@@ -66,6 +67,9 @@ export class SeatsAdjustmentService {
     // CHECK IF ACTIVITY SCHEDULE ID IS VALID
     const activitySchedule = await this.activityScheduleRepository.findOne({
       where: { id: activityScheduleId },
+      relations: {
+        activity: true,
+      }
     });
 
     if (!activitySchedule) {
@@ -103,6 +107,10 @@ export class SeatsAdjustmentService {
     });
 
     await this.seatsAdjustmentRepository.save(seatsAdjustment);
+
+    logger.warn(
+      `New seats adjustment created for activity schedule ${activitySchedule?.startTime} - ${activitySchedule?.endTime} for activity ${activitySchedule?.activity?.name}`
+    );
 
     return seatsAdjustment;
   }
@@ -192,6 +200,11 @@ export class SeatsAdjustmentService {
     // CHECK IF SEATS ADJUSTMENT EXISTS
     const seatsAdjustment = await this.seatsAdjustmentRepository.findOne({
       where: { id },
+      relations: {
+        activitySchedule: {
+          activity: true,
+        }
+      }
     });
 
     if (!seatsAdjustment) {
@@ -200,5 +213,9 @@ export class SeatsAdjustmentService {
 
     // DELETE SEATS ADJUSTMENT
     await this.seatsAdjustmentRepository.delete(id);
+
+    logger.warn(
+      `Seats adjustment deleted for activity schedule ${seatsAdjustment?.activitySchedule?.startTime} - ${seatsAdjustment?.activitySchedule?.endTime} for activity ${seatsAdjustment?.activitySchedule?.activity?.name}`
+    );
   }
 }

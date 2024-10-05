@@ -8,6 +8,7 @@ import { ActivityService } from './activity.service';
 import { ActivityRatesPagination } from '../types/activityRate.types';
 import { getPagination, getPagingData } from '../helpers/pagination.helper';
 import { AGE_RANGE } from '../constants/booking.constants';
+import logger from '../helpers/logger.helper';
 
 export class ActivityRateService {
   private activityRateRepository: Repository<ActivityRate>;
@@ -57,14 +58,16 @@ export class ActivityRateService {
     }
 
     // CHECK IF ACTIVITY EXISTS
-    const activity = await this.activityService.findActivityById(activityId);
+    const activityExists = await this.activityService.findActivityById(
+      activityId
+    );
 
-    if (!activity) {
+    if (!activityExists) {
       throw new NotFoundError('Activity not found');
     }
 
     const newActivityRate = this.activityRateRepository.create({
-      name: name || activity.name,
+      name: name || activityExists?.name,
       amountUsd,
       amountRwf,
       description,
@@ -72,6 +75,10 @@ export class ActivityRateService {
       activityId,
       ageRange,
     });
+
+    logger.warn(
+      `New activity rate with USD ${amountUsd} created for activity: ${activityExists.name}`
+    );
 
     return this.activityRateRepository.save(newActivityRate);
   }
@@ -112,6 +119,7 @@ export class ActivityRateService {
     // CHECK IF ACTIVITY RATE EXISTS
     const activityRate = await this.activityRateRepository.findOne({
       where: { id },
+      relations: ['activity'],
     });
 
     if (!activityRate) {
@@ -213,6 +221,10 @@ export class ActivityRateService {
 
     // DELETE ACTIVITY RATE
     await this.activityRateRepository.delete(id);
+
+    logger.error(
+      `Activity rate for ${activityRate?.activity?.name} has been deleted`
+    );
 
     return activityRate;
   }
