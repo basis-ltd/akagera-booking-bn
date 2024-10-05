@@ -1,6 +1,7 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { AbstractEntity } from './abstract.entity';
 import { generateOTP } from '../helpers/auth.helper';
+import { Booking } from './booking.entity';
 
 @Entity()
 export class Payment extends AbstractEntity {
@@ -69,4 +70,12 @@ export class Payment extends AbstractEntity {
     nullable: true,
   })
   approvalCode: string;
+
+  // BOOKING
+  @ManyToOne(() => Booking, (booking) => booking.payments, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'booking_id' })
+  booking!: Booking;
 }

@@ -11,6 +11,7 @@ import { BookingPerson } from './bookingPerson.entity';
 import { BookingVehicle } from './bookingVehicle.entity';
 import { BookingActivity } from './bookingActivity.entity';
 import { BookingToken } from './token.entity';
+import { Payment } from './payment.entity';
 
 @Entity()
 export class Booking extends AbstractEntity {
@@ -189,4 +190,8 @@ export class Booking extends AbstractEntity {
   // TOKENS
   @OneToMany(() => BookingToken, (bookingToken) => bookingToken.booking)
   tokens: BookingToken[];
+
+  // PAYMENTS
+  @OneToMany(() => Payment, (payment) => payment.booking)
+  payments: Payment[];
 }

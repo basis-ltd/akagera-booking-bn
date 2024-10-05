@@ -7,11 +7,11 @@ import { getPagination, getPagingData } from '../helpers/pagination.helper';
 import { UUID } from 'crypto';
 import { xml2js, js2xml } from 'xml-js';
 import axios from 'axios';
+import logger from '../helpers/logger.helper';
 
 // LOAD ENVIROMENT VARIABLES
-const {
-  PAYMENT_REDIRECT_URL,
-} = process.env;
+const { PAYMENT_REDIRECT_URL, PAYMENT_COMPANY_TOKEN, PAYMENT_ENDPOINT_URL } =
+  process.env;
 
 export class PaymentService {
   private paymentRepository: Repository<Payment>;
@@ -32,7 +32,7 @@ export class PaymentService {
   ): string {
     const payload = {
       API3G: {
-        CompanyToken: '8D3DA73D-9D7F-4E09-96D4-3D44E7A83EA3',
+        CompanyToken: PAYMENT_COMPANY_TOKEN,
         Request: 'createToken',
         Transaction: {
           PaymentAmount: amount.toFixed(2),
@@ -60,10 +60,10 @@ export class PaymentService {
   private prepareVerificationXml(transactionToken: string): string {
     const payload = {
       API3G: {
-        CompanyToken: '8D3DA73D-9D7F-4E09-96D4-3D44E7A83EA3',
+        CompanyToken: PAYMENT_COMPANY_TOKEN,
         Request: 'verifyToken',
         TransactionToken: transactionToken,
-        VerifyTransaction: 1
+        VerifyTransaction: 1,
       },
     };
 
@@ -158,7 +158,7 @@ export class PaymentService {
       `${PAYMENT_REDIRECT_URL}`
     );
     const response = await axios.post(
-      'https://secure.3gdirectpay.com/API/v6/',
+      String(PAYMENT_ENDPOINT_URL),
       xmlPayload,
       {
         headers: { 'Content-Type': 'application/xml' },
@@ -281,7 +281,7 @@ export class PaymentService {
 
     // Verify transaction
     const response = await axios.post(
-      'https://secure.3gdirectpay.com/API/v6/',
+      String(PAYMENT_ENDPOINT_URL),
       xmlPayload,
       {
         headers: { 'Content-Type': 'application/xml' },
@@ -290,6 +290,8 @@ export class PaymentService {
 
     // Parse XML response
     const jsonResponse = this.parseXmlVerificationResponse(response.data);
+
+    logger.error(`${transactionToken} verified successfully`)
 
     // SAVE PAYMENT
     return jsonResponse;

@@ -2,6 +2,7 @@ import { Repository } from 'typeorm';
 import { AppDataSource } from '../data-source';
 import { Settings } from '../entities/settings.entity';
 import { NotFoundError } from '../helpers/errors.helper';
+import logger from '../helpers/logger.helper';
 
 export class SettingsService {
   private settingsRepository: Repository<Settings>;
@@ -21,6 +22,8 @@ export class SettingsService {
       newSettings = settings[0];
       newSettings.usdRate = usdRate;
     }
+
+    logger.warn(`USD rate set to ${usdRate}`);
 
     // SAVE SETTINGS
     return this.settingsRepository.save(newSettings);
