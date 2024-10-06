@@ -123,6 +123,7 @@ export const BookingActivityController = {
         page = 0,
         startDate = moment().startOf('M'),
         endDate = moment((startDate as string) || new Date()).endOf('M'),
+        type
       } = req.query;
       // FETCH POPULAR ACTIVITIES
       const popularActivities =
@@ -131,6 +132,7 @@ export const BookingActivityController = {
           page: Number(page),
           startDate: startDate ? (startDate as unknown as Date) : undefined,
           endDate: endDate ? (endDate as unknown as Date) : undefined,
+          type: type ? type  as 'booking' | 'registration' : 'booking'
         });
 
       // RETURN RESPONSE

@@ -89,6 +89,7 @@ export const BookingPersonController = {
         criteria = 'residence',
         startDate = moment().startOf('M'),
         endDate = moment((startDate as string) || new Date()).endOf('M'),
+        type = 'booking'
       } = req.query;
 
       // FETCH POPULAR BOOKING PEOPLE
@@ -99,6 +100,7 @@ export const BookingPersonController = {
           startDate: startDate ? (startDate as unknown as Date) : undefined,
           endDate: endDate ? (endDate as unknown as Date) : undefined,
           criteria: criteria as 'residence' | 'nationality' | 'dateOfBirth',
+          type: type ? type  as 'booking' | 'registration' : 'booking'
         });
 
       // RETURN RESPONSE

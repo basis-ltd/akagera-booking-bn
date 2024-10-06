@@ -130,34 +130,44 @@ export class BookingActivityService {
     size,
     page,
     startDate,
-    endDate
+    endDate,
+    type
   }: {
     size?: number;
     page?: number;
     startDate?: Date;
     endDate?: Date;
+    type: 'booking' | 'registration';
   }) {
     const { take, skip } = getPagination(page, size);
-    // FETCH POPULAR ACTIVITIES
+    
     const query = this.bookingActivityRepository
       .createQueryBuilder('bookingActivity')
-      .select('count(bookingActivity.id) as count, activity.id, activity.name')
+      .select('activity.id', 'id')
+      .addSelect('activity.name', 'name')
+      .addSelect('COUNT(bookingActivity.id)', 'count')
+      .leftJoin('bookingActivity.activity', 'activity')
+      .leftJoin('bookingActivity.booking', 'booking')
       .groupBy('activity.id')
-      .leftJoinAndSelect('bookingActivity.activity', 'activity')
+      .addGroupBy('activity.name')
       .orderBy('count', 'DESC');
-
-      if (startDate) {
-        query.andWhere('bookingActivity.startTime >= :startDate', {
-          startDate: moment(startDate).format(),
-        });
-      }
-
-      if (endDate) {
-        query.andWhere('bookingActivity.startTime <= :endDate', {
-          endDate: moment(endDate).format(),
-        });
-      }
-
+  
+    if (startDate) {
+      query.andWhere('bookingActivity.startTime >= :startDate', {
+        startDate: moment(startDate).format(),
+      });
+    }
+  
+    if (endDate) {
+      query.andWhere('bookingActivity.startTime <= :endDate', {
+        endDate: moment(endDate).format(),
+      });
+    }
+  
+    if (type) {
+      query.andWhere('booking.type = :type', { type });
+    }
+  
     return await query.take(take).skip(skip).getRawMany();
   }
 

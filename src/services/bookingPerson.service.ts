@@ -158,58 +158,58 @@ export class BookingPersonService {
     page,
     startDate,
     endDate,
+    type
   }: {
     criteria: 'residence' | 'nationality' | 'dateOfBirth' | 'gender';
     size?: number;
     page?: number;
     startDate?: Date;
     endDate?: Date;
+    type: 'booking' | 'registration';
   }): Promise<{ value: string | number; count: number }[]> {
     const { take, skip } = getPagination(page, size);
-    const queryBuilder =
-      this.bookingPersonRepository.createQueryBuilder('bookingPerson');
-
-    if (
-      !['residence', 'nationality', 'dateOfBirth', 'gender'].includes(criteria)
-    ) {
+    const queryBuilder = this.bookingPersonRepository.createQueryBuilder('bookingPerson');
+  
+    if (!['residence', 'nationality', 'dateOfBirth', 'gender'].includes(criteria)) {
       throw new ValidationError('Invalid criteria provided');
     }
-
+  
     queryBuilder
       .select(`bookingPerson.${criteria}`, 'value')
       .addSelect('COUNT(DISTINCT bookingPerson.id)', 'count')
       .leftJoin('bookingPerson.booking', 'booking')
       .groupBy(`bookingPerson.${criteria}`)
       .orderBy('count', 'DESC');
-
+  
     if (startDate) {
       queryBuilder.andWhere('booking.startDate >= :startDate', {
         startDate: moment(startDate).toDate(),
       });
     }
-
+  
     if (endDate) {
       queryBuilder.andWhere('booking.startDate <= :endDate', {
         endDate: moment(endDate).toDate(),
       });
     }
-
+  
+    if (type) {
+      queryBuilder.andWhere('booking.type = :type', { type });
+    }
+  
     if (size) {
       queryBuilder.take(take);
     }
-
+  
     if (page) {
       queryBuilder.skip(skip);
     }
-
+  
     const result = await queryBuilder.getRawMany();
-
+  
     return result.map((item) => {
       return {
-        value:
-          criteria === 'dateOfBirth'
-            ? moment().diff(item.value, 'years')
-            : item.value,
+        value: criteria === 'dateOfBirth' ? moment().diff(item.value, 'years') : item.value,
         count: Number(item.count),
       };
     });
