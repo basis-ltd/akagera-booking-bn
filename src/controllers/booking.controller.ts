@@ -283,16 +283,12 @@ export const BookingController = {
       const { id } = req.params;
       const {
         status = 'pending_contact',
-        totalAmountRwf,
-        totalAmountUsd,
       } = req.body;
 
       // CONFIRM BOOKING
       const confirmedBooking = await bookingService.submitBooking({
         id: id as UUID,
         status,
-        totalAmountRwf,
-        totalAmountUsd,
       });
 
       // RETURN RESPONSE

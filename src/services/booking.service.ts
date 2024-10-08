@@ -485,13 +485,9 @@ export class BookingService {
   async submitBooking({
     id,
     status,
-    totalAmountRwf,
-    totalAmountUsd,
   }: {
     id: UUID;
     status: string;
-    totalAmountRwf: number;
-    totalAmountUsd: number;
   }): Promise<Booking> {
     // VALIDATE UUID
     const { error } = validateUuid(id);
@@ -511,8 +507,6 @@ export class BookingService {
 
     const confirmedBooking = await this.bookingRepository.update(id, {
       status,
-      totalAmountRwf,
-      totalAmountUsd,
     });
 
     if (!confirmedBooking.affected) {
@@ -534,8 +528,8 @@ export class BookingService {
       bookingSubmittedEmailTemplate({
         referenceId: bookingExists?.referenceId,
         name: bookingExists?.name,
-        totalAmountUsd,
-        totalAmountRwf,
+        totalAmountUsd:  bookingExists?.totalAmountUsd,
+        totalAmountRwf: bookingExists?.totalAmountRwf,
       }),
       [
         {
