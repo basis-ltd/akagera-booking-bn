@@ -5,6 +5,7 @@ import { AbstractUserEntity } from './abstract.entity';
 import { Booking } from './booking.entity';
 import { SeatsAdjustment } from './seatsAdjustment.entity';
 import { UserToken } from './token.entity';
+import { Settings } from './settings.entity';
 
 @Entity()
 @Unique(['phone', 'email'])
@@ -60,4 +61,8 @@ export class User extends AbstractUserEntity {
   // SEATS ADJUSTMENTS
   @OneToMany(() => SeatsAdjustment, (seatsAdjustment) => seatsAdjustment.user)
   seatsAdjustments: SeatsAdjustment[];
+
+  // SETTINGS
+  @OneToMany(() => Settings, (settings) => settings.user)
+  settings: Settings[];
 }

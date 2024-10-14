@@ -24,6 +24,10 @@ export const generateRandomPassword = (length: number = 8) => {
   return password;
 };
 
+export const capitalizeString = (str: string) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
 export const formatCurrency = (
   amount: number | undefined = 0,
   currency = 'USD'
