@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { ActivityRateController } from "../controllers/activityRate.controller";
+import { adminMiddleware, authMiddleware } from "../middlewares/auth.middleware";
 
 // CREATE ROUTER
 const router = Router();
@@ -9,7 +10,7 @@ const router = Router();
  */
 
 // CREATE ACTIVITY RATE
-router.post("/", ActivityRateController.createActivityRate);
+router.post("/",authMiddleware, adminMiddleware, ActivityRateController.createActivityRate);
 
 // FETCH ACTIVITY RATES
 router.get("/", ActivityRateController.fetchActivityRates);
@@ -18,10 +19,10 @@ router.get("/", ActivityRateController.fetchActivityRates);
 router.get("/:id", ActivityRateController.getActivityRateById);
 
 // UPDATE ACTIVITY RATE
-router.patch("/:id", ActivityRateController.updateActivityRate);
+router.patch("/:id", authMiddleware, adminMiddleware, ActivityRateController.updateActivityRate);
 
 // DELETE ACTIVITY RATE
-router.delete("/:id", ActivityRateController.deleteActivityRate);
+router.delete("/:id", authMiddleware, adminMiddleware, ActivityRateController.deleteActivityRate);
 
 // EXPORT ROUTER
 export default router;

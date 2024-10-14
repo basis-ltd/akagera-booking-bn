@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { TermsController } from "../controllers/terms.controller";
+import { adminMiddleware } from "../middlewares/auth.middleware";
+import { authMiddleware } from "../middlewares/auth.middleware";
 
 // CREATE ROUTER
 const router = Router();
@@ -12,10 +14,10 @@ const router = Router();
 router.get("/", TermsController.getTermsOfService);
 
 // CREATE TERMS OF SERVICE
-router.post("/", TermsController.createTermsOfService);
+router.post("/", authMiddleware, adminMiddleware, TermsController.createTermsOfService);
 
 // UPDATE TERMS OF SERVICE
-router.patch("/:id", TermsController.updateTermsOfService);
+router.patch("/:id", authMiddleware, adminMiddleware, TermsController.updateTermsOfService);
 
 // EXPORT ROUTER
 export default router;

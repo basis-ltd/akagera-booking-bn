@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { BookingController } from '../controllers/booking.controller';
 import { bookingMiddleware } from '../middlewares/booking.middleware';
+import { authMiddleware } from '../middlewares/auth.middleware';
 
 // CREATE ROUTER
 const router = Router();
@@ -16,7 +17,7 @@ router.post('/', BookingController.createBooking);
 router.get('/', BookingController.fetchBookings);
 
 // FETCH TIME SERIES BOOKINGS
-router.get('/time-series', BookingController.fetchTimeSeriesBookings);
+router.get('/time-series', authMiddleware, BookingController.fetchTimeSeriesBookings);
 
 // UPDATE BOOKING
 router.patch('/:id', BookingController.updateBooking);

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { PaymentController } from "../controllers/payment.controller";
+import { authMiddleware } from "../middlewares/auth.middleware";
 
 // CREATE ROUTER
 const router = Router();
@@ -18,7 +19,7 @@ router.get('/', PaymentController.fetchPayments);
 router.patch('/', PaymentController.paymentCallback);
 
 // CONFIRM PAYMENT
-router.patch('/:id/confirm', PaymentController.confirmPayment);
+router.patch('/:id/confirm', authMiddleware, PaymentController.confirmPayment);
 
 // PAYMENT CALLBACK
 router.post('/callback', PaymentController.paymentCallback);

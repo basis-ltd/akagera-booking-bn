@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { BookingVehicleController } from '../controllers/bookingVehicle.controller';
+import { authMiddleware } from '../middlewares/auth.middleware';
 
 // CREATE ROUTER
 const router = Router();
@@ -15,7 +16,7 @@ router.post('/', BookingVehicleController.createBookingVehicle);
 router.get('/', BookingVehicleController.fetchBookingVehicles);
 
 // FETCH POPULAR BOOKING VEHICLES
-router.get('/popular', BookingVehicleController.fetchPopularBookingVehicles);
+router.get('/popular', authMiddleware, BookingVehicleController.fetchPopularBookingVehicles);
 
 // GET BOOKING VEHICLE DETAILS
 router.get('/:id', BookingVehicleController.getBookingVehicleDetails);

@@ -1,6 +1,10 @@
-import { Router } from "express";
-import { UserController } from "../controllers/user.controller";
+import { Router } from 'express';
+import { UserController } from '../controllers/user.controller';
 import multer from 'multer';
+import {
+  adminMiddleware,
+  authMiddleware,
+} from '../middlewares/auth.middleware';
 
 // CREATE ROUTER
 const router = Router();
@@ -10,25 +14,39 @@ const router = Router();
  */
 
 // CREATE USER
-router.post('/', UserController.createUser);
+router.post('/', authMiddleware, adminMiddleware, UserController.createUser);
 
 // UPDATE USER
-router.patch('/:id', UserController.updateUser)
+router.patch('/:id', authMiddleware, UserController.updateUser);
 
 // FETCH USERS
-router.get('/', UserController.fetchUsers)
+router.get('/', authMiddleware, adminMiddleware, UserController.fetchUsers);
 
 // GET USER PROFILE
-router.get('/:id', UserController.getUserProfile)
+router.get('/:id', authMiddleware, UserController.getUserProfile);
 
 // DELETE USER
-router.delete('/:id', UserController.deleteUser)
+router.delete(
+  '/:id',
+  authMiddleware,
+  adminMiddleware,
+  UserController.deleteUser
+);
 
 // UPDATE USER PASSWORD
-router.patch('/:id/password', UserController.updateUserPassword)
+router.patch(
+  '/:id/password',
+  authMiddleware,
+  UserController.updateUserPassword
+);
 
 // UPDATE USER PHOTO
-router.patch('/:id/photo', multer().single('file'), UserController.updateUserPhoto)
+router.patch(
+  '/:id/photo',
+  authMiddleware,
+  multer().single('file'),
+  UserController.updateUserPhoto
+);
 
 // EXPORT ROUTER
 export default router;
