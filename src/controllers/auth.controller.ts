@@ -80,7 +80,7 @@ export const AuthController = {
         { id: user.id, email: user.email, role: user.role },
         JWT_SECRET!,
         {
-          expiresIn: '1w',
+          expiresIn: '1h',
         }
       );
 
@@ -113,7 +113,7 @@ export const AuthController = {
         { id: user.id, email: user.email, role: user.role },
         JWT_SECRET!,
         {
-          expiresIn: '1w',
+          expiresIn: '1h',
         }
       );
 

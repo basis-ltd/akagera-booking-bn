@@ -381,7 +381,7 @@ export class AuthService {
       { id: userExists.id, email: userExists.email, role: userExists.role },
       process.env.JWT_SECRET!,
       {
-        expiresIn: '1w',
+        expiresIn: '1h',
       }
     );
 
