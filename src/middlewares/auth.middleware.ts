@@ -30,6 +30,30 @@ export const authMiddleware = (
   }
 };
 
+export const resetPasswordMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+
+    (req as AuthenticationRequest).user = decoded as
+      | User
+      | JwtPayload
+      | undefined;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
+};
+
 export const adminMiddleware = (
   req: Request,
   res: Response,

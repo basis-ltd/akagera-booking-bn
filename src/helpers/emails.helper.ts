@@ -419,3 +419,94 @@ export function bookingsSearchOtpEmailTemplate({
   </body>
   </html>`;
 }
+
+export function resetPasswordEmailTemplate({
+  name,
+  otp,
+}: {
+  name: string;
+  otp: string;
+}) {
+  return `<!DOCTYPE html>
+  <html>
+  <head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #333333;
+      }
+      .email-container {
+        padding: 20px;
+        background-color: #f4f4f4;
+      }
+      .header {
+        background-color: #ffffff;
+        padding: 20px;
+        text-align: center;
+      }
+      .content {
+        background-color: white;
+        padding: 30px;
+        margin-top: 20px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+      }
+      .footer {
+        text-align: center;
+        padding: 20px;
+        font-size: 12px;
+        color: #666666;
+      }
+      .highlight {
+        font-size: 24px;
+        font-weight: bold;
+        color: #036124;
+        display: block;
+        text-align: center;
+        margin: 20px 0;
+        padding: 10px;
+        background-color: #e8f5e9;
+        border-radius: 4px;
+      }
+      h1 {
+        color: #036124;
+      }
+      .disclaimer {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        font-size: 14px;
+        color: #555555;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div class="header">
+        <img src="https://res.cloudinary.com/nishimweprince/image/upload/v1718954750/akagera-booking/gvcbmerwjceo9jf7z1az.png" alt="Akagera National Park Logo" style="max-width: 200px;">
+      </div>
+      <div class="content">
+        <h1>Password Reset Request</h1>
+        <p>Dear ${name},</p>
+        <p>We received a request to reset the password for your Akagera National Park account. To proceed with resetting your password, please use the following One-Time Password (OTP):</p>
+        <div class="highlight">${otp}</div>
+        <p>Please enter this OTP in the password reset form to continue the process.</p>
+        <p><strong>Important:</strong> This OTP will expire in 10 minutes.</p>
+        <p>If you didn't request this password reset, please ignore this email or contact our support team immediately.</p>
+        <p>Thank you for using Akagera National Park's services!</p>
+        <p>Best Regards,<br>Akagera National Park Team</p>
+        <div class="disclaimer">
+          <strong>Need support?</strong> Please reach out to <a href="mailto:akagera@africanparks.org">akagera@africanparks.org</a> for any assistance or inquiries.
+        </div>
+      </div>
+      <div class="footer">
+        &copy; 2024 Akagera National Park. All rights reserved.<br>
+        This email is intended for password reset purposes only.
+      </div>
+    </div>
+  </body>
+  </html>`;
+}

@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
 import { ConflictError } from '../helpers/errors.helper';
-import moment from 'moment';
+import { AuthenticatedRequest } from '../types/auth.types';
 
 // INITIALIZE USER AND AUTH SERVICES
 const authService = new AuthService();
@@ -134,16 +134,72 @@ export const AuthController = {
   },
 
   // REQUEST OTP
-  async requestOTP(req: Request, res: Response, next: NextFunction) {
+  async requestLoginOTP(req: Request, res: Response, next: NextFunction) {
     try {
       const { email } = req.body;
 
       // REQUEST OTP
-      await authService.requestOTP({ email });
+      await authService.requestLoginOTP({ email });
 
       // RETURN RESPONSE
       return res.status(200).json({
         message: 'OTP has been sent to your email',
+      });
+    } catch (error: any) {
+      next(error);
+    }
+  },
+
+  // RESET PASSWORD
+  async requestResetPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = req.body;
+
+      // REQUEST RESET PASSWORD
+      await authService.requestResetPassword({ email });
+
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Reset password email has been sent to your email',
+      });
+    } catch (error: any) {
+      next(error);
+    }
+  },
+
+  // VERIFY PASSWORD RESET
+  async verifyPasswordReset(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, otp } = req.body;
+
+      // VERIFY PASSWORD RESET
+      const { token } = await authService.verifyPasswordReset({ email, otp });
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'OTP has been verified successfully',
+        data: {
+          token,
+        },
+      });
+    } catch (error: any) {
+      next(error);
+    }
+  },
+
+  // RESET PASSWORD
+  async resetPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { password } = req.body;
+      const { user } = req as AuthenticatedRequest;
+
+      // RESET PASSWORD
+      await authService.resetPassword({ email: user?.email, password });
+
+      // RETURN RESPONSE
+      return res.status(200).json({
+        message: 'Password has been reset successfully',
       });
     } catch (error: any) {
       next(error);
