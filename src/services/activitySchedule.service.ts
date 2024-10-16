@@ -293,6 +293,7 @@ export class ActivityScheduleService {
     // Fetch the activity schedule
     const activitySchedule = await this.activityScheduleRepository.findOne({
       where: { id },
+      relations: ['activity'],
     });
     if (!activitySchedule) {
       throw new NotFoundError('Activity schedule not found');
@@ -306,7 +307,11 @@ export class ActivityScheduleService {
     );
     const endDateTime = new Date(
       moment(
-        `${date}T${activitySchedule.endTime}`
+        `${date}T${
+          activitySchedule?.activity?.slug?.includes('camping')
+            ? '23:59:59'
+            : activitySchedule.endTime
+        }`
       ).format() as unknown as string
     );
 
@@ -316,10 +321,10 @@ export class ActivityScheduleService {
       .where('bookingActivity.activityId = :activityId', {
         activityId: activitySchedule.activityId,
       })
-      .andWhere('bookingActivity.startTime >= :startDateTime', {
+      .andWhere('bookingActivity.startTime <= :startDateTime', {
         startDateTime,
       })
-      .andWhere('bookingActivity.endTime <= :endDateTime', { endDateTime })
+      .andWhere('bookingActivity.endTime >= :endDateTime', { endDateTime })
       .andWhere('booking.status IN (:...status)', {
         status: ['confirmed', 'payment_received'],
       })
@@ -343,12 +348,15 @@ export class ActivityScheduleService {
       seatsAdjustments?.[0]?.adjustedSeats || activitySchedule.numberOfSeats;
 
     totalPeople = bookingActivities.reduce((acc, booking) => {
-      return (
-        acc +
-        booking.numberOfAdults +
-        booking.numberOfChildren +
-        booking?.numberOfSeats
-      );
+      if (booking.numberOfSeats) {
+        return acc + booking.numberOfSeats;
+      } else {
+        return (
+          acc +
+          booking.numberOfAdults +
+          booking.numberOfChildren
+        );
+      }
     }, 0);
 
     return numberOfSeats ? numberOfSeats - totalPeople : true;
