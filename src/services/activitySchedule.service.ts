@@ -359,6 +359,6 @@ export class ActivityScheduleService {
       }
     }, 0);
 
-    return numberOfSeats ? numberOfSeats - totalPeople : true;
+    return numberOfSeats <= 0 ? 0 : numberOfSeats - totalPeople;
   }
 }
